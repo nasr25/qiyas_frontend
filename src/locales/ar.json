@@ -1,0 +1,182 @@
+{
+  "app": {
+    "name": "منصة قياس",
+    "tagline": "إدارة متطلبات قياس الجهات الحكومية الرقمية"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "cycles": "دورات التقييم",
+    "departments": "الإدارات",
+    "standards": "المعايير",
+    "documents": "الوثائق",
+    "auditor": "بوابة المراجع",
+    "reports": "التقارير",
+    "users": "المستخدمون",
+    "settings": "الإعدادات",
+    "auditLogs": "سجل التدقيق",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "loginButton": "دخول",
+    "loginLoading": "جاري تسجيل الدخول...",
+    "loginFailed": "اسم المستخدم أو كلمة المرور غير صحيحة",
+    "mustChangePassword": "يجب تغيير كلمة المرور عند أول تسجيل دخول",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور الجديدة",
+    "changePassword": "تغيير كلمة المرور",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح"
+  },
+  "dashboard": {
+    "welcome": "مرحباً",
+    "total": "الإجمالي",
+    "approved": "معتمدة",
+    "underReview": "قيد المراجعة",
+    "rejected": "مرفوضة",
+    "draft": "مسودة",
+    "overdue": "متأخرة",
+    "completionRate": "نسبة الإنجاز",
+    "pendingReviews": "بانتظار المراجعة",
+    "extensionRequests": "طلبات التمديد",
+    "recentActivity": "آخر الأنشطة"
+  },
+  "cycles": {
+    "title": "دورات التقييم",
+    "new": "دورة جديدة",
+    "name": "اسم الدورة",
+    "year": "السنة",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "status": {
+      "draft": "مسودة",
+      "active": "نشطة",
+      "closed": "مغلقة",
+      "archived": "مؤرشفة"
+    },
+    "activate": "تفعيل الدورة",
+    "close": "إغلاق الدورة",
+    "archive": "أرشفة الدورة",
+    "finalScore": "الدرجة النهائية",
+    "closingNotes": "ملاحظات الإغلاق",
+    "copyFromPrevious": "نسخ المعايير من دورة سابقة",
+    "createEmpty": "إنشاء دورة فارغة"
+  },
+  "standards": {
+    "title": "المعايير",
+    "new": "معيار جديد",
+    "number": "رقم المعيار",
+    "nameAr": "الاسم بالعربية",
+    "nameEn": "الاسم بالإنجليزية",
+    "description": "الوصف",
+    "version": "الإصدار",
+    "weight": "الوزن",
+    "dueDate": "تاريخ الاستحقاق",
+    "departments": "الإدارات المعينة",
+    "requirements": "متطلبات الأدلة"
+  },
+  "documents": {
+    "title": "الوثائق",
+    "upload": "رفع ملف",
+    "submit": "تقديم للمراجعة",
+    "download": "تحميل",
+    "versions": "الإصدارات",
+    "status": {
+      "draft": "مسودة",
+      "under_review": "قيد المراجعة",
+      "approved": "معتمدة",
+      "rejected": "مرفوضة",
+      "overdue": "متأخرة"
+    },
+    "rejectionReason": "سبب الرفض",
+    "changeReason": "سبب التغيير",
+    "extensionRequest": "طلب تمديد",
+    "comments": "التعليقات والنقاشات"
+  },
+  "auditor": {
+    "title": "بوابة المراجع",
+    "pendingReviews": "بانتظار المراجعة",
+    "approve": "اعتماد",
+    "reject": "رفض",
+    "rejectionReason": "سبب الرفض (مطلوب)",
+    "extensions": "طلبات التمديد",
+    "approveExtension": "الموافقة على التمديد",
+    "rejectExtension": "رفض التمديد"
+  },
+  "users": {
+    "title": "إدارة المستخدمين",
+    "new": "مستخدم جديد",
+    "importAD": "استيراد من AD",
+    "searchAD": "البحث في Active Directory",
+    "name": "الاسم",
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "department": "الإدارة",
+    "roles": "الأدوار",
+    "authType": {
+      "local": "محلي",
+      "ldap": "Active Directory"
+    },
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "resetPassword": "إعادة تعيين كلمة المرور"
+  },
+  "departments": {
+    "title": "الإدارات",
+    "new": "إدارة جديدة",
+    "nameAr": "الاسم بالعربية",
+    "nameEn": "الاسم بالإنجليزية",
+    "description": "الوصف",
+    "active": "نشطة"
+  },
+  "reports": {
+    "title": "التقارير",
+    "byDepartment": "تقرير حسب الإدارة",
+    "byStandard": "تقرير حسب المعيار",
+    "byStatus": "تقرير حسب الحالة",
+    "cycleSummary": "ملخص الدورة",
+    "exportExcel": "تصدير Excel",
+    "exportPDF": "تصدير PDF"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "branding": "العلامة التجارية",
+    "smtp": "إعدادات البريد",
+    "upload": "إعدادات الرفع",
+    "notifications": "الإشعارات",
+    "localization": "الترجمة والمنطقة الزمنية",
+    "save": "حفظ الإعدادات"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "noData": "لا توجد بيانات",
+    "confirm": "تأكيد",
+    "actions": "الإجراءات",
+    "yes": "نعم",
+    "no": "لا",
+    "all": "الكل",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "from": "من",
+    "to": "إلى",
+    "date": "التاريخ",
+    "status": "الحالة",
+    "success": "تمت العملية بنجاح",
+    "error": "حدث خطأ",
+    "required": "هذا الحقل مطلوب",
+    "prev": "السابق",
+    "next": "التالي",
+    "of": "من",
+    "rows": "سجل"
+  }
+}
