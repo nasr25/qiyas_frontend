@@ -1,0 +1,60 @@
+/**
+ * App store — manages global UI state: locale, theme, sidebar, toasts.
+ */
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const useAppStore = defineStore('app', () => {
+  const locale       = ref(localStorage.getItem('locale') || 'ar')
+  const theme        = ref(localStorage.getItem('theme') || 'light')
+  const sidebarOpen  = ref(true)
+  const toasts       = ref([])
+
+  const isRTL  = computed(() => locale.value === 'ar')
+  const isDark = computed(() => theme.value === 'dark')
+
+  function setLocale(lang) {
+    locale.value = lang
+    localStorage.setItem('locale', lang)
+    document.documentElement.dir  = lang === 'ar' ? 'rtl' : 'ltr'
+    document.documentElement.lang = lang
+  }
+
+  function toggleTheme() {
+    theme.value = isDark.value ? 'light' : 'dark'
+    localStorage.setItem('theme', theme.value)
+    document.documentElement.classList.toggle('dark', isDark.value)
+  }
+
+  function toggleSidebar() {
+    sidebarOpen.value = !sidebarOpen.value
+  }
+
+  /**
+   * Shows a toast notification.
+   * @param {string} message
+   * @param {'success'|'error'|'warning'|'info'} type
+   * @param {number} duration  ms to show
+   */
+  function showToast(message, type = 'info', duration = 4000) {
+    const id = Date.now()
+    toasts.value.push({ id, message, type })
+    setTimeout(() => removeToast(id), duration)
+  }
+
+  function removeToast(id) {
+    toasts.value = toasts.value.filter(t => t.id !== id)
+  }
+
+  // Initialize on store creation
+  document.documentElement.dir  = locale.value === 'ar' ? 'rtl' : 'ltr'
+  document.documentElement.lang = locale.value
+  document.documentElement.classList.toggle('dark', theme.value === 'dark')
+
+  return {
+    locale, theme, sidebarOpen, toasts,
+    isRTL, isDark,
+    setLocale, toggleTheme, toggleSidebar,
+    showToast, removeToast,
+  }
+})

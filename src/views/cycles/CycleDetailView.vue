@@ -1,0 +1,191 @@
+<template>
+  <div class="space-y-6">
+    <!-- Back -->
+    <RouterLink to="/cycles" class="inline-flex items-center gap-2 text-sm text-primary-700 hover:underline dark:text-primary-400">
+      <svg class="h-4 w-4 rotate-180 rtl:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      {{ t('cycles.title') }}
+    </RouterLink>
+
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center py-16">
+      <svg class="h-8 w-8 animate-spin text-primary-600" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      </svg>
+    </div>
+
+    <template v-else-if="cycle">
+      <!-- Cycle header -->
+      <div class="card p-6">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ cycle.name }}</h1>
+              <StatusBadge :status="cycle.status" />
+            </div>
+            <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <span>{{ t('cycles.year') }}: <strong class="text-gray-700 dark:text-gray-200">{{ cycle.year }}</strong></span>
+              <span>{{ t('cycles.startDate') }}: <strong class="text-gray-700 dark:text-gray-200">{{ formatDate(cycle.start_date) }}</strong></span>
+              <span>{{ t('cycles.endDate') }}: <strong class="text-gray-700 dark:text-gray-200">{{ formatDate(cycle.end_date) }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Standards tab -->
+      <div class="card">
+        <div class="card-header flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('standards.title') }}</h2>
+          <button v-if="authStore.isSuperAdmin || authStore.isCoordinator" class="btn-primary btn-sm" @click="showAddStandard = true">
+            + {{ t('standards.new') }}
+          </button>
+        </div>
+        <div class="table-wrapper rounded-none border-0">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{{ t('standards.number') }}</th>
+                <th>{{ t('standards.nameAr') }}</th>
+                <th>{{ t('standards.departments') }}</th>
+                <th>{{ t('standards.requirements') }}</th>
+                <th>{{ t('standards.dueDate') }}</th>
+                <th>{{ t('common.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!standards.length">
+                <td colspan="6" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+              </tr>
+              <tr v-for="std in standards" :key="std.id">
+                <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.number }}</td>
+                <td>{{ std.name_ar }}</td>
+                <td>
+                  <div class="flex flex-wrap gap-1">
+                    <span v-for="d in (std.departments || []).slice(0, 3)" :key="d.id" class="badge-draft text-xs">{{ d.name_ar }}</span>
+                    <span v-if="(std.departments || []).length > 3" class="badge-draft text-xs">+{{ std.departments.length - 3 }}</span>
+                  </div>
+                </td>
+                <td>{{ std.requirements_count ?? 0 }}</td>
+                <td>{{ formatDate(std.due_date) }}</td>
+                <td>
+                  <RouterLink :to="`/standards/${std.id}`" class="btn-secondary btn-sm">{{ t('common.view') }}</RouterLink>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
+
+    <!-- Add Standard Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showAddStandard" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.esc="showAddStandard = false">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showAddStandard = false" />
+          <div class="relative card w-full max-w-lg p-6 shadow-xl">
+            <h3 class="text-lg font-semibold mb-4">{{ t('standards.new') }}</h3>
+            <form @submit.prevent="handleAddStandard" class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="label">{{ t('standards.number') }}</label>
+                  <input v-model="stdForm.number" class="input" required />
+                </div>
+                <div>
+                  <label class="label">{{ t('standards.version') }}</label>
+                  <input v-model="stdForm.version" class="input" />
+                </div>
+              </div>
+              <div>
+                <label class="label">{{ t('standards.nameAr') }}</label>
+                <input v-model="stdForm.name_ar" class="input" required dir="rtl" />
+              </div>
+              <div>
+                <label class="label">{{ t('standards.nameEn') }}</label>
+                <input v-model="stdForm.name_en" class="input" dir="ltr" />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="label">{{ t('standards.weight') }}</label>
+                  <input v-model="stdForm.weight" type="number" step="0.1" class="input" />
+                </div>
+                <div>
+                  <label class="label">{{ t('standards.dueDate') }}</label>
+                  <input v-model="stdForm.due_date" type="date" class="input" />
+                </div>
+              </div>
+              <div class="flex justify-end gap-3 pt-2">
+                <button type="button" class="btn-secondary" @click="showAddStandard = false">{{ t('common.cancel') }}</button>
+                <button type="submit" class="btn-primary" :disabled="saving">{{ saving ? t('common.loading') : t('common.save') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useAppStore } from '@/stores/app'
+import { cyclesService, standardsService } from '@/services/index'
+import StatusBadge from '@/components/common/StatusBadge.vue'
+
+const { t } = useI18n()
+const route     = useRoute()
+const authStore = useAuthStore()
+const appStore  = useAppStore()
+
+const loading        = ref(true)
+const saving         = ref(false)
+const cycle          = ref(null)
+const standards      = ref([])
+const showAddStandard = ref(false)
+const stdForm = ref({ number: '', name_ar: '', name_en: '', version: '', weight: '', due_date: '' })
+
+function formatDate(d) {
+  if (!d) return '-'
+  return new Date(d).toLocaleDateString()
+}
+
+async function load() {
+  loading.value = true
+  try {
+    const id = route.params.id
+    cycle.value = await cyclesService.get(id)
+    const res   = await standardsService.list(id)
+    standards.value = res.data || res
+  } catch {
+    appStore.showToast(t('common.error'), 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleAddStandard() {
+  saving.value = true
+  try {
+    await standardsService.create(cycle.value.id, stdForm.value)
+    appStore.showToast(t('common.success'), 'success')
+    showAddStandard.value = false
+    const res = await standardsService.list(cycle.value.id)
+    standards.value = res.data || res
+  } catch {
+    appStore.showToast(t('common.error'), 'error')
+  } finally {
+    saving.value = false
+  }
+}
+
+onMounted(load)
+</script>
+
+<style scoped>
+.modal-enter-active, .modal-leave-active { transition: opacity 0.2s; }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
+</style>

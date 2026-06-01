@@ -1,0 +1,182 @@
+{
+  "app": {
+    "name": "Qiyas Platform",
+    "tagline": "DGA Qiyas Requirements Management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "cycles": "Assessment Cycles",
+    "departments": "Departments",
+    "standards": "Standards",
+    "documents": "Documents",
+    "auditor": "Auditor Portal",
+    "reports": "Reports",
+    "users": "Users",
+    "settings": "Settings",
+    "auditLogs": "Audit Logs",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Sign In",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Sign In",
+    "loginLoading": "Signing in...",
+    "loginFailed": "Invalid username or password",
+    "mustChangePassword": "You must change your password on first login",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "changePassword": "Change Password",
+    "passwordChanged": "Password changed successfully"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "total": "Total",
+    "approved": "Approved",
+    "underReview": "Under Review",
+    "rejected": "Rejected",
+    "draft": "Draft",
+    "overdue": "Overdue",
+    "completionRate": "Completion Rate",
+    "pendingReviews": "Pending Reviews",
+    "extensionRequests": "Extension Requests",
+    "recentActivity": "Recent Activity"
+  },
+  "cycles": {
+    "title": "Assessment Cycles",
+    "new": "New Cycle",
+    "name": "Cycle Name",
+    "year": "Year",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "closed": "Closed",
+      "archived": "Archived"
+    },
+    "activate": "Activate Cycle",
+    "close": "Close Cycle",
+    "archive": "Archive Cycle",
+    "finalScore": "Final Score",
+    "closingNotes": "Closing Notes",
+    "copyFromPrevious": "Copy Standards from Previous Cycle",
+    "createEmpty": "Create Empty Cycle"
+  },
+  "standards": {
+    "title": "Standards",
+    "new": "New Standard",
+    "number": "Standard Number",
+    "nameAr": "Arabic Name",
+    "nameEn": "English Name",
+    "description": "Description",
+    "version": "Version",
+    "weight": "Weight",
+    "dueDate": "Due Date",
+    "departments": "Assigned Departments",
+    "requirements": "Evidence Requirements"
+  },
+  "documents": {
+    "title": "Documents",
+    "upload": "Upload File",
+    "submit": "Submit for Review",
+    "download": "Download",
+    "versions": "Version History",
+    "status": {
+      "draft": "Draft",
+      "under_review": "Under Review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "overdue": "Overdue"
+    },
+    "rejectionReason": "Rejection Reason",
+    "changeReason": "Change Reason",
+    "extensionRequest": "Extension Request",
+    "comments": "Comments & Discussions"
+  },
+  "auditor": {
+    "title": "Auditor Portal",
+    "pendingReviews": "Pending Reviews",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectionReason": "Rejection Reason (required)",
+    "extensions": "Extension Requests",
+    "approveExtension": "Approve Extension",
+    "rejectExtension": "Reject Extension"
+  },
+  "users": {
+    "title": "User Management",
+    "new": "New User",
+    "importAD": "Import from AD",
+    "searchAD": "Search Active Directory",
+    "name": "Full Name",
+    "username": "Username",
+    "email": "Email",
+    "department": "Department",
+    "roles": "Roles",
+    "authType": {
+      "local": "Local",
+      "ldap": "Active Directory"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "resetPassword": "Reset Password"
+  },
+  "departments": {
+    "title": "Departments",
+    "new": "New Department",
+    "nameAr": "Arabic Name",
+    "nameEn": "English Name",
+    "description": "Description",
+    "active": "Active"
+  },
+  "reports": {
+    "title": "Reports",
+    "byDepartment": "By Department",
+    "byStandard": "By Standard",
+    "byStatus": "By Status",
+    "cycleSummary": "Cycle Summary",
+    "exportExcel": "Export Excel",
+    "exportPDF": "Export PDF"
+  },
+  "settings": {
+    "title": "Settings",
+    "branding": "Branding",
+    "smtp": "Email Settings",
+    "upload": "Upload Settings",
+    "notifications": "Notifications",
+    "localization": "Localization",
+    "save": "Save Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "confirm": "Confirm",
+    "actions": "Actions",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "from": "From",
+    "to": "To",
+    "date": "Date",
+    "status": "Status",
+    "success": "Operation completed successfully",
+    "error": "An error occurred",
+    "required": "This field is required",
+    "prev": "Previous",
+    "next": "Next",
+    "of": "of",
+    "rows": "records"
+  }
+}
