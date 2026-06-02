@@ -33,6 +33,7 @@ const router = createRouter({
         { path: 'admin/settings', name: 'admin-settings', component: () => import('@/views/admin/SettingsView.vue'), meta: { roles: ['super-admin'] } },
         { path: 'admin/audit-logs', name: 'audit-logs', component: () => import('@/views/admin/AuditLogsView.vue'), meta: { roles: ['super-admin'] } },
         { path: 'profile', name: 'profile', component: () => import('@/views/profile/ProfileView.vue') },
+        { path: 'notifications', name: 'notifications', component: () => import('@/views/notifications/NotificationsView.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') },
