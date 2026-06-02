@@ -1,25 +1,25 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('documents.title') }}</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <h1 class="text-xl font-bold text-content">{{ t('documents.title') }}</h1>
     </div>
 
     <!-- Filters -->
     <div class="card p-4 flex flex-wrap gap-3">
-      <select v-model="filters.cycle_id" class="input w-44" @change="fetchDocs(1)">
+      <select v-model="filters.cycle_id" class="input w-full xs:w-44" @change="fetchDocs(1)">
         <option value="">{{ t('common.all') }} {{ t('cycles.title') }}</option>
         <option v-for="c in cycles" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
-      <select v-model="filters.department_id" class="input w-44" @change="fetchDocs(1)">
+      <select v-model="filters.department_id" class="input w-full xs:w-44" @change="fetchDocs(1)">
         <option value="">{{ t('common.all') }} {{ t('departments.title') }}</option>
         <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name_ar }}</option>
       </select>
-      <select v-model="filters.status" class="input w-44" @change="fetchDocs(1)">
+      <select v-model="filters.status" class="input w-full xs:w-44" @change="fetchDocs(1)">
         <option value="">{{ t('common.all') }} {{ t('common.status') }}</option>
         <option v-for="s in statuses" :key="s" :value="s">{{ t(`documents.status.${s}`) }}</option>
       </select>
-      <select v-model="filters.requirement_id" class="input w-44" @change="fetchDocs(1)">
+      <select v-model="filters.requirement_id" class="input w-full xs:w-44" @change="fetchDocs(1)">
         <option value="">{{ t('common.all') }} {{ t('standards.requirements') }}</option>
         <option v-for="r in requirements" :key="r.id" :value="r.id">{{ r.title_ar }}</option>
       </select>
@@ -50,7 +50,7 @@
             </thead>
             <tbody>
               <tr v-if="!docs.length">
-                <td colspan="8" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="8" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="doc in docs" :key="doc.id">
                 <td class="font-medium max-w-[180px] truncate">{{ doc.title }}</td>

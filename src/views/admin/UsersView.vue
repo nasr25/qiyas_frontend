@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('users.title') }}</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <h1 class="text-xl font-bold text-content">{{ t('users.title') }}</h1>
       <div class="flex gap-2">
         <button class="btn-secondary btn-sm" @click="showLdapModal = true">{{ t('users.importAD') }}</button>
         <button class="btn-primary btn-sm" @click="openCreate">+ {{ t('users.new') }}</button>
@@ -39,7 +39,7 @@
             </thead>
             <tbody>
               <tr v-if="!users.length">
-                <td colspan="8" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="8" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="user in users" :key="user.id">
                 <td class="font-medium">{{ user.name }}</td>
@@ -59,10 +59,10 @@
                 <td>
                   <button
                     class="relative inline-flex h-5 w-9 rounded-full transition-colors"
-                    :class="user.is_active ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'"
+                    :class="user.is_active ? 'bg-success-500' : 'bg-surface-inset'"
                     @click="handleToggleActive(user)"
                   >
-                    <span class="inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform"
+                    <span class="inline-block h-4 w-4 mt-0.5 rounded-full bg-surface-raised shadow transition-transform"
                       :class="user.is_active ? 'translate-x-4 rtl:-translate-x-4' : 'translate-x-0.5 rtl:-translate-x-0.5'" />
                   </button>
                 </td>
@@ -125,7 +125,7 @@
                   <label v-for="role in allRoles" :key="role" class="flex items-center gap-1.5 text-sm">
                     <input
                       type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 text-primary-600"
+                      class="h-4 w-4 rounded border-line text-primary-600"
                       :value="role"
                       v-model="userForm.roles"
                     />
@@ -193,23 +193,23 @@
                   class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors"
                   :class="ldap.selected?.username === result.username
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'"
+                    : 'border-line hover:bg-surface-muted'"
                   @click="ldap.selected = result"
                 >
                   <div class="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-700 font-semibold text-sm shrink-0">
                     {{ (result.name || '?')[0].toUpperCase() }}
                   </div>
                   <div>
-                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ result.name }}</p>
-                    <p class="text-xs text-gray-500">{{ result.email }} · {{ result.username }}</p>
+                    <p class="text-sm font-medium text-content">{{ result.name }}</p>
+                    <p class="text-xs text-content-muted">{{ result.email }} · {{ result.username }}</p>
                   </div>
                 </div>
-                <div v-if="!ldap.results.length && ldap.searched" class="text-center py-8 text-gray-400 text-sm">{{ t('common.noData') }}</div>
+                <div v-if="!ldap.results.length && ldap.searched" class="text-center py-8 text-content-subtle text-sm">{{ t('common.noData') }}</div>
               </div>
             </div>
             <!-- Import form -->
-            <div v-if="ldap.selected" class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4 space-y-3">
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Import: <strong>{{ ldap.selected.name }}</strong></p>
+            <div v-if="ldap.selected" class="border-t border-line mt-4 pt-4 space-y-3">
+              <p class="text-sm font-medium text-content">Import: <strong>{{ ldap.selected.name }}</strong></p>
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="label">{{ t('users.department') }}</label>

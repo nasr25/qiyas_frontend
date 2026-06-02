@@ -12,17 +12,17 @@
       </div>
 
       <div class="card p-8 shadow-2xl">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <h2 class="text-xl font-semibold text-content mb-2">
           {{ t('auth.changePassword') }}
         </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <p class="text-sm text-content-muted mb-6">
           {{ t('auth.mustChangePassword') }}
         </p>
 
         <!-- Error -->
         <div
           v-if="error"
-          class="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm"
+          class="mb-4 rounded-lg bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 text-sm"
         >
           {{ error }}
         </div>
@@ -59,7 +59,7 @@
               required
               autocomplete="new-password"
             />
-            <p v-if="passwordMismatch" class="text-xs text-red-500 mt-1">
+            <p v-if="passwordMismatch" class="text-xs text-danger-500 mt-1">
               {{ t('auth.passwordMismatch', 'Passwords do not match') }}
             </p>
           </div>

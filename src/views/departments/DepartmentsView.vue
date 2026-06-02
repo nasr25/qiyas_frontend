@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('departments.title') }}</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <h1 class="text-xl font-bold text-content">{{ t('departments.title') }}</h1>
       <button class="btn-primary btn-sm" @click="openCreate">+ {{ t('departments.new') }}</button>
     </div>
 
@@ -27,7 +27,7 @@
           </thead>
           <tbody>
             <tr v-if="!departments.length">
-              <td colspan="5" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+              <td colspan="5" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
             <tr v-for="dept in departments" :key="dept.id">
               <td class="font-medium">{{ dept.name_ar }}</td>
@@ -71,8 +71,8 @@
                 <textarea v-model="form.description" class="input" rows="3" />
               </div>
               <div class="flex items-center gap-3">
-                <input id="isActive" v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600" />
-                <label for="isActive" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('departments.active') }}</label>
+                <input id="isActive" v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-line text-primary-600" />
+                <label for="isActive" class="text-sm font-medium text-content">{{ t('departments.active') }}</label>
               </div>
               <div class="flex justify-end gap-3 pt-2">
                 <button type="button" class="btn-secondary" @click="showModal = false">{{ t('common.cancel') }}</button>

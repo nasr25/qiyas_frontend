@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-2xl mx-auto space-y-6">
     <!-- Header -->
-    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('nav.profile') }}</h1>
+    <h1 class="text-xl font-bold text-content">{{ t('nav.profile') }}</h1>
 
     <!-- Profile card -->
     <div class="card p-6">
@@ -12,35 +12,35 @@
         </div>
         <!-- Info -->
         <div class="flex-1 min-w-0 space-y-1">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ authStore.user?.name }}</h2>
-          <p class="text-sm font-mono text-gray-500">@{{ authStore.user?.username }}</p>
-          <p class="text-sm text-gray-500">{{ authStore.user?.email }}</p>
+          <h2 class="text-lg font-bold text-content">{{ authStore.user?.name }}</h2>
+          <p class="text-sm font-mono text-content-muted">@{{ authStore.user?.username }}</p>
+          <p class="text-sm text-content-muted">{{ authStore.user?.email }}</p>
           <div class="flex flex-wrap gap-2 mt-2">
             <span v-for="role in (authStore.user?.roles || [])" :key="role" class="badge badge-under-review">{{ role }}</span>
           </div>
         </div>
       </div>
 
-      <hr class="my-5 border-gray-200 dark:border-gray-700" />
+      <hr class="my-5 border-line" />
 
       <!-- Details grid -->
       <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div>
-          <dt class="text-xs text-gray-500 mb-0.5">{{ t('users.department') }}</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100">{{ authStore.user?.department?.name_ar || '—' }}</dd>
+          <dt class="text-xs text-content-muted mb-0.5">{{ t('users.department') }}</dt>
+          <dd class="font-medium text-content">{{ authStore.user?.department?.name_ar || '—' }}</dd>
         </div>
         <div>
-          <dt class="text-xs text-gray-500 mb-0.5">Auth Type</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100">
+          <dt class="text-xs text-content-muted mb-0.5">Auth Type</dt>
+          <dd class="font-medium text-content">
             {{ authStore.user?.auth_type === 'ldap' ? t('users.authType.ldap') : t('users.authType.local') }}
           </dd>
         </div>
         <div>
-          <dt class="text-xs text-gray-500 mb-0.5">Last Login</dt>
-          <dd class="font-medium text-gray-900 dark:text-gray-100">{{ formatDate(authStore.user?.last_login_at) }}</dd>
+          <dt class="text-xs text-content-muted mb-0.5">Last Login</dt>
+          <dd class="font-medium text-content">{{ formatDate(authStore.user?.last_login_at) }}</dd>
         </div>
         <div>
-          <dt class="text-xs text-gray-500 mb-0.5">{{ t('common.status') }}</dt>
+          <dt class="text-xs text-content-muted mb-0.5">{{ t('common.status') }}</dt>
           <dd>
             <span :class="authStore.user?.is_active ? 'badge-approved' : 'badge-rejected'">
               {{ authStore.user?.is_active ? t('common.active') : t('common.inactive') }}
@@ -52,10 +52,10 @@
 
     <!-- Change Password (only for local auth) -->
     <div v-if="authStore.user?.auth_type !== 'ldap'" class="card p-6">
-      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">{{ t('auth.changePassword') }}</h2>
+      <h2 class="text-sm font-semibold text-content mb-4">{{ t('auth.changePassword') }}</h2>
 
       <!-- Error/Success -->
-      <div v-if="pwMsg" class="mb-4 rounded-lg px-4 py-3 text-sm" :class="pwError ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'">
+      <div v-if="pwMsg" class="mb-4 rounded-lg px-4 py-3 text-sm" :class="pwError ? 'bg-danger-50 border border-danger-200 text-danger-700' : 'bg-success-50 border border-success-200 text-success-700'">
         {{ pwMsg }}
       </div>
 
@@ -71,7 +71,7 @@
         <div>
           <label class="label">{{ t('auth.confirmPassword') }}</label>
           <input v-model="pwForm.password_confirmation" type="password" class="input" required autocomplete="new-password" />
-          <p v-if="mismatch" class="text-xs text-red-500 mt-1">Passwords do not match</p>
+          <p v-if="mismatch" class="text-xs text-danger-500 mt-1">Passwords do not match</p>
         </div>
         <button type="submit" class="btn-primary btn-sm" :disabled="pwSaving || mismatch">
           <svg v-if="pwSaving" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">

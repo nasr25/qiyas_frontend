@@ -7,7 +7,9 @@ import { ref, computed } from 'vue'
 export const useAppStore = defineStore('app', () => {
   const locale       = ref(localStorage.getItem('locale') || 'ar')
   const theme        = ref(localStorage.getItem('theme') || 'light')
-  const sidebarOpen  = ref(true)
+  // Mobile-first: drawer starts closed. On lg+ the sidebar is always shown
+  // via CSS (lg:translate-x-0), so this flag only governs the mobile overlay.
+  const sidebarOpen  = ref(false)
   const toasts       = ref([])
 
   const isRTL  = computed(() => locale.value === 'ar')

@@ -1,24 +1,24 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('reports.title') }}</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <h1 class="text-xl font-bold text-content">{{ t('reports.title') }}</h1>
       <!-- Cycle picker -->
-      <select v-model="selectedCycle" class="input w-48" @change="loadCurrentTab">
+      <select v-model="selectedCycle" class="input w-full sm:w-48" @change="loadCurrentTab">
         <option value="">{{ t('common.all') }} {{ t('cycles.title') }}</option>
         <option v-for="c in cycles" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
     </div>
 
     <!-- Tabs -->
-    <div class="flex border-b border-gray-200 dark:border-gray-700 gap-1">
+    <div class="flex border-b border-line gap-1">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         class="px-4 py-2 text-sm font-medium transition-colors"
         :class="activeTab === tab.key
           ? 'border-b-2 border-primary-700 text-primary-700 dark:text-primary-400 dark:border-primary-400'
-          : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+          : 'text-content-muted hover:text-content'"
         @click="activeTab = tab.key; loadCurrentTab()"
       >
         {{ tab.label }}
@@ -38,21 +38,21 @@
       <template v-if="activeTab === 'department'">
         <!-- Completion bars chart -->
         <div v-if="reportData.length" class="card p-6">
-          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">{{ t('reports.byDepartment') }}</h3>
+          <h3 class="text-sm font-semibold text-content mb-4">{{ t('reports.byDepartment') }}</h3>
           <div class="space-y-3">
             <div v-for="row in reportData" :key="row.id" class="flex items-center gap-3">
-              <p class="text-sm text-gray-700 dark:text-gray-300 w-40 truncate shrink-0">{{ row.name_ar || row.name }}</p>
-              <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                <div class="h-full bg-green-500 rounded-full transition-all" :style="{ width: `${row.completion_rate ?? 0}%` }" />
+              <p class="text-sm text-content w-40 truncate shrink-0">{{ row.name_ar || row.name }}</p>
+              <div class="flex-1 h-3 bg-surface-inset rounded-full overflow-hidden">
+                <div class="h-full bg-success-500 rounded-full transition-all" :style="{ width: `${row.completion_rate ?? 0}%` }" />
               </div>
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400 w-12 text-end">{{ (row.completion_rate ?? 0).toFixed(0) }}%</span>
+              <span class="text-xs font-medium text-content-muted w-12 text-end">{{ (row.completion_rate ?? 0).toFixed(0) }}%</span>
             </div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('reports.byDepartment') }}</h3>
+            <h3 class="text-sm font-semibold text-content">{{ t('reports.byDepartment') }}</h3>
             <div class="flex gap-2">
               <button class="btn-secondary btn-sm" @click="exportReport('excel')">{{ t('reports.exportExcel') }}</button>
               <button class="btn-secondary btn-sm" @click="exportReport('pdf')">{{ t('reports.exportPDF') }}</button>
@@ -73,7 +73,7 @@
               </thead>
               <tbody>
                 <tr v-if="!reportData.length">
-                  <td colspan="7" class="text-center py-8 text-gray-400">{{ t('common.noData') }}</td>
+                  <td colspan="7" class="text-center py-8 text-content-subtle">{{ t('common.noData') }}</td>
                 </tr>
                 <tr v-for="row in reportData" :key="row.id">
                   <td class="font-medium">{{ row.name_ar || row.name }}</td>
@@ -82,7 +82,7 @@
                   <td><span class="badge-under-review">{{ row.under_review ?? 0 }}</span></td>
                   <td><span class="badge-rejected">{{ row.rejected ?? 0 }}</span></td>
                   <td><span class="badge-overdue">{{ row.overdue ?? 0 }}</span></td>
-                  <td class="font-semibold text-green-600">{{ (row.completion_rate ?? 0).toFixed(1) }}%</td>
+                  <td class="font-semibold text-success-600">{{ (row.completion_rate ?? 0).toFixed(1) }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -94,7 +94,7 @@
       <template v-else-if="activeTab === 'standard'">
         <div class="card">
           <div class="card-header flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('reports.byStandard') }}</h3>
+            <h3 class="text-sm font-semibold text-content">{{ t('reports.byStandard') }}</h3>
             <div class="flex gap-2">
               <button class="btn-secondary btn-sm" @click="exportReport('excel')">{{ t('reports.exportExcel') }}</button>
               <button class="btn-secondary btn-sm" @click="exportReport('pdf')">{{ t('reports.exportPDF') }}</button>
@@ -113,14 +113,14 @@
               </thead>
               <tbody>
                 <tr v-if="!reportData.length">
-                  <td colspan="5" class="text-center py-8 text-gray-400">{{ t('common.noData') }}</td>
+                  <td colspan="5" class="text-center py-8 text-content-subtle">{{ t('common.noData') }}</td>
                 </tr>
                 <tr v-for="row in reportData" :key="row.id">
                   <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ row.number }}</td>
                   <td>{{ row.name_ar }}</td>
                   <td>{{ row.total ?? 0 }}</td>
                   <td><span class="badge-approved">{{ row.approved ?? 0 }}</span></td>
-                  <td class="font-semibold text-green-600">{{ (row.completion_rate ?? 0).toFixed(1) }}%</td>
+                  <td class="font-semibold text-success-600">{{ (row.completion_rate ?? 0).toFixed(1) }}%</td>
                 </tr>
               </tbody>
             </table>
@@ -132,21 +132,21 @@
       <template v-else-if="activeTab === 'status'">
         <div class="card">
           <div class="card-header flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('reports.byStatus') }}</h3>
+            <h3 class="text-sm font-semibold text-content">{{ t('reports.byStatus') }}</h3>
             <div class="flex gap-2">
               <button class="btn-secondary btn-sm" @click="exportReport('excel')">{{ t('reports.exportExcel') }}</button>
             </div>
           </div>
-          <div class="divide-y divide-gray-100 dark:divide-gray-800">
-            <div v-if="!reportData.length" class="px-6 py-8 text-center text-gray-400 text-sm">{{ t('common.noData') }}</div>
+          <div class="divide-y divide-line">
+            <div v-if="!reportData.length" class="px-6 py-8 text-center text-content-subtle text-sm">{{ t('common.noData') }}</div>
             <div v-for="row in (reportData.statuses || reportData)" :key="row.status" class="flex items-center gap-4 px-6 py-3">
               <StatusBadge :status="row.status" />
-              <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+              <div class="flex-1 h-3 bg-surface-inset rounded-full overflow-hidden">
                 <div class="h-full rounded-full transition-all" :class="statusBarColor(row.status)"
                   :style="{ width: `${row.percentage ?? 0}%` }" />
               </div>
-              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 w-10 text-end">{{ row.count ?? 0 }}</span>
-              <span class="text-xs text-gray-500 w-12 text-end">{{ (row.percentage ?? 0).toFixed(0) }}%</span>
+              <span class="text-sm font-semibold text-content w-10 text-end">{{ row.count ?? 0 }}</span>
+              <span class="text-xs text-content-muted w-12 text-end">{{ (row.percentage ?? 0).toFixed(0) }}%</span>
             </div>
           </div>
         </div>
@@ -156,18 +156,18 @@
       <template v-else-if="activeTab === 'summary'">
         <div class="card">
           <div class="card-header flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('reports.cycleSummary') }}</h3>
+            <h3 class="text-sm font-semibold text-content">{{ t('reports.cycleSummary') }}</h3>
             <div class="flex gap-2">
               <button class="btn-secondary btn-sm" @click="exportReport('excel')">{{ t('reports.exportExcel') }}</button>
               <button class="btn-secondary btn-sm" @click="exportReport('pdf')">{{ t('reports.exportPDF') }}</button>
             </div>
           </div>
           <div class="card-body">
-            <div v-if="!reportData || (!reportData.length && !reportData.cycle)" class="text-center py-8 text-gray-400 text-sm">{{ t('common.noData') }}</div>
+            <div v-if="!reportData || (!reportData.length && !reportData.cycle)" class="text-center py-8 text-content-subtle text-sm">{{ t('common.noData') }}</div>
             <div v-else class="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div v-for="(val, key) in summaryItems" :key="key" class="text-center">
-                <p class="text-xs text-gray-500 mb-1">{{ key }}</p>
-                <p class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ val }}</p>
+                <p class="text-xs text-content-muted mb-1">{{ key }}</p>
+                <p class="text-xl font-bold text-content">{{ val }}</p>
               </div>
             </div>
           </div>
@@ -208,12 +208,12 @@ const summaryItems = computed(() => {
 
 function statusBarColor(status) {
   return {
-    approved:     'bg-green-500',
-    under_review: 'bg-yellow-500',
-    rejected:     'bg-red-500',
-    draft:        'bg-gray-400',
-    overdue:      'bg-orange-500',
-  }[status] || 'bg-gray-400'
+    approved:     'bg-success-500',
+    under_review: 'bg-warning-500',
+    rejected:     'bg-danger-500',
+    draft:        'bg-surface-inset',
+    overdue:      'bg-warning-500',
+  }[status] || 'bg-surface-inset'
 }
 
 async function loadCurrentTab() {

@@ -21,21 +21,21 @@
         <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
           <div>
             <span class="font-mono text-primary-700 dark:text-primary-400 text-sm font-semibold">{{ standard.number }}</span>
-            <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ standard.name_ar }}</h1>
-            <p v-if="standard.name_en" class="text-sm text-gray-500 mt-0.5" dir="ltr">{{ standard.name_en }}</p>
+            <h1 class="text-xl font-bold text-content mt-1">{{ standard.name_ar }}</h1>
+            <p v-if="standard.name_en" class="text-sm text-content-muted mt-0.5" dir="ltr">{{ standard.name_en }}</p>
           </div>
-          <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+          <div class="flex flex-wrap gap-4 text-sm text-content-muted">
             <div>
-              <p class="text-xs text-gray-400">{{ t('standards.weight') }}</p>
-              <p class="font-semibold text-gray-900 dark:text-gray-100">{{ standard.weight }}</p>
+              <p class="text-xs text-content-subtle">{{ t('standards.weight') }}</p>
+              <p class="font-semibold text-content">{{ standard.weight }}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-400">{{ t('standards.dueDate') }}</p>
-              <p class="font-semibold text-gray-900 dark:text-gray-100">{{ formatDate(standard.due_date) }}</p>
+              <p class="text-xs text-content-subtle">{{ t('standards.dueDate') }}</p>
+              <p class="font-semibold text-content">{{ formatDate(standard.due_date) }}</p>
             </div>
           </div>
         </div>
-        <p v-if="standard.description" class="text-sm text-gray-600 dark:text-gray-400">{{ standard.description }}</p>
+        <p v-if="standard.description" class="text-sm text-content-muted">{{ standard.description }}</p>
         <!-- Departments -->
         <div class="mt-3 flex flex-wrap gap-2">
           <span v-for="d in standard.departments" :key="d.id" class="badge-draft">{{ d.name_ar }}</span>
@@ -45,22 +45,22 @@
       <!-- Requirements -->
       <div class="card">
         <div class="card-header flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('standards.requirements') }}</h2>
+          <h2 class="text-sm font-semibold text-content">{{ t('standards.requirements') }}</h2>
           <button v-if="authStore.isSuperAdmin || authStore.isCoordinator" class="btn-primary btn-sm" @click="showAddReq = true">
             + {{ t('common.save') }}
           </button>
         </div>
-        <div class="divide-y divide-gray-100 dark:divide-gray-800">
-          <div v-if="!requirements.length" class="px-6 py-8 text-center text-gray-400 text-sm">{{ t('common.noData') }}</div>
+        <div class="divide-y divide-line">
+          <div v-if="!requirements.length" class="px-6 py-8 text-center text-content-subtle text-sm">{{ t('common.noData') }}</div>
           <div v-for="req in requirements" :key="req.id" class="px-6 py-4">
             <div class="flex items-start justify-between gap-3">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1 flex-wrap">
-                  <p class="font-medium text-gray-900 dark:text-gray-100">{{ req.title_ar }}</p>
+                  <p class="font-medium text-content">{{ req.title_ar }}</p>
                   <span v-if="req.is_mandatory" class="badge badge-rejected text-xs">{{ t('standards.requirements') }}</span>
                 </div>
-                <p v-if="req.title_en" class="text-xs text-gray-400 mb-2" dir="ltr">{{ req.title_en }}</p>
-                <p v-if="req.description" class="text-sm text-gray-600 dark:text-gray-400">{{ req.description }}</p>
+                <p v-if="req.title_en" class="text-xs text-content-subtle mb-2" dir="ltr">{{ req.title_en }}</p>
+                <p v-if="req.description" class="text-sm text-content-muted">{{ req.description }}</p>
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@
       <!-- Documents per department -->
       <div v-if="documents.length" class="card">
         <div class="card-header">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('documents.title') }}</h2>
+          <h2 class="text-sm font-semibold text-content">{{ t('documents.title') }}</h2>
         </div>
         <div class="table-wrapper rounded-none border-0">
           <table class="table">
@@ -114,8 +114,8 @@
                 <textarea v-model="reqForm.description" class="input" rows="3" />
               </div>
               <div class="flex items-center gap-3">
-                <input id="mandatory" v-model="reqForm.is_mandatory" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-primary-600" />
-                <label for="mandatory" class="text-sm font-medium text-gray-700 dark:text-gray-300">Mandatory</label>
+                <input id="mandatory" v-model="reqForm.is_mandatory" type="checkbox" class="h-4 w-4 rounded border-line text-primary-600" />
+                <label for="mandatory" class="text-sm font-medium text-content">Mandatory</label>
               </div>
               <div class="flex justify-end gap-3 pt-2">
                 <button type="button" class="btn-secondary" @click="showAddReq = false">{{ t('common.cancel') }}</button>

@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('nav.auditLogs') }}</h1>
+    <h1 class="text-xl font-bold text-content">{{ t('nav.auditLogs') }}</h1>
 
     <!-- Filters -->
     <div class="card p-4 flex flex-wrap gap-3">
@@ -37,24 +37,24 @@
             </thead>
             <tbody>
               <tr v-if="!logs.length">
-                <td colspan="6" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="6" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="log in logs" :key="log.id">
                 <td class="text-xs whitespace-nowrap">{{ formatDate(log.created_at) }}</td>
                 <td>
                   <div>
                     <p class="text-sm font-medium">{{ log.user?.name }}</p>
-                    <p class="text-xs text-gray-400 font-mono">{{ log.user?.username }}</p>
+                    <p class="text-xs text-content-subtle font-mono">{{ log.user?.username }}</p>
                   </div>
                 </td>
                 <td>
                   <span class="badge font-mono text-xs" :class="actionClass(log.action)">{{ log.action }}</span>
                 </td>
                 <td class="max-w-[240px]">
-                  <p class="text-sm text-gray-600 dark:text-gray-400 truncate" :title="log.description">{{ log.description }}</p>
+                  <p class="text-sm text-content-muted truncate" :title="log.description">{{ log.description }}</p>
                 </td>
-                <td class="font-mono text-xs text-gray-400">{{ log.ip_address }}</td>
-                <td class="text-xs text-gray-500">{{ log.auditable_type }}</td>
+                <td class="font-mono text-xs text-content-subtle">{{ log.ip_address }}</td>
+                <td class="text-xs text-content-muted">{{ log.auditable_type }}</td>
               </tr>
             </tbody>
           </table>
@@ -111,16 +111,16 @@ function formatDate(d) {
 
 function actionClass(action) {
   const map = {
-    login: 'bg-blue-100 text-blue-700',
-    logout: 'bg-gray-100 text-gray-600',
-    create: 'bg-green-100 text-green-700',
-    update: 'bg-yellow-100 text-yellow-700',
-    delete: 'bg-red-100 text-red-700',
-    approve: 'bg-green-100 text-green-700',
-    reject: 'bg-red-100 text-red-700',
+    login: 'bg-info-100 text-info-700',
+    logout: 'bg-surface-inset text-content-muted',
+    create: 'bg-success-100 text-success-700',
+    update: 'bg-warning-100 text-warning-700',
+    delete: 'bg-danger-100 text-danger-700',
+    approve: 'bg-success-100 text-success-700',
+    reject: 'bg-danger-100 text-danger-700',
     submit: 'bg-primary-100 text-primary-700',
   }
-  return map[action] || 'bg-gray-100 text-gray-600'
+  return map[action] || 'bg-surface-inset text-content-muted'
 }
 
 async function fetch(page = 1) {

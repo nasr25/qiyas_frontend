@@ -2,12 +2,12 @@
   <div class="space-y-6">
     <!-- Header + filters -->
     <div class="flex flex-wrap items-center gap-3">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex-1">{{ t('standards.title') }}</h1>
-      <select v-model="filters.cycleId" class="input w-48" @change="fetchStandards">
+      <h1 class="text-xl font-bold text-content flex-1">{{ t('standards.title') }}</h1>
+      <select v-model="filters.cycleId" class="input w-full sm:w-48" @change="fetchStandards">
         <option value="">{{ t('common.all') }} {{ t('cycles.title') }}</option>
         <option v-for="c in cycles" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
-      <select v-model="filters.departmentId" class="input w-48" @change="fetchStandards">
+      <select v-model="filters.departmentId" class="input w-full sm:w-48" @change="fetchStandards">
         <option value="">{{ t('common.all') }} {{ t('departments.title') }}</option>
         <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name_ar }}</option>
       </select>
@@ -38,13 +38,13 @@
           </thead>
           <tbody>
             <tr v-if="!standards.length">
-              <td colspan="7" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+              <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
             <tr v-for="std in standards" :key="std.id">
               <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.number }}</td>
               <td>
                 <p class="font-medium">{{ appStore.isRTL ? std.name_ar : std.name_en || std.name_ar }}</p>
-                <p v-if="appStore.isRTL && std.name_en" class="text-xs text-gray-400 dir-ltr">{{ std.name_en }}</p>
+                <p v-if="appStore.isRTL && std.name_en" class="text-xs text-content-subtle dir-ltr">{{ std.name_en }}</p>
               </td>
               <td>
                 <div class="flex flex-wrap gap-1">

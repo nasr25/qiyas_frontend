@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('cycles.title') }}</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <h1 class="text-xl font-bold text-content">{{ t('cycles.title') }}</h1>
       <button v-if="authStore.isSuperAdmin" class="btn-primary btn-sm" @click="openCreateModal">
         + {{ t('cycles.new') }}
       </button>
@@ -31,7 +31,7 @@
           </thead>
           <tbody>
             <tr v-if="!cycles.length">
-              <td colspan="7" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+              <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
             <tr v-for="cycle in cycles" :key="cycle.id">
               <td class="font-medium">
@@ -49,7 +49,7 @@
                   <RouterLink :to="`/cycles/${cycle.id}`" class="btn-secondary btn-sm">{{ t('common.view') }}</RouterLink>
                   <template v-if="authStore.isSuperAdmin">
                     <button v-if="cycle.status === 'draft'" class="btn-primary btn-sm" @click="confirmAction('activate', cycle)">{{ t('cycles.activate') }}</button>
-                    <button v-if="cycle.status === 'active'" class="btn btn-sm bg-yellow-500 text-white hover:bg-yellow-600" @click="openCloseModal(cycle)">{{ t('cycles.close') }}</button>
+                    <button v-if="cycle.status === 'active'" class="btn btn-sm bg-warning-500 text-white hover:bg-warning-600" @click="openCloseModal(cycle)">{{ t('cycles.close') }}</button>
                     <button v-if="cycle.status === 'closed'" class="btn-secondary btn-sm" @click="confirmAction('archive', cycle)">{{ t('cycles.archive') }}</button>
                   </template>
                 </div>

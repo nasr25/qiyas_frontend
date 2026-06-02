@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('settings.title') }}</h1>
+    <h1 class="text-xl font-bold text-content">{{ t('settings.title') }}</h1>
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-16">
@@ -13,14 +13,14 @@
 
     <template v-else>
       <!-- Tabs -->
-      <div class="flex border-b border-gray-200 dark:border-gray-700 gap-1 overflow-x-auto">
+      <div class="flex border-b border-line gap-1 overflow-x-auto">
         <button
           v-for="tab in tabs"
           :key="tab.key"
           class="px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors"
           :class="activeTab === tab.key
             ? 'border-b-2 border-primary-700 text-primary-700 dark:text-primary-400 dark:border-primary-400'
-            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+            : 'text-content-muted hover:text-content'"
           @click="activeTab = tab.key"
         >
           {{ tab.label }}
@@ -29,7 +29,7 @@
 
       <!-- Branding -->
       <div v-if="activeTab === 'branding'" class="card p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('settings.branding') }}</h2>
+        <h2 class="text-sm font-semibold text-content">{{ t('settings.branding') }}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Platform Name (AR)</label>
@@ -45,16 +45,16 @@
           <div>
             <label class="label">Logo</label>
             <div class="flex items-center gap-4">
-              <img v-if="settings.logo_url" :src="settings.logo_url" class="h-12 w-12 object-contain rounded border border-gray-200" />
-              <div v-else class="h-12 w-12 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center text-xs text-gray-400">Logo</div>
+              <img v-if="settings.logo_url" :src="settings.logo_url" class="h-12 w-12 object-contain rounded border border-line" />
+              <div v-else class="h-12 w-12 bg-surface-inset rounded border border-line flex items-center justify-center text-xs text-content-subtle">Logo</div>
               <input type="file" accept="image/*" class="input text-xs" @change="e => uploadBranding('logo', e)" />
             </div>
           </div>
           <div>
             <label class="label">Favicon</label>
             <div class="flex items-center gap-4">
-              <img v-if="settings.favicon_url" :src="settings.favicon_url" class="h-8 w-8 object-contain rounded border border-gray-200" />
-              <div v-else class="h-8 w-8 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center text-xs text-gray-400">Fav</div>
+              <img v-if="settings.favicon_url" :src="settings.favicon_url" class="h-8 w-8 object-contain rounded border border-line" />
+              <div v-else class="h-8 w-8 bg-surface-inset rounded border border-line flex items-center justify-center text-xs text-content-subtle">Fav</div>
               <input type="file" accept="image/*" class="input text-xs" @change="e => uploadBranding('favicon', e)" />
             </div>
           </div>
@@ -64,7 +64,7 @@
 
       <!-- SMTP -->
       <div v-else-if="activeTab === 'smtp'" class="card p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('settings.smtp') }}</h2>
+        <h2 class="text-sm font-semibold text-content">{{ t('settings.smtp') }}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">SMTP Host</label>
@@ -100,7 +100,7 @@
 
       <!-- Upload -->
       <div v-else-if="activeTab === 'upload'" class="card p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('settings.upload') }}</h2>
+        <h2 class="text-sm font-semibold text-content">{{ t('settings.upload') }}</h2>
         <div>
           <label class="label">Max File Size (MB)</label>
           <input v-model="settings.max_file_size_mb" type="number" class="input w-32" />
@@ -111,7 +111,7 @@
             <label v-for="ext in fileTypes" :key="ext" class="flex items-center gap-1.5 text-sm">
               <input
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-primary-600"
+                class="h-4 w-4 rounded border-line text-primary-600"
                 :value="ext"
                 v-model="settings.allowed_file_types"
               />
@@ -124,19 +124,19 @@
 
       <!-- Notifications -->
       <div v-else-if="activeTab === 'notifications'" class="card p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('settings.notifications') }}</h2>
+        <h2 class="text-sm font-semibold text-content">{{ t('settings.notifications') }}</h2>
         <div class="space-y-3">
-          <div v-for="notif in notifToggles" :key="notif.key" class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+          <div v-for="notif in notifToggles" :key="notif.key" class="flex items-center justify-between py-2 border-b border-line">
             <div>
-              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ notif.label }}</p>
-              <p class="text-xs text-gray-400">{{ notif.desc }}</p>
+              <p class="text-sm font-medium text-content">{{ notif.label }}</p>
+              <p class="text-xs text-content-subtle">{{ notif.desc }}</p>
             </div>
             <button
               class="relative inline-flex h-5 w-9 rounded-full transition-colors"
-              :class="settings[notif.key] ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'"
+              :class="settings[notif.key] ? 'bg-success-500' : 'bg-surface-inset'"
               @click="settings[notif.key] = !settings[notif.key]"
             >
-              <span class="inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transition-transform"
+              <span class="inline-block h-4 w-4 mt-0.5 rounded-full bg-surface-raised shadow transition-transform"
                 :class="settings[notif.key] ? 'translate-x-4 rtl:-translate-x-4' : 'translate-x-0.5 rtl:-translate-x-0.5'" />
             </button>
           </div>
@@ -146,7 +146,7 @@
 
       <!-- Localization -->
       <div v-else-if="activeTab === 'localization'" class="card p-6 space-y-4">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('settings.localization') }}</h2>
+        <h2 class="text-sm font-semibold text-content">{{ t('settings.localization') }}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Default Locale</label>
