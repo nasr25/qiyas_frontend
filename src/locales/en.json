@@ -76,7 +76,15 @@
     "weight": "Weight",
     "dueDate": "Due Date",
     "departments": "Assigned Departments",
-    "requirements": "Evidence Requirements"
+    "requirements": "Evidence Requirements",
+    "downloadTemplate": "Template",
+    "importExcel": "Import Excel",
+    "importHint": "Upload an .xlsx/.csv file. Departments are matched by Arabic or English name.",
+    "dropFile": "Drag a file here or click to browse",
+    "runImport": "Run Import",
+    "created": "Created",
+    "updated": "Updated",
+    "importDone": "Import done: {created} created, {updated} updated, {errors} error(s)"
   },
   "documents": {
     "title": "Documents",
@@ -177,6 +185,10 @@
     "prev": "Previous",
     "next": "Next",
     "of": "of",
-    "rows": "records"
+    "rows": "records",
+    "max": "Max",
+    "errors": "Errors",
+    "row": "Row",
+    "close": "Close"
   }
 }

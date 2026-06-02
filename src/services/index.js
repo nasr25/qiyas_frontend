@@ -32,6 +32,12 @@ export const standardsService = {
   create:  (cycleId, data)   => api.post(`/cycles/${cycleId}/standards`, data).then(r => r.data),
   update:  (cycleId, id, d)  => api.put(`/cycles/${cycleId}/standards/${id}`, d).then(r => r.data),
   destroy: (cycleId, id)     => api.delete(`/cycles/${cycleId}/standards/${id}`).then(r => r.data),
+  template: (cycleId)        => api.get(`/cycles/${cycleId}/standards/template`, { responseType: 'blob' }).then(r => r.data),
+  importExcel: (cycleId, file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post(`/cycles/${cycleId}/standards/import`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data)
+  },
 }
 
 export const requirementsService = {
