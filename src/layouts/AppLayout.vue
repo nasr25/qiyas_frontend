@@ -256,6 +256,7 @@ const pageTitle = computed(() => {
     'admin-settings': 'nav.settings',
     'audit-logs':     'nav.auditLogs',
     profile:          'nav.profile',
+    notifications:    'nav.notifications',
   }
   return map[name] ? t(map[name]) : t('app.name')
 })

@@ -15,7 +15,8 @@
     "settings": "Settings",
     "auditLogs": "Audit Logs",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "notifications": "Notifications"
   },
   "auth": {
     "login": "Sign In",
@@ -190,5 +191,10 @@
     "errors": "Errors",
     "row": "Row",
     "close": "Close"
+  },
+  "notifications": {
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "new": "New notification"
   }
 }

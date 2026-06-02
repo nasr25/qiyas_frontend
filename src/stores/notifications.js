@@ -41,6 +41,13 @@ export const useNotificationsStore = defineStore('notifications', () => {
     unreadCount.value = 0
   }
 
+  async function remove(id) {
+    await notificationsService.destroy(id)
+    const n = notifications.value.find(n => n.id === id)
+    if (n && !n.read_at) unreadCount.value = Math.max(0, unreadCount.value - 1)
+    notifications.value = notifications.value.filter(n => n.id !== id)
+  }
+
   /** Starts polling for new notifications every 30 seconds. */
   function startPolling() {
     fetchCount()
@@ -55,7 +62,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
   return {
     notifications, unreadCount, loading,
     fetchNotifications, fetchCount,
-    markRead, markAllRead,
+    markRead, markAllRead, remove,
     startPolling, stopPolling,
   }
 })
