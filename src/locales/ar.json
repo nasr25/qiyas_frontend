@@ -76,7 +76,15 @@
     "weight": "الوزن",
     "dueDate": "تاريخ الاستحقاق",
     "departments": "الإدارات المعينة",
-    "requirements": "متطلبات الأدلة"
+    "requirements": "متطلبات الأدلة",
+    "downloadTemplate": "القالب",
+    "importExcel": "استيراد Excel",
+    "importHint": "قم برفع ملف ‎.xlsx/.csv. تتم مطابقة الإدارات بالاسم العربي أو الإنجليزي.",
+    "dropFile": "اسحب ملفًا هنا أو انقر للاختيار",
+    "runImport": "تنفيذ الاستيراد",
+    "created": "تم الإنشاء",
+    "updated": "تم التحديث",
+    "importDone": "اكتمل الاستيراد: {created} إنشاء، {updated} تحديث، {errors} خطأ"
   },
   "documents": {
     "title": "الوثائق",
@@ -177,6 +185,10 @@
     "prev": "السابق",
     "next": "التالي",
     "of": "من",
-    "rows": "سجل"
+    "rows": "سجل",
+    "max": "الحد الأقصى",
+    "errors": "أخطاء",
+    "row": "صف",
+    "close": "إغلاق"
   }
 }
