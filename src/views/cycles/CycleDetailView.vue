@@ -22,13 +22,13 @@
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-1">
-              <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ cycle.name }}</h1>
+              <h1 class="text-xl font-bold text-content">{{ cycle.name }}</h1>
               <StatusBadge :status="cycle.status" />
             </div>
-            <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400 mt-2">
-              <span>{{ t('cycles.year') }}: <strong class="text-gray-700 dark:text-gray-200">{{ cycle.year }}</strong></span>
-              <span>{{ t('cycles.startDate') }}: <strong class="text-gray-700 dark:text-gray-200">{{ formatDate(cycle.start_date) }}</strong></span>
-              <span>{{ t('cycles.endDate') }}: <strong class="text-gray-700 dark:text-gray-200">{{ formatDate(cycle.end_date) }}</strong></span>
+            <div class="flex flex-wrap gap-4 text-sm text-content-muted mt-2">
+              <span>{{ t('cycles.year') }}: <strong class="text-content">{{ cycle.year }}</strong></span>
+              <span>{{ t('cycles.startDate') }}: <strong class="text-content">{{ formatDate(cycle.start_date) }}</strong></span>
+              <span>{{ t('cycles.endDate') }}: <strong class="text-content">{{ formatDate(cycle.end_date) }}</strong></span>
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@
       <!-- Standards tab -->
       <div class="card">
         <div class="card-header flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('standards.title') }}</h2>
+          <h2 class="text-sm font-semibold text-content">{{ t('standards.title') }}</h2>
           <button v-if="authStore.isSuperAdmin || authStore.isCoordinator" class="btn-primary btn-sm" @click="showAddStandard = true">
             + {{ t('standards.new') }}
           </button>
@@ -56,7 +56,7 @@
             </thead>
             <tbody>
               <tr v-if="!standards.length">
-                <td colspan="6" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="6" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="std in standards" :key="std.id">
                 <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.number }}</td>

@@ -1,25 +1,27 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-surface-muted">
 
-    <!-- Sidebar backdrop (mobile) -->
+    <!-- Sidebar backdrop (mobile only) -->
     <Transition name="fade">
       <div
-        v-if="sidebarOpen && isMobile"
-        class="fixed inset-0 z-20 bg-black/40 backdrop-blur-sm lg:hidden"
+        v-if="sidebarOpen"
+        class="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm lg:hidden"
         @click="appStore.toggleSidebar()"
+        aria-hidden="true"
       />
     </Transition>
 
     <!-- Sidebar -->
     <aside
-      class="fixed top-0 bottom-0 z-30 flex flex-col bg-primary-900 dark:bg-gray-900 border-e border-primary-800 dark:border-gray-700 transition-transform duration-300 w-[260px]"
+      class="fixed top-0 bottom-0 z-30 flex flex-col w-64 bg-primary-900 dark:bg-primary-950 border-e border-white/10 transition-transform duration-300 lg:translate-x-0"
       :class="[
         appStore.isRTL ? 'right-0' : 'left-0',
         sidebarOpen ? 'translate-x-0' : (appStore.isRTL ? 'translate-x-full' : '-translate-x-full')
       ]"
+      aria-label="Sidebar"
     >
       <!-- Logo -->
-      <div class="flex items-center gap-3 px-5 py-4 border-b border-primary-800 dark:border-gray-700">
+      <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b border-white/10">
         <div class="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
           <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -28,7 +30,7 @@
         </div>
         <div class="min-w-0">
           <p class="text-sm font-bold text-white truncate">{{ t('app.name') }}</p>
-          <p class="text-xs text-primary-300 truncate">{{ t('app.tagline') }}</p>
+          <p class="text-xs text-primary-200/80 truncate">{{ t('app.tagline') }}</p>
         </div>
       </div>
 
@@ -40,7 +42,8 @@
             :to="item.to"
             class="nav-link group"
             :class="{ active: isActive(item.to) }"
-            @click="isMobile && appStore.toggleSidebar()"
+            :aria-current="isActive(item.to) ? 'page' : undefined"
+            @click="closeMobileSidebar"
           >
             <span class="text-lg leading-none" v-html="item.icon" />
             <span>{{ t(item.label) }}</span>
@@ -49,31 +52,26 @@
       </nav>
 
       <!-- User info -->
-      <div class="border-t border-primary-800 dark:border-gray-700 px-4 py-3">
+      <div class="border-t border-white/10 px-4 py-3">
         <div class="flex items-center gap-3">
           <div class="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold text-sm shrink-0">
             {{ userInitials }}
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-sm font-medium text-white truncate">{{ authStore.user?.name }}</p>
-            <p class="text-xs text-primary-300 truncate">{{ userRoleLabel }}</p>
+            <p class="text-xs text-primary-200/80 truncate capitalize">{{ userRoleLabel }}</p>
           </div>
         </div>
       </div>
     </aside>
 
     <!-- Main -->
-    <div
-      class="flex flex-col min-h-screen transition-all duration-300"
-      :class="sidebarOpen
-        ? (appStore.isRTL ? 'me-[260px]' : 'ms-[260px]')
-        : ''"
-    >
+    <div class="flex flex-col min-h-screen lg:ms-64">
       <!-- Header -->
-      <header class="sticky top-0 z-10 h-16 flex items-center gap-3 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <!-- Hamburger -->
+      <header class="sticky top-0 z-10 h-16 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 bg-surface-raised border-b border-line shadow-sm">
+        <!-- Hamburger (mobile only — sidebar is permanent on lg+) -->
         <button
-          class="p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          class="btn-icon lg:hidden"
           @click="appStore.toggleSidebar()"
           aria-label="Toggle sidebar"
         >
@@ -83,21 +81,21 @@
         </button>
 
         <!-- Page title -->
-        <h1 class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate flex-1">
+        <h1 class="text-sm sm:text-base font-semibold text-content truncate flex-1">
           {{ pageTitle }}
         </h1>
 
         <!-- Actions -->
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-0.5 sm:gap-1">
           <!-- Notifications -->
-          <RouterLink to="/notifications" class="relative p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <RouterLink to="/notifications" class="btn-icon relative" aria-label="Notifications">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             <span
               v-if="notifStore.unreadCount > 0"
-              class="absolute top-1 end-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1"
+              class="absolute top-1 end-1 min-w-[18px] h-[18px] flex items-center justify-center bg-danger-500 text-white text-xs font-bold rounded-full px-1"
             >
               {{ notifStore.unreadCount > 99 ? '99+' : notifStore.unreadCount }}
             </span>
@@ -105,17 +103,18 @@
 
           <!-- Language switcher -->
           <button
-            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+            class="btn-icon text-xs font-semibold"
             @click="toggleLocale"
+            :aria-label="appStore.isRTL ? 'Switch to English' : 'التبديل إلى العربية'"
           >
             {{ appStore.isRTL ? 'EN' : 'ع' }}
           </button>
 
           <!-- Dark mode -->
           <button
-            class="p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            class="btn-icon"
             @click="appStore.toggleTheme()"
-            aria-label="Toggle theme"
+            :aria-label="appStore.isDark ? 'Switch to light theme' : 'Switch to dark theme'"
           >
             <svg v-if="appStore.isDark" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -130,13 +129,15 @@
           <!-- Avatar + logout -->
           <div class="relative" ref="userMenuRef">
             <button
-              class="flex items-center gap-2 ps-2 pe-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              class="flex items-center gap-2 ps-1.5 pe-2 sm:pe-3 py-1.5 rounded-lg hover:bg-surface-inset transition-colors"
               @click="userMenuOpen = !userMenuOpen"
+              :aria-expanded="userMenuOpen"
+              aria-haspopup="menu"
             >
-              <div class="h-8 w-8 rounded-full bg-primary-700 flex items-center justify-center text-white font-semibold text-sm">
+              <div class="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-brand-contrast font-semibold text-sm shrink-0">
                 {{ userInitials }}
               </div>
-              <span class="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[120px] truncate">
+              <span class="hidden sm:block text-sm font-medium text-content max-w-[120px] truncate">
                 {{ authStore.user?.name }}
               </span>
             </button>
@@ -146,16 +147,17 @@
               <div
                 v-if="userMenuOpen"
                 class="absolute top-full mt-1 end-0 w-48 card shadow-xl z-50 py-1"
+                role="menu"
               >
-                <RouterLink to="/profile" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800" @click="userMenuOpen = false">
+                <RouterLink to="/profile" class="flex items-center gap-2 px-4 py-2 text-sm text-content hover:bg-surface-inset" @click="userMenuOpen = false">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   {{ t('nav.profile') }}
                 </RouterLink>
-                <hr class="my-1 border-gray-200 dark:border-gray-700">
+                <hr class="my-1 border-line">
                 <button
-                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-950/40"
                   @click="handleLogout"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,8 +173,10 @@
       </header>
 
       <!-- Page content -->
-      <main class="flex-1 p-6">
-        <RouterView />
+      <main class="flex-1 p-4 sm:p-6 3xl:p-8">
+        <div class="mx-auto w-full max-w-content">
+          <RouterView />
+        </div>
       </main>
     </div>
   </div>
@@ -194,9 +198,13 @@ const authStore = useAuthStore()
 const notifStore = useNotificationsStore()
 
 const sidebarOpen  = computed(() => appStore.sidebarOpen)
-const isMobile     = ref(window.innerWidth < 1024)
 const userMenuOpen = ref(false)
 const userMenuRef  = ref(null)
+
+// Close the mobile drawer after navigating (no-op on lg+ where it stays closed).
+function closeMobileSidebar() {
+  if (appStore.sidebarOpen) appStore.toggleSidebar()
+}
 
 const navItems = [
   { name: 'dashboard',  to: '/dashboard',         label: 'nav.dashboard',  icon: '🏠', roles: [] },
@@ -270,19 +278,13 @@ function handleClickOutside(e) {
   }
 }
 
-function handleResize() {
-  isMobile.value = window.innerWidth < 1024
-}
-
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  window.addEventListener('resize', handleResize)
   notifStore.startPolling()
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
-  window.removeEventListener('resize', handleResize)
   notifStore.stopPolling()
 })
 </script>

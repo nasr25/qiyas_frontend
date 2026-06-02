@@ -1,21 +1,21 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('auditor.title') }}</h1>
+    <h1 class="text-xl font-bold text-content">{{ t('auditor.title') }}</h1>
 
     <!-- Stats cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="card p-4">
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ t('auditor.pendingReviews') }}</p>
-        <p class="text-2xl font-bold text-yellow-600">{{ stats.pending.toLocaleString() }}</p>
+        <p class="text-xs text-content-muted mb-1">{{ t('auditor.pendingReviews') }}</p>
+        <p class="text-2xl font-bold text-warning-600">{{ stats.pending.toLocaleString() }}</p>
       </div>
       <div class="card p-4">
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ t('auditor.approve') }} (Today)</p>
-        <p class="text-2xl font-bold text-green-600">{{ stats.approvedToday.toLocaleString() }}</p>
+        <p class="text-xs text-content-muted mb-1">{{ t('auditor.approve') }} (Today)</p>
+        <p class="text-2xl font-bold text-success-600">{{ stats.approvedToday.toLocaleString() }}</p>
       </div>
       <div class="card p-4">
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ t('auditor.reject') }} (Today)</p>
-        <p class="text-2xl font-bold text-red-600">{{ stats.rejectedToday.toLocaleString() }}</p>
+        <p class="text-xs text-content-muted mb-1">{{ t('auditor.reject') }} (Today)</p>
+        <p class="text-2xl font-bold text-danger-600">{{ stats.rejectedToday.toLocaleString() }}</p>
       </div>
     </div>
 
@@ -55,7 +55,7 @@
             </thead>
             <tbody>
               <tr v-if="!reviews.length">
-                <td colspan="7" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="review in reviews" :key="review.id">
                 <td>{{ review.department?.name_ar }}</td>

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+  <div class="min-h-screen flex items-center justify-center bg-surface-muted px-4">
     <div class="text-center max-w-md">
       <!-- Illustration -->
       <div class="inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/20 mb-6">
@@ -10,8 +10,8 @@
       </div>
 
       <p class="text-7xl font-black text-primary-700 dark:text-primary-400 mb-4">404</p>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Page Not Found</h1>
-      <p class="text-gray-500 dark:text-gray-400 mb-8">
+      <h1 class="text-2xl font-bold text-content mb-2">Page Not Found</h1>
+      <p class="text-content-muted mb-8">
         The page you are looking for does not exist or has been moved.
       </p>
 

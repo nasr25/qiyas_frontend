@@ -4,39 +4,173 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   CENTRALIZED THEME TOKENS
+   Single source of truth for every surface / content / border /
+   brand color in the app. Components reference these via Tailwind
+   utilities (bg-surface, text-content, border-line, bg-brand …),
+   so light/dark theming lives here only — never in components.
+   Values are space-separated RGB channels for <alpha-value> support.
+   ============================================================ */
 @layer base {
   :root {
-    --sidebar-width: 260px;
-    --header-height: 64px;
+    --sidebar-width: 16rem;   /* 256px */
+    --header-height: 4rem;    /* 64px  */
+
+    /* Light theme (derived from brand greens) */
+    --surface:          255 255 255;
+    --surface-muted:    244 248 246;
+    --surface-raised:   255 255 255;
+    --surface-inset:    237 243 240;
+
+    --content:          16 26 22;
+    --content-muted:     90 107 100;
+    --content-subtle:   130 146 139;
+    --content-inverse:  255 255 255;
+
+    --line:             223 232 228;
+    --line-strong:      200 213 207;
+
+    --brand:             14 79 67;    /* primary-700 */
+    --brand-hover:       10 58 48;    /* primary-800 */
+    --brand-contrast:   255 255 255;
+    --brand-subtle:     236 246 242;  /* primary-50  */
+
+    --ring:              30 125 102;  /* primary-500 */
+
+    /* Data-viz status colors (muted, light theme) */
+    --c-approved:         3 152 85;   /* success-600 */
+    --c-review:         220 104 3;    /* warning-600 */
+    --c-rejected:       217 45 32;    /* danger-600  */
+    --c-draft:          130 146 139;  /* content-subtle */
+    --c-overdue:        181 71 8;     /* warning-700 */
+
+    color-scheme: light;
   }
+
+  .dark {
+    /* Dark theme (anchored on Primary Dark #000A05) */
+    --surface:            9 19 15;
+    --surface-muted:      6 13 10;
+    --surface-raised:    13 26 21;
+    --surface-inset:     17 33 27;
+
+    --content:          232 243 238;
+    --content-muted:    150 173 164;
+    --content-subtle:   108 130 122;
+    --content-inverse:    8 16 12;
+
+    --line:              23 43 36;
+    --line-strong:       33 56 47;
+
+    --brand:             62 154 130;  /* primary-400 — lifted for contrast */
+    --brand-hover:      107 183 161;  /* primary-300 */
+    --brand-contrast:     3 18 13;
+    --brand-subtle:      12 33 27;
+
+    --ring:              62 154 130;
+
+    /* Data-viz status colors (lifted for dark theme) */
+    --c-approved:        50 213 131;  /* success-400 */
+    --c-review:         253 176 34;   /* warning-400 */
+    --c-rejected:       249 112 102;  /* danger-400  */
+    --c-draft:          108 130 122;  /* content-subtle */
+    --c-overdue:        253 176 34;   /* warning-400 */
+
+    color-scheme: dark;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
   html[dir="rtl"] { font-family: 'IBM Plex Sans Arabic', Tahoma, Arial, sans-serif; }
   html[dir="ltr"] { font-family: 'IBM Plex Sans', system-ui, sans-serif; }
-  body { @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100; }
+
+  body {
+    @apply bg-surface-muted text-content antialiased;
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Accessible keyboard focus everywhere */
+  :focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-offset-surface;
+    --tw-ring-color: rgb(var(--ring));
+  }
+
+  /* Honor reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Themed, slim scrollbars */
+  * { scrollbar-width: thin; scrollbar-color: rgb(var(--line-strong)) transparent; }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb { background: rgb(var(--line-strong)); border-radius: 9999px; }
+  *::-webkit-scrollbar-track { background: transparent; }
 }
 
+/* ============================================================
+   REUSABLE COMPONENT TOKENS
+   ============================================================ */
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-primary { @apply btn bg-primary-700 text-white hover:bg-primary-800 focus:ring-primary-500; }
-  .btn-secondary { @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600; }
-  .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500; }
-  .btn-success { @apply btn bg-green-600 text-white hover:bg-green-700 focus:ring-green-500; }
-  .btn-sm { @apply px-3 py-1.5 text-xs; }
-  .input { @apply block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100; }
-  .label { @apply block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300; }
-  .card { @apply bg-white rounded-xl border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-gray-700; }
-  .card-header { @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700; }
-  .card-body { @apply px-6 py-4; }
-  .badge { @apply inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-full; }
-  .badge-draft { @apply badge bg-gray-100 text-gray-700; }
-  .badge-under-review { @apply badge bg-yellow-100 text-yellow-800; }
-  .badge-approved { @apply badge bg-green-100 text-green-800; }
-  .badge-rejected { @apply badge bg-red-100 text-red-800; }
-  .badge-overdue { @apply badge bg-orange-100 text-orange-800; }
-  .table-wrapper { @apply overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700; }
-  .table { @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700; }
-  .table th { @apply px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide text-gray-500 bg-gray-50 dark:bg-gray-800/60 dark:text-gray-400; }
-  .table td { @apply px-4 py-3 text-sm text-gray-700 dark:text-gray-300; }
-  .table tbody tr { @apply hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors; }
-  .nav-link { @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:text-primary-700 hover:bg-primary-50 dark:text-gray-400 dark:hover:text-primary-300 dark:hover:bg-primary-950; }
-  .nav-link.active { @apply text-primary-700 bg-primary-50 dark:text-primary-300 dark:bg-primary-950; }
+
+  /* ---- Layout helpers ---- */
+  .page          { @apply mx-auto w-full max-w-content space-y-5 sm:space-y-6; }
+  .grid-auto     { @apply grid gap-4 sm:gap-5; grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr)); }
+  .grid-kpi      { @apply grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6; }
+
+  /* ---- Buttons ---- */
+  .btn           { @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary   { @apply btn bg-brand text-brand-contrast hover:bg-brand-hover; }
+  .btn-secondary { @apply btn bg-surface-raised text-content border border-line hover:bg-surface-inset; }
+  .btn-ghost     { @apply btn text-content-muted hover:text-content hover:bg-surface-inset; }
+  .btn-danger    { @apply btn bg-danger-600 text-white hover:bg-danger-700; }
+  .btn-success   { @apply btn bg-success-600 text-white hover:bg-success-700; }
+  .btn-sm        { @apply px-3 py-1.5 text-xs; }
+  .btn-lg        { @apply px-5 py-2.5 text-base; }
+  .btn-icon      { @apply inline-flex items-center justify-center h-9 w-9 rounded-lg text-content-muted hover:text-content hover:bg-surface-inset transition-colors; }
+
+  /* ---- Forms ---- */
+  .label    { @apply block mb-1.5 text-sm font-medium text-content; }
+  .input,
+  .select,
+  .textarea { @apply block w-full rounded-lg border border-line bg-surface-raised px-3 py-2 text-sm text-content placeholder:text-content-subtle transition-colors focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30; }
+  .textarea { @apply min-h-[6rem] resize-y; }
+  .hint     { @apply mt-1 text-xs text-content-subtle; }
+  .error-text { @apply mt-1 text-xs text-danger-600 dark:text-danger-400; }
+  /* Responsive form grid: 1 col on mobile, 2 from sm up */
+  .form-grid { @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5; }
+
+  /* ---- Cards ---- */
+  .card        { @apply bg-surface-raised rounded-xl border border-line shadow-sm; }
+  .card-header { @apply px-4 sm:px-6 py-4 border-b border-line; }
+  .card-body   { @apply px-4 sm:px-6 py-4; }
+  .card-title  { @apply text-sm font-semibold text-content; }
+  .kpi-card    { @apply card p-4 sm:p-5 flex flex-col gap-1; }
+  .kpi-label   { @apply text-xs font-medium text-content-muted truncate; }
+  .kpi-value   { @apply text-2xl sm:text-3xl font-bold tabular-nums text-content; }
+
+  /* ---- Badges ---- */
+  .badge              { @apply inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-full whitespace-nowrap; }
+  .badge-draft        { @apply badge bg-surface-inset text-content-muted; }
+  .badge-under-review { @apply badge bg-warning-100 text-warning-800 dark:bg-warning-900/30 dark:text-warning-300; }
+  .badge-approved     { @apply badge bg-success-100 text-success-800 dark:bg-success-900/30 dark:text-success-300; }
+  .badge-rejected     { @apply badge bg-danger-100 text-danger-800 dark:bg-danger-900/30 dark:text-danger-300; }
+  .badge-overdue      { @apply badge bg-danger-50 text-danger-700 ring-1 ring-inset ring-danger-200 dark:bg-danger-950/40 dark:text-danger-300 dark:ring-danger-900; }
+
+  /* ---- Tables (scroll container prevents page-level overflow) ---- */
+  .table-wrapper { @apply overflow-x-auto rounded-xl border border-line; }
+  .table         { @apply min-w-full divide-y divide-line; }
+  .table th      { @apply px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide text-content-subtle bg-surface-inset whitespace-nowrap; }
+  .table td      { @apply px-4 py-3 text-sm text-content-muted align-middle; }
+  .table tbody tr { @apply hover:bg-surface-inset/60 transition-colors; }
+
+  /* ---- Sidebar navigation (always brand-green chrome) ---- */
+  .nav-link        { @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-primary-100/80 hover:text-white hover:bg-white/10; }
+  .nav-link.active { @apply text-white bg-white/15; }
 }

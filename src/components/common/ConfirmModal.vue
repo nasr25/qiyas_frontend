@@ -19,11 +19,11 @@
           <!-- Icon -->
           <div
             class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full"
-            :class="dangerMode ? 'bg-red-100 dark:bg-red-900/30' : 'bg-primary-50 dark:bg-primary-900/30'"
+            :class="dangerMode ? 'bg-danger-100 dark:bg-danger-900/30' : 'bg-brand-subtle'"
           >
             <svg
               class="h-7 w-7"
-              :class="dangerMode ? 'text-red-600' : 'text-primary-700'"
+              :class="dangerMode ? 'text-danger-600 dark:text-danger-400' : 'text-brand'"
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path v-if="dangerMode" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -33,10 +33,10 @@
             </svg>
           </div>
 
-          <h3 class="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 class="text-center text-lg font-semibold text-content mb-2">
             {{ title }}
           </h3>
-          <p class="text-center text-sm text-gray-600 dark:text-gray-400 mb-6">
+          <p class="text-center text-sm text-content-muted mb-6">
             {{ message }}
           </p>
 

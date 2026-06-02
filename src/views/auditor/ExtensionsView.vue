@@ -1,13 +1,13 @@
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between gap-4">
-      <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ t('auditor.extensions') }}</h1>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <h1 class="text-xl font-bold text-content">{{ t('auditor.extensions') }}</h1>
     </div>
 
     <!-- Filter -->
     <div class="card p-4 flex flex-wrap gap-3">
-      <select v-model="filters.status" class="input w-48" @change="fetchExtensions(1)">
+      <select v-model="filters.status" class="input w-full sm:w-48" @change="fetchExtensions(1)">
         <option value="">{{ t('common.all') }} {{ t('common.status') }}</option>
         <option value="pending">Pending</option>
         <option value="approved">{{ t('documents.status.approved') }}</option>
@@ -40,7 +40,7 @@
             </thead>
             <tbody>
               <tr v-if="!extensions.length">
-                <td colspan="8" class="text-center py-10 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="8" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="ext in extensions" :key="ext.id">
                 <td class="max-w-[160px] truncate font-medium">{{ ext.document?.title }}</td>

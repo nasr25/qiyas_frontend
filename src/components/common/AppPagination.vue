@@ -1,12 +1,12 @@
 <template>
-  <div class="flex items-center justify-between gap-4 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-4 py-3 border-t border-line">
     <!-- Total records -->
-    <p class="text-sm text-gray-600 dark:text-gray-400">
+    <p class="text-sm text-content-muted">
       {{ total.toLocaleString(locale) }} {{ t('common.rows') }}
     </p>
 
     <!-- Page buttons -->
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1 flex-wrap">
       <!-- Prev -->
       <button
         class="btn btn-secondary btn-sm"
@@ -18,13 +18,14 @@
 
       <!-- Page numbers -->
       <template v-for="page in visiblePages" :key="page">
-        <span v-if="page === '...'" class="px-2 py-1 text-sm text-gray-400">…</span>
+        <span v-if="page === '...'" class="px-2 py-1 text-sm text-content-subtle">…</span>
         <button
           v-else
           class="w-9 h-9 rounded-lg text-sm font-medium transition-colors"
           :class="page === currentPage
-            ? 'bg-primary-700 text-white'
-            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'"
+            ? 'bg-brand text-brand-contrast'
+            : 'text-content-muted hover:bg-surface-inset'"
+          :aria-current="page === currentPage ? 'page' : undefined"
           @click="emit('page-change', page)"
         >
           {{ page.toLocaleString(locale) }}

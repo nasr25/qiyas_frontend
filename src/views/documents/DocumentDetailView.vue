@@ -21,13 +21,13 @@
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 flex-wrap mb-2">
-              <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ doc.title }}</h1>
+              <h1 class="text-xl font-bold text-content">{{ doc.title }}</h1>
               <StatusBadge :status="doc.status" />
             </div>
-            <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
-              <span>{{ t('departments.title') }}: <strong class="text-gray-700 dark:text-gray-200">{{ doc.department?.name_ar }}</strong></span>
-              <span>{{ t('standards.requirements') }}: <strong class="text-gray-700 dark:text-gray-200">{{ doc.requirement?.title_ar }}</strong></span>
-              <span>{{ t('cycles.title') }}: <strong class="text-gray-700 dark:text-gray-200">{{ doc.cycle?.name }}</strong></span>
+            <div class="flex flex-wrap gap-4 text-sm text-content-muted">
+              <span>{{ t('departments.title') }}: <strong class="text-content">{{ doc.department?.name_ar }}</strong></span>
+              <span>{{ t('standards.requirements') }}: <strong class="text-content">{{ doc.requirement?.title_ar }}</strong></span>
+              <span>{{ t('cycles.title') }}: <strong class="text-content">{{ doc.cycle?.name }}</strong></span>
             </div>
           </div>
           <!-- Current version download -->
@@ -40,16 +40,16 @@
         </div>
 
         <!-- Rejection reason -->
-        <div v-if="doc.status === 'rejected' && doc.rejection_reason" class="mt-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700 px-4 py-3">
-          <p class="text-sm font-medium text-red-700 dark:text-red-300">{{ t('documents.rejectionReason') }}</p>
-          <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ doc.rejection_reason }}</p>
+        <div v-if="doc.status === 'rejected' && doc.rejection_reason" class="mt-4 rounded-lg bg-danger-50 border border-danger-200 dark:bg-danger-900/20 dark:border-danger-700 px-4 py-3">
+          <p class="text-sm font-medium text-danger-700 dark:text-danger-300">{{ t('documents.rejectionReason') }}</p>
+          <p class="text-sm text-danger-600 dark:text-danger-400 mt-1">{{ doc.rejection_reason }}</p>
         </div>
       </div>
 
       <!-- Version history -->
       <div class="card">
         <div class="card-header">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('documents.versions') }}</h2>
+          <h2 class="text-sm font-semibold text-content">{{ t('documents.versions') }}</h2>
         </div>
         <div class="table-wrapper rounded-none border-0">
           <table class="table">
@@ -65,7 +65,7 @@
             </thead>
             <tbody>
               <tr v-if="!versions.length">
-                <td colspan="6" class="text-center py-6 text-gray-400">{{ t('common.noData') }}</td>
+                <td colspan="6" class="text-center py-6 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
               <tr v-for="v in versions" :key="v.id">
                 <td class="font-mono font-semibold text-primary-700 dark:text-primary-400">v{{ v.version_number }}</td>
@@ -88,7 +88,7 @@
 
       <!-- Upload new version -->
       <div v-if="canUpload" class="card p-6">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">{{ t('documents.upload') }}</h2>
+        <h2 class="text-sm font-semibold text-content mb-4">{{ t('documents.upload') }}</h2>
         <div class="space-y-4">
           <div>
             <label class="label">File</label>
@@ -106,7 +106,7 @@
               </svg>
               {{ uploading ? t('common.loading') : t('documents.upload') }}
             </button>
-            <button v-if="canSubmit" class="btn btn-sm bg-green-600 text-white hover:bg-green-700" @click="handleSubmit">
+            <button v-if="canSubmit" class="btn btn-sm bg-success-600 text-white hover:bg-success-700" @click="handleSubmit">
               {{ t('documents.submit') }}
             </button>
           </div>
@@ -116,7 +116,7 @@
       <!-- Extension request -->
       <div v-if="doc.cycle?.status === 'active'" class="card p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('documents.extensionRequest') }}</h2>
+          <h2 class="text-sm font-semibold text-content">{{ t('documents.extensionRequest') }}</h2>
           <button class="btn-secondary btn-sm" @click="showExtension = !showExtension">
             {{ showExtension ? t('common.cancel') : t('documents.extensionRequest') }}
           </button>
@@ -141,10 +141,10 @@
       <!-- Comments -->
       <div class="card">
         <div class="card-header">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('documents.comments') }}</h2>
+          <h2 class="text-sm font-semibold text-content">{{ t('documents.comments') }}</h2>
         </div>
-        <div class="divide-y divide-gray-100 dark:divide-gray-800">
-          <div v-if="!comments.length" class="px-6 py-8 text-center text-gray-400 text-sm">{{ t('common.noData') }}</div>
+        <div class="divide-y divide-line">
+          <div v-if="!comments.length" class="px-6 py-8 text-center text-content-subtle text-sm">{{ t('common.noData') }}</div>
           <div v-for="comment in comments" :key="comment.id" class="px-6 py-4">
             <div class="flex items-start gap-3">
               <div class="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-700 dark:text-primary-300 font-semibold text-sm shrink-0">
@@ -152,22 +152,22 @@
               </div>
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
-                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ comment.user?.name }}</p>
-                  <p class="text-xs text-gray-400">{{ formatDate(comment.created_at) }}</p>
+                  <p class="text-sm font-medium text-content">{{ comment.user?.name }}</p>
+                  <p class="text-xs text-content-subtle">{{ formatDate(comment.created_at) }}</p>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ comment.body }}</p>
+                <p class="text-sm text-content-muted">{{ comment.body }}</p>
                 <button class="text-xs text-primary-600 mt-1 hover:underline" @click="replyTo = comment.id">Reply</button>
               </div>
             </div>
             <!-- Replies -->
-            <div v-if="comment.replies?.length" class="ms-11 mt-2 space-y-2 border-s-2 border-gray-100 dark:border-gray-700 ps-4">
+            <div v-if="comment.replies?.length" class="ms-11 mt-2 space-y-2 border-s-2 border-line ps-4">
               <div v-for="reply in comment.replies" :key="reply.id" class="flex items-start gap-2">
-                <div class="h-6 w-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-medium shrink-0">
+                <div class="h-6 w-6 rounded-full bg-surface-inset flex items-center justify-center text-xs font-medium shrink-0">
                   {{ (reply.user?.name || '?')[0].toUpperCase() }}
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-gray-700 dark:text-gray-300">{{ reply.user?.name }}</p>
-                  <p class="text-xs text-gray-500">{{ reply.body }}</p>
+                  <p class="text-xs font-medium text-content">{{ reply.user?.name }}</p>
+                  <p class="text-xs text-content-muted">{{ reply.body }}</p>
                 </div>
               </div>
             </div>
@@ -175,10 +175,10 @@
         </div>
 
         <!-- Add comment -->
-        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800">
-          <div v-if="replyTo" class="text-xs text-gray-500 mb-2">
+        <div class="px-6 py-4 border-t border-line">
+          <div v-if="replyTo" class="text-xs text-content-muted mb-2">
             Replying to comment #{{ replyTo }}
-            <button class="ms-2 text-red-500 hover:underline" @click="replyTo = null">× Cancel</button>
+            <button class="ms-2 text-danger-500 hover:underline" @click="replyTo = null">× Cancel</button>
           </div>
           <div class="flex gap-3">
             <textarea

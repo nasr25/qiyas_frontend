@@ -16,19 +16,19 @@
           </svg>
         </div>
         <h1 class="text-2xl font-bold text-white">{{ t('app.name') }}</h1>
-        <p class="text-primary-300 text-sm mt-1">{{ t('app.tagline') }}</p>
+        <p class="text-primary-200/80 text-sm mt-1">{{ t('app.tagline') }}</p>
       </div>
 
       <!-- Card -->
-      <div class="card p-8 shadow-2xl">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+      <div class="card p-6 sm:p-8 shadow-2xl">
+        <h2 class="text-xl font-semibold text-content mb-6">
           {{ t('auth.login') }}
         </h2>
 
         <!-- Error -->
         <div
           v-if="error"
-          class="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm dark:bg-red-900/20 dark:border-red-700 dark:text-red-300"
+          class="mb-4 rounded-lg bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 text-sm dark:bg-danger-950/40 dark:border-danger-900 dark:text-danger-300"
         >
           {{ error }}
         </div>
@@ -63,8 +63,9 @@
               />
               <button
                 type="button"
-                class="absolute inset-y-0 end-3 flex items-center text-gray-400 hover:text-gray-600"
+                class="absolute inset-y-0 end-3 flex items-center text-content-subtle hover:text-content"
                 @click="showPassword = !showPassword"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
               >
                 <svg v-if="showPassword" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
