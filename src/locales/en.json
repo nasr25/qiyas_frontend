@@ -112,7 +112,10 @@
     "rejectionReason": "Rejection Reason",
     "changeReason": "Change Reason",
     "extensionRequest": "Extension Request",
-    "comments": "Comments & Discussions"
+    "comments": "Comments & Discussions",
+    "uploadEvidence": "Upload Evidence",
+    "openUpload": "Open / Upload",
+    "mandatory": "Mandatory"
   },
   "auditor": {
     "title": "Auditor Portal",

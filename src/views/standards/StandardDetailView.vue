@@ -70,15 +70,22 @@
         </div>
         <div class="divide-y divide-line">
           <div v-if="!requirements.length" class="px-6 py-8 text-center text-content-subtle text-sm">{{ t('common.noData') }}</div>
-          <div v-for="req in requirements" :key="req.id" class="px-6 py-4">
-            <div class="flex items-start justify-between gap-3">
+          <div v-for="req in requirements" :key="req.id" class="px-4 sm:px-6 py-4">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                   <p class="font-medium text-content">{{ req.title_ar }}</p>
-                  <span v-if="req.is_mandatory" class="badge badge-rejected text-xs">{{ t('standards.requirements') }}</span>
+                  <span v-if="req.is_mandatory" class="badge badge-rejected text-xs">{{ t('documents.mandatory') }}</span>
                 </div>
                 <p v-if="req.title_en" class="text-xs text-content-subtle mb-2" dir="ltr">{{ req.title_en }}</p>
-                <p v-if="req.description" class="text-sm text-content-muted">{{ req.description }}</p>
+                <p v-if="req.description" class="text-sm text-content-muted whitespace-pre-line leading-relaxed" dir="rtl">{{ req.description }}</p>
+              </div>
+              <!-- Evidence upload (employees / coordinators) -->
+              <div v-if="canUpload" class="flex items-center gap-2 shrink-0 self-start">
+                <StatusBadge v-if="docByReq(req.id)" :status="docByReq(req.id).status" />
+                <button class="btn-primary btn-sm" :disabled="busyReq === req.id" @click="uploadEvidence(req)">
+                  {{ docByReq(req.id) ? t('documents.openUpload') : t('documents.uploadEvidence') }}
+                </button>
               </div>
             </div>
           </div>
@@ -174,7 +181,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { standardsService, requirementsService, documentsService, departmentsService } from '@/services/index'
@@ -182,8 +189,38 @@ import StatusBadge from '@/components/common/StatusBadge.vue'
 
 const { t } = useI18n()
 const route     = useRoute()
+const router    = useRouter()
 const authStore = useAuthStore()
 const appStore  = useAppStore()
+
+// Who can upload evidence against a requirement.
+const canUpload = computed(() =>
+  authStore.isEmployee || authStore.isCoordinator || authStore.isSuperAdmin)
+const busyReq = ref(null)
+
+// The current user's document for a given requirement (index is dept-scoped).
+function docByReq(reqId) {
+  return documents.value.find(d => d.requirement_id === reqId)
+}
+
+// Ensure a (dept-scoped) document exists for this requirement, then open it to
+// upload/submit using the existing document page. store() is firstOrCreate, so
+// this is safe to call repeatedly.
+async function uploadEvidence(req) {
+  busyReq.value = req.id
+  try {
+    const doc = await documentsService.create({
+      requirement_id: req.id,
+      cycle_id: standard.value.cycle_id,
+      title: req.title_ar || req.title || standard.value.name_ar,
+    })
+    router.push(`/documents/${doc.id}`)
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
+  } finally {
+    busyReq.value = null
+  }
+}
 
 const loading     = ref(true)
 const saving      = ref(false)

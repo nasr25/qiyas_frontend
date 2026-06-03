@@ -112,7 +112,10 @@
     "rejectionReason": "سبب الرفض",
     "changeReason": "سبب التغيير",
     "extensionRequest": "طلب تمديد",
-    "comments": "التعليقات والنقاشات"
+    "comments": "التعليقات والنقاشات",
+    "uploadEvidence": "رفع إثبات",
+    "openUpload": "فتح / رفع",
+    "mandatory": "إلزامي"
   },
   "auditor": {
     "title": "بوابة المراجع",
