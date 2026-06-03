@@ -85,7 +85,13 @@
     "runImport": "تنفيذ الاستيراد",
     "created": "تم الإنشاء",
     "updated": "تم التحديث",
-    "importDone": "اكتمل الاستيراد: {created} إنشاء، {updated} تحديث، {errors} خطأ"
+    "importDone": "اكتمل الاستيراد: {created} إنشاء، {updated} تحديث، {errors} خطأ",
+    "objective": "الهدف",
+    "applicationRequirements": "متطلبات التطبيق",
+    "evidenceDocuments": "مستندات الإثبات",
+    "scope": "النطاق",
+    "references": "المراجع والأنظمة المرتبطة",
+    "noDepartments": "لم يتم تعيين إدارات"
   },
   "documents": {
     "title": "الوثائق",

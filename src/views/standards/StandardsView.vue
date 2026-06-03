@@ -41,10 +41,10 @@
               <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
             <tr v-for="std in standards" :key="std.id">
-              <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.number }}</td>
+              <td class="font-mono font-medium text-primary-700 dark:text-primary-400 whitespace-nowrap">{{ std.standard_number }}</td>
               <td>
-                <p class="font-medium">{{ appStore.isRTL ? std.name_ar : std.name_en || std.name_ar }}</p>
-                <p v-if="appStore.isRTL && std.name_en" class="text-xs text-content-subtle dir-ltr">{{ std.name_en }}</p>
+                <p class="font-medium">{{ std.name_ar || std.name_en }}</p>
+                <p v-if="std.axis" class="text-xs text-content-subtle mt-0.5">{{ std.axis }}</p>
               </td>
               <td>
                 <div class="flex flex-wrap gap-1">

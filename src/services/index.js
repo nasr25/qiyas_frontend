@@ -29,6 +29,7 @@ export const departmentsService = {
 export const standardsService = {
   list:    (cycleId, params) => api.get(`/cycles/${cycleId}/standards`, { params }).then(r => r.data),
   get:     (cycleId, id)     => api.get(`/cycles/${cycleId}/standards/${id}`).then(r => r.data.data),
+  show:    (id)              => api.get(`/standards/${id}`).then(r => r.data.data),
   create:  (cycleId, data)   => api.post(`/cycles/${cycleId}/standards`, data).then(r => r.data),
   update:  (cycleId, id, d)  => api.put(`/cycles/${cycleId}/standards/${id}`, d).then(r => r.data),
   destroy: (cycleId, id)     => api.delete(`/cycles/${cycleId}/standards/${id}`).then(r => r.data),

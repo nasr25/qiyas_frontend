@@ -85,7 +85,13 @@
     "runImport": "Run Import",
     "created": "Created",
     "updated": "Updated",
-    "importDone": "Import done: {created} created, {updated} updated, {errors} error(s)"
+    "importDone": "Import done: {created} created, {updated} updated, {errors} error(s)",
+    "objective": "Objective",
+    "applicationRequirements": "Application Requirements",
+    "evidenceDocuments": "Evidence Documents",
+    "scope": "Scope",
+    "references": "References & Regulations",
+    "noDepartments": "No departments assigned"
   },
   "documents": {
     "title": "Documents",

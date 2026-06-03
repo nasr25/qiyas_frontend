@@ -19,26 +19,38 @@
       <!-- Standard info -->
       <div class="card p-6">
         <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-          <div>
-            <span class="font-mono text-primary-700 dark:text-primary-400 text-sm font-semibold">{{ standard.number }}</span>
-            <h1 class="text-xl font-bold text-content mt-1">{{ standard.name_ar }}</h1>
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="font-mono text-primary-700 dark:text-primary-400 text-sm font-semibold">{{ standard.standard_number }}</span>
+              <span v-if="standard.perspective" class="badge bg-brand-subtle text-brand">{{ standard.perspective }}</span>
+              <span v-if="standard.axis" class="badge badge-draft">{{ standard.axis }}</span>
+            </div>
+            <h1 class="text-xl font-bold text-content">{{ standard.name_ar }}</h1>
             <p v-if="standard.name_en" class="text-sm text-content-muted mt-0.5" dir="ltr">{{ standard.name_en }}</p>
           </div>
           <div class="flex flex-wrap gap-4 text-sm text-content-muted">
-            <div>
+            <div v-if="standard.weight">
               <p class="text-xs text-content-subtle">{{ t('standards.weight') }}</p>
               <p class="font-semibold text-content">{{ standard.weight }}</p>
             </div>
-            <div>
+            <div v-if="standard.due_date">
               <p class="text-xs text-content-subtle">{{ t('standards.dueDate') }}</p>
               <p class="font-semibold text-content">{{ formatDate(standard.due_date) }}</p>
             </div>
           </div>
         </div>
-        <p v-if="standard.description" class="text-sm text-content-muted">{{ standard.description }}</p>
         <!-- Departments -->
-        <div class="mt-3 flex flex-wrap gap-2">
+        <div v-if="standard.departments?.length" class="flex flex-wrap gap-2">
           <span v-for="d in standard.departments" :key="d.id" class="badge-draft">{{ d.name_ar }}</span>
+        </div>
+        <p v-else class="text-xs text-content-subtle">{{ t('standards.noDepartments') }}</p>
+      </div>
+
+      <!-- Standard details (DGA Qiyas fields) -->
+      <div v-if="hasDetails" class="card p-6 space-y-5">
+        <div v-for="f in detailFields" :key="f.key" v-show="standard[f.key]">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-content-subtle mb-1">{{ f.label }}</h3>
+          <p class="text-sm text-content-muted whitespace-pre-line leading-relaxed" dir="rtl">{{ standard[f.key] }}</p>
         </div>
       </div>
 
@@ -130,12 +142,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { requirementsService, documentsService } from '@/services/index'
+import { standardsService, requirementsService, documentsService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 
 const { t } = useI18n()
@@ -151,6 +163,17 @@ const documents    = ref([])
 const showAddReq   = ref(false)
 const reqForm = ref({ title_ar: '', title_en: '', description: '', is_mandatory: false })
 
+// DGA Qiyas catalog fields rendered (in order) when present.
+const detailFields = computed(() => [
+  { key: 'description',              label: t('standards.objective') },
+  { key: 'application_requirements', label: t('standards.applicationRequirements') },
+  { key: 'evidence_documents',       label: t('standards.evidenceDocuments') },
+  { key: 'scope',                    label: t('standards.scope') },
+  { key: 'related_references',       label: t('standards.references') },
+])
+const hasDetails = computed(() =>
+  !!standard.value && detailFields.value.some(f => standard.value[f.key]))
+
 function formatDate(d) {
   if (!d) return '-'
   return new Date(d).toLocaleDateString()
@@ -160,13 +183,14 @@ async function load() {
   loading.value = true
   try {
     const id = route.params.id
-    // Get requirements – standard info comes embedded
-    requirements.value = await requirementsService.list(id)
-    // Try to get documents for this standard
-    const docsRes = await documentsService.list({ standard_id: id })
-    documents.value = docsRes.data || docsRes
-    // Build standard info from first requirement if available
-    standard.value = requirements.value[0]?.standard || { id, name_ar: 'Standard', number: id }
+    const [std, reqs, docsRes] = await Promise.all([
+      standardsService.show(id),
+      requirementsService.list(id).catch(() => []),
+      documentsService.list({ standard_id: id }).catch(() => ({ data: [] })),
+    ])
+    standard.value = std
+    requirements.value = reqs || []
+    documents.value = docsRes.data || docsRes || []
   } catch {
     appStore.showToast(t('common.error'), 'error')
   } finally {
