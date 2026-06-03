@@ -43,7 +43,9 @@
     "completionRate": "Completion Rate",
     "pendingReviews": "Pending Reviews",
     "extensionRequests": "Extension Requests",
-    "recentActivity": "Recent Activity"
+    "recentActivity": "Recent Activity",
+    "assignedStandards": "Assigned Standards",
+    "requirements": "Requirements"
   },
   "cycles": {
     "title": "Assessment Cycles",
