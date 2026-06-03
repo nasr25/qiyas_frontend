@@ -91,7 +91,8 @@
     "evidenceDocuments": "Evidence Documents",
     "scope": "Scope",
     "references": "References & Regulations",
-    "noDepartments": "No departments assigned"
+    "noDepartments": "No departments assigned",
+    "assignDepartments": "Assign Departments"
   },
   "documents": {
     "title": "Documents",

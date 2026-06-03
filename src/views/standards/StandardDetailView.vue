@@ -40,6 +40,12 @@
           </div>
         </div>
         <!-- Departments -->
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-content-subtle">{{ t('standards.departments') }}</h3>
+          <button v-if="canManage" class="btn-secondary btn-sm" @click="openDeptModal">
+            {{ t('standards.assignDepartments') }}
+          </button>
+        </div>
         <div v-if="standard.departments?.length" class="flex flex-wrap gap-2">
           <span v-for="d in standard.departments" :key="d.id" class="badge-draft">{{ d.name_ar }}</span>
         </div>
@@ -138,6 +144,30 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Assign Departments Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showDeptModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.esc="showDeptModal = false">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showDeptModal = false" />
+          <div class="relative card w-full max-w-md p-6 shadow-xl" role="dialog" aria-modal="true">
+            <h3 class="text-lg font-semibold mb-1">{{ t('standards.assignDepartments') }}</h3>
+            <p class="text-sm text-content-muted mb-4 truncate">{{ standard?.standard_number }} — {{ standard?.name_ar }}</p>
+            <div class="max-h-72 overflow-y-auto -mx-2 px-2 space-y-1">
+              <label v-for="d in allDepartments" :key="d.id" class="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-inset cursor-pointer">
+                <input type="checkbox" :value="d.id" v-model="selectedDeptIds" class="h-4 w-4 rounded border-line text-primary-600 focus:ring-primary-500" />
+                <span class="text-sm text-content">{{ d.name_ar }}</span>
+              </label>
+              <p v-if="!allDepartments.length" class="text-sm text-content-subtle py-6 text-center">{{ t('common.noData') }}</p>
+            </div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-line mt-2">
+              <button class="btn-secondary" @click="showDeptModal = false">{{ t('common.cancel') }}</button>
+              <button class="btn-primary" :disabled="savingDept" @click="saveDepartments">{{ savingDept ? t('common.loading') : t('common.save') }}</button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -147,7 +177,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { standardsService, requirementsService, documentsService } from '@/services/index'
+import { standardsService, requirementsService, documentsService, departmentsService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 
 const { t } = useI18n()
@@ -162,6 +192,38 @@ const requirements = ref([])
 const documents    = ref([])
 const showAddReq   = ref(false)
 const reqForm = ref({ title_ar: '', title_en: '', description: '', is_mandatory: false })
+
+// Department assignment
+const canManage      = computed(() => authStore.isSuperAdmin || authStore.isCoordinator)
+const showDeptModal  = ref(false)
+const allDepartments = ref([])
+const selectedDeptIds = ref([])
+const savingDept     = ref(false)
+
+async function openDeptModal() {
+  if (!allDepartments.value.length) {
+    try {
+      const r = await departmentsService.list()
+      allDepartments.value = r.data || r
+    } catch { appStore.showToast(t('common.error'), 'error') }
+  }
+  selectedDeptIds.value = (standard.value.departments || []).map(d => d.id)
+  showDeptModal.value = true
+}
+
+async function saveDepartments() {
+  savingDept.value = true
+  try {
+    await standardsService.update(standard.value.cycle_id, standard.value.id, { department_ids: selectedDeptIds.value })
+    appStore.showToast(t('common.success'), 'success')
+    showDeptModal.value = false
+    standard.value = await standardsService.show(standard.value.id)
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
+  } finally {
+    savingDept.value = false
+  }
+}
 
 // DGA Qiyas catalog fields rendered (in order) when present.
 const detailFields = computed(() => [

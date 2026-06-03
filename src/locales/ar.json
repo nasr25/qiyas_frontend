@@ -91,7 +91,8 @@
     "evidenceDocuments": "مستندات الإثبات",
     "scope": "النطاق",
     "references": "المراجع والأنظمة المرتبطة",
-    "noDepartments": "لم يتم تعيين إدارات"
+    "noDepartments": "لم يتم تعيين إدارات",
+    "assignDepartments": "تعيين الإدارات"
   },
   "documents": {
     "title": "الوثائق",
