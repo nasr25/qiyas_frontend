@@ -7,10 +7,14 @@
         <option value="">{{ t('common.all') }} {{ t('cycles.title') }}</option>
         <option v-for="c in cycles" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
-      <select v-model="filters.departmentId" class="input w-full sm:w-48" @change="applyFilters">
+      <!-- Department filter: free for admins/auditors; locked to own department otherwise -->
+      <select v-if="!deptScoped" v-model="filters.departmentId" class="input w-full sm:w-48" @change="applyFilters">
         <option value="">{{ t('common.all') }} {{ t('departments.title') }}</option>
         <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name_ar }}</option>
       </select>
+      <span v-else-if="authStore.user?.department" class="badge bg-brand-subtle text-brand self-center">
+        {{ authStore.user.department.name_ar }}
+      </span>
     </div>
 
     <!-- Loading -->
@@ -74,14 +78,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
+import { useAuthStore } from '@/stores/auth'
 import { standardsService, cyclesService, departmentsService } from '@/services/index'
 import AppPagination from '@/components/common/AppPagination.vue'
 
 const { t } = useI18n()
-const appStore = useAppStore()
+const appStore  = useAppStore()
+const authStore = useAuthStore()
 
 const loading     = ref(true)
 const standards   = ref([])
@@ -90,6 +96,11 @@ const departments = ref([])
 const filters     = ref({ cycleId: '', departmentId: '' })
 const page        = ref(1)
 const meta        = ref({ current_page: 1, last_page: 1, total: 0 })
+
+// Employees/coordinators are locked to their own department; admins/auditors
+// /executives can filter freely across all departments.
+const deptScoped = computed(() =>
+  (authStore.isEmployee || authStore.isCoordinator) && !!authStore.user?.department_id)
 
 function formatDate(d) {
   if (!d) return '-'
@@ -129,14 +140,19 @@ async function fetchStandards() {
 
 onMounted(async () => {
   loading.value = true
+  // Lock employees/coordinators to their own department.
+  if (deptScoped.value) {
+    filters.value.departmentId = authStore.user.department_id
+  }
   try {
     const [cyclesRes, deptsRes] = await Promise.all([
       cyclesService.list(),
-      departmentsService.list(),
+      // Only admins/auditors need the full department list for the filter.
+      deptScoped.value ? Promise.resolve({ data: [] }) : departmentsService.list(),
     ])
     cycles.value = cyclesRes.data || cyclesRes
     departments.value = deptsRes.data || deptsRes
-    // Auto-select active cycle
+    // Auto-select the active cycle (the one in effect).
     const active = cycles.value.find(c => c.status === 'active')
     if (active) {
       filters.value.cycleId = active.id
