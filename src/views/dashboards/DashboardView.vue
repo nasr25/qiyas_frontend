@@ -31,6 +31,18 @@
     </div>
 
     <template v-else-if="data">
+      <!-- Assigned catalog counts (employee / coordinator) -->
+      <div v-if="data.standards_count !== undefined" class="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('dashboard.assignedStandards') }}</p>
+          <p class="kpi-value text-brand">{{ (data.standards_count ?? 0).toLocaleString(locale) }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('dashboard.requirements') }}</p>
+          <p class="kpi-value">{{ (data.requirements_count ?? 0).toLocaleString(locale) }}</p>
+        </div>
+      </div>
+
       <!-- KPI cards -->
       <div class="grid-kpi">
         <div v-for="stat in stats" :key="stat.key" class="kpi-card">

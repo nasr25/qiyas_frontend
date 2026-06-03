@@ -43,7 +43,9 @@
     "completionRate": "نسبة الإنجاز",
     "pendingReviews": "بانتظار المراجعة",
     "extensionRequests": "طلبات التمديد",
-    "recentActivity": "آخر الأنشطة"
+    "recentActivity": "آخر الأنشطة",
+    "assignedStandards": "المعايير المسندة",
+    "requirements": "المتطلبات"
   },
   "cycles": {
     "title": "دورات التقييم",
