@@ -3,11 +3,11 @@
     <!-- Header + filters -->
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="text-xl font-bold text-content flex-1">{{ t('standards.title') }}</h1>
-      <select v-model="filters.cycleId" class="input w-full sm:w-48" @change="fetchStandards">
+      <select v-model="filters.cycleId" class="input w-full sm:w-48" @change="applyFilters">
         <option value="">{{ t('common.all') }} {{ t('cycles.title') }}</option>
         <option v-for="c in cycles" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
-      <select v-model="filters.departmentId" class="input w-full sm:w-48" @change="fetchStandards">
+      <select v-model="filters.departmentId" class="input w-full sm:w-48" @change="applyFilters">
         <option value="">{{ t('common.all') }} {{ t('departments.title') }}</option>
         <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name_ar }}</option>
       </select>
@@ -23,7 +23,7 @@
 
     <!-- Table -->
     <div v-else class="card">
-      <div class="table-wrapper rounded-xl border-0">
+      <div class="table-wrapper rounded-xl border-0 border-b border-line">
         <table class="table">
           <thead>
             <tr>
@@ -62,6 +62,13 @@
           </tbody>
         </table>
       </div>
+      <AppPagination
+        v-if="meta.last_page > 1"
+        :current-page="meta.current_page"
+        :last-page="meta.last_page"
+        :total="meta.total"
+        @page-change="onPage"
+      />
     </div>
   </div>
 </template>
@@ -71,6 +78,7 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { standardsService, cyclesService, departmentsService } from '@/services/index'
+import AppPagination from '@/components/common/AppPagination.vue'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -80,23 +88,38 @@ const standards   = ref([])
 const cycles      = ref([])
 const departments = ref([])
 const filters     = ref({ cycleId: '', departmentId: '' })
+const page        = ref(1)
+const meta        = ref({ current_page: 1, last_page: 1, total: 0 })
 
 function formatDate(d) {
   if (!d) return '-'
   return new Date(d).toLocaleDateString()
 }
 
+// Called when filters change — reset to page 1.
+function applyFilters() {
+  page.value = 1
+  fetchStandards()
+}
+
+function onPage(p) {
+  page.value = p
+  fetchStandards()
+}
+
 async function fetchStandards() {
   if (!filters.value.cycleId) {
     standards.value = []
+    meta.value = { current_page: 1, last_page: 1, total: 0 }
     return
   }
   loading.value = true
   try {
-    const params = {}
+    const params = { page: page.value, per_page: 20 }
     if (filters.value.departmentId) params.department_id = filters.value.departmentId
     const res = await standardsService.list(filters.value.cycleId, params)
     standards.value = res.data || res
+    if (res.meta) meta.value = res.meta
   } catch {
     appStore.showToast(t('common.error'), 'error')
   } finally {

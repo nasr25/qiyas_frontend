@@ -235,7 +235,8 @@ async function load() {
 }
 
 async function refreshStandards() {
-  const res = await standardsService.list(cycle.value.id)
+  // High per_page so the cycle overview lists all its standards (catalog has 89).
+  const res = await standardsService.list(cycle.value.id, { per_page: 500 })
   standards.value = res.data || res
 }
 
