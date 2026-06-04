@@ -43,8 +43,32 @@
         </div>
       </div>
 
-      <!-- KPI cards -->
-      <div class="grid-kpi">
+      <!-- Auditor KPIs -->
+      <div v-if="data.pending_reviews !== undefined" class="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('auditor.pendingReviews') }}</p>
+          <p class="kpi-value text-warning-600 dark:text-warning-400">{{ (data.pending_reviews ?? 0).toLocaleString(locale) }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('auditor.approvedToday') }}</p>
+          <p class="kpi-value text-success-600 dark:text-success-400">{{ (data.approved_today ?? 0).toLocaleString(locale) }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('dashboard.rejected') }}</p>
+          <p class="kpi-value text-danger-600 dark:text-danger-400">{{ (data.rejected_count ?? 0).toLocaleString(locale) }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('auditor.extensionRequests') }}</p>
+          <p class="kpi-value">{{ (data.extension_requests ?? 0).toLocaleString(locale) }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-label">{{ t('dashboard.overdue') }}</p>
+          <p class="kpi-value text-warning-700 dark:text-warning-400">{{ (data.overdue_count ?? 0).toLocaleString(locale) }}</p>
+        </div>
+      </div>
+
+      <!-- KPI cards (employee / coordinator / executive) -->
+      <div v-if="data.stats" class="grid-kpi">
         <div v-for="stat in stats" :key="stat.key" class="kpi-card">
           <p class="kpi-label">{{ stat.label }}</p>
           <p class="kpi-value" :class="stat.color">
@@ -54,7 +78,7 @@
       </div>
 
       <!-- Completion rate + donut chart -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div v-if="data.stats" class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <!-- Completion rate -->
         <div class="card p-5">
           <h3 class="card-title mb-4">{{ t('dashboard.completionRate') }}</h3>
@@ -136,7 +160,7 @@
       </div>
 
       <!-- Recent activity -->
-      <div class="card">
+      <div v-if="data.recent_activity" class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('dashboard.recentActivity') }}</h3>
         </div>

@@ -130,7 +130,9 @@
     "extensions": "طلبات التمديد",
     "approveExtension": "الموافقة على التمديد",
     "rejectExtension": "رفض التمديد",
-    "rejectionReasonHint": "10 أحرف على الأقل."
+    "rejectionReasonHint": "10 أحرف على الأقل.",
+    "approvedToday": "المعتمدة اليوم",
+    "extensionRequests": "طلبات التمديد"
   },
   "users": {
     "title": "إدارة المستخدمين",
