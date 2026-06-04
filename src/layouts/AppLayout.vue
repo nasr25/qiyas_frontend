@@ -22,14 +22,15 @@
     >
       <!-- Logo -->
       <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b border-white/10">
-        <div class="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+          <img v-if="appStore.branding.logo_url" :src="appStore.branding.logo_url" class="h-full w-full object-contain" alt="logo" />
+          <svg v-else class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
           </svg>
         </div>
         <div class="min-w-0">
-          <p class="text-sm font-bold text-white truncate">{{ t('app.name') }}</p>
+          <p class="text-sm font-bold text-white truncate">{{ appStore.branding.platform_name || t('app.name') }}</p>
           <p class="text-xs text-primary-200/80 truncate">{{ t('app.tagline') }}</p>
         </div>
       </div>

@@ -181,7 +181,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
-import { adminService } from '@/services/index'
+import { adminService, brandingService } from '@/services/index'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -264,8 +264,12 @@ async function loadSettings() {
       if (v === undefined || v === null) continue
       settings[fd.f] = fd.csv ? String(v).split(',').map(s => s.trim()).filter(Boolean) : v
     }
-    if (data?.branding?.logo)    settings.logo_url    = data.branding.logo_url || ''
-    if (data?.branding?.favicon) settings.favicon_url = data.branding.favicon_url || ''
+    // Logo/favicon URLs come from the public branding endpoint.
+    const b = await brandingService.get().catch(() => null)
+    if (b) {
+      settings.logo_url    = b.logo_url || ''
+      settings.favicon_url = b.favicon_url || ''
+    }
   } catch {
     appStore.showToast(t('common.error'), 'error')
   } finally {
@@ -304,6 +308,8 @@ async function uploadBranding(type, event) {
     const res = await adminService.uploadBranding(form)
     if (type === 'logo') settings.logo_url = res.url
     else settings.favicon_url = res.url
+    // Refresh the global branding so the sidebar/login logo updates immediately.
+    await appStore.loadBranding()
     appStore.showToast(t('common.success'), 'success')
   } catch {
     appStore.showToast(t('common.error'), 'error')
