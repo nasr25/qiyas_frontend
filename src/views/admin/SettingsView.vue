@@ -208,6 +208,29 @@ const notifToggles = [
   { key: 'notify_on_extension',label: 'Extension Notifications',  desc: 'Notify on extension request decisions' },
 ]
 
+// Maps each form field to the backend's group/key/type. `csv` fields convert
+// between an array (UI) and a comma-separated string (storage).
+const FIELDS = [
+  { f: 'platform_name_ar',  g: 'branding',     k: 'platform_name',     t: 'string',  tab: 'branding' },
+  { f: 'platform_name_en',  g: 'branding',     k: 'platform_name_en',  t: 'string',  tab: 'branding' },
+  { f: 'smtp_host',         g: 'smtp',         k: 'host',              t: 'string',  tab: 'smtp' },
+  { f: 'smtp_port',         g: 'smtp',         k: 'port',              t: 'integer', tab: 'smtp' },
+  { f: 'smtp_username',     g: 'smtp',         k: 'username',          t: 'string',  tab: 'smtp' },
+  { f: 'smtp_password',     g: 'smtp',         k: 'password',          t: 'string',  tab: 'smtp' },
+  { f: 'smtp_encryption',   g: 'smtp',         k: 'encryption',        t: 'string',  tab: 'smtp' },
+  { f: 'smtp_from',         g: 'smtp',         k: 'from_address',      t: 'string',  tab: 'smtp' },
+  { f: 'max_file_size_mb',  g: 'upload',       k: 'max_size_mb',       t: 'integer', tab: 'upload' },
+  { f: 'allowed_file_types',g: 'upload',       k: 'allowed_types',     t: 'string',  tab: 'upload', csv: true },
+  { f: 'default_locale',    g: 'localization', k: 'default_locale',    t: 'string',  tab: 'localization' },
+  { f: 'timezone',          g: 'localization', k: 'timezone',          t: 'string',  tab: 'localization' },
+  { f: 'date_format',       g: 'localization', k: 'date_format',       t: 'string',  tab: 'localization' },
+  { f: 'notify_on_submit',   g: 'notifications', k: 'notify_on_submit',    t: 'boolean', tab: 'notifications' },
+  { f: 'notify_on_approve',  g: 'notifications', k: 'notify_on_approve',   t: 'boolean', tab: 'notifications' },
+  { f: 'notify_on_reject',   g: 'notifications', k: 'notify_on_reject',    t: 'boolean', tab: 'notifications' },
+  { f: 'notify_on_deadline', g: 'notifications', k: 'notify_on_deadline',  t: 'boolean', tab: 'notifications' },
+  { f: 'notify_on_extension',g: 'notifications', k: 'notify_on_extension', t: 'boolean', tab: 'notifications' },
+]
+
 const settings = reactive({
   platform_name_ar: '',
   platform_name_en: '',
@@ -234,8 +257,15 @@ const settings = reactive({
 async function loadSettings() {
   loading.value = true
   try {
+    // Backend returns settings grouped: { branding: {...}, smtp: {...}, ... }
     const data = await adminService.getSettings()
-    Object.assign(settings, data)
+    for (const fd of FIELDS) {
+      const v = data?.[fd.g]?.[fd.k]
+      if (v === undefined || v === null) continue
+      settings[fd.f] = fd.csv ? String(v).split(',').map(s => s.trim()).filter(Boolean) : v
+    }
+    if (data?.branding?.logo)    settings.logo_url    = data.branding.logo_url || ''
+    if (data?.branding?.favicon) settings.favicon_url = data.branding.favicon_url || ''
   } catch {
     appStore.showToast(t('common.error'), 'error')
   } finally {
@@ -246,10 +276,19 @@ async function loadSettings() {
 async function saveTab() {
   saving.value = true
   try {
-    await adminService.updateSettings(settings)
+    // Send only the active tab's fields, shaped as the backend expects.
+    const payload = FIELDS
+      .filter(fd => fd.tab === activeTab.value)
+      .map(fd => ({
+        group: fd.g,
+        key:   fd.k,
+        type:  fd.t,
+        value: fd.csv ? (settings[fd.f] || []).join(',') : settings[fd.f],
+      }))
+    await adminService.updateSettings({ settings: payload })
     appStore.showToast(t('common.success'), 'success')
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
   } finally {
     saving.value = false
   }
