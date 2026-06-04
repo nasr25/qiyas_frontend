@@ -129,7 +129,8 @@
     "rejectionReason": "Rejection Reason (required)",
     "extensions": "Extension Requests",
     "approveExtension": "Approve Extension",
-    "rejectExtension": "Reject Extension"
+    "rejectExtension": "Reject Extension",
+    "rejectionReasonHint": "At least 10 characters."
   },
   "users": {
     "title": "User Management",

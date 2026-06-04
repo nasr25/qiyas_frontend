@@ -129,7 +129,8 @@
     "rejectionReason": "سبب الرفض (مطلوب)",
     "extensions": "طلبات التمديد",
     "approveExtension": "الموافقة على التمديد",
-    "rejectExtension": "رفض التمديد"
+    "rejectExtension": "رفض التمديد",
+    "rejectionReasonHint": "10 أحرف على الأقل."
   },
   "users": {
     "title": "إدارة المستخدمين",
