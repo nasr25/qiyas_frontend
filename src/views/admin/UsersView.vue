@@ -322,16 +322,18 @@ function openResetPassword(user) {
 async function handleSaveUser() {
   saving.value = true
   try {
+    // Empty department => null (auditors etc. need no department).
+    const payload = { ...userForm, department_id: userForm.department_id || null }
     if (editId.value) {
-      await adminService.updateUser(editId.value, userForm)
+      await adminService.updateUser(editId.value, payload)
     } else {
-      await adminService.createUser(userForm)
+      await adminService.createUser(payload)
     }
     appStore.showToast(t('common.success'), 'success')
     showUserModal.value = false
     await fetchUsers(meta.value.current_page)
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
   } finally {
     saving.value = false
   }
@@ -380,14 +382,14 @@ async function handleImportLdap() {
   try {
     await adminService.importLdap({
       ...ldap.selected,
-      department_id: ldap.department_id,
+      department_id: ldap.department_id || null,
       roles: ldap.roles,
     })
     appStore.showToast(t('common.success'), 'success')
     showLdapModal.value = false
     await fetchUsers()
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
   } finally {
     ldap.importing = false
   }
