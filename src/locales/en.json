@@ -130,7 +130,9 @@
     "extensions": "Extension Requests",
     "approveExtension": "Approve Extension",
     "rejectExtension": "Reject Extension",
-    "rejectionReasonHint": "At least 10 characters."
+    "rejectionReasonHint": "At least 10 characters.",
+    "approvedToday": "Approved Today",
+    "extensionRequests": "Extension Requests"
   },
   "users": {
     "title": "User Management",
