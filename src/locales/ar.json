@@ -94,7 +94,9 @@
     "scope": "النطاق",
     "references": "المراجع والأنظمة المرتبطة",
     "noDepartments": "لم يتم تعيين إدارات",
-    "assignDepartments": "تعيين الإدارات"
+    "assignDepartments": "تعيين الإدارات",
+    "perspective": "المنظور",
+    "axis": "المحور"
   },
   "documents": {
     "title": "الوثائق",
@@ -115,7 +117,9 @@
     "comments": "التعليقات والنقاشات",
     "uploadEvidence": "رفع إثبات",
     "openUpload": "فتح / رفع",
-    "mandatory": "إلزامي"
+    "mandatory": "إلزامي",
+    "submitForReview": "إرسال للمراجعة",
+    "uploaded": "تم رفع الملف"
   },
   "auditor": {
     "title": "بوابة المراجع",

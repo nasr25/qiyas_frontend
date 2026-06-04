@@ -94,9 +94,9 @@
       <Transition name="modal">
         <div v-if="showAddStandard" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.esc="showAddStandard = false">
           <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showAddStandard = false" />
-          <div class="relative card w-full max-w-lg p-6 shadow-xl">
-            <h3 class="text-lg font-semibold mb-4">{{ t('standards.new') }}</h3>
-            <form @submit.prevent="handleAddStandard" class="space-y-4">
+          <div class="relative card w-full max-w-2xl shadow-xl flex flex-col max-h-[90vh]">
+            <h3 class="text-lg font-semibold p-6 pb-3 border-b border-line shrink-0">{{ t('standards.new') }}</h3>
+            <form @submit.prevent="handleAddStandard" class="space-y-4 p-6 overflow-y-auto">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('standards.number') }}</label>
@@ -107,13 +107,45 @@
                   <input v-model="stdForm.version" class="input" />
                 </div>
               </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="label">{{ t('standards.perspective') }}</label>
+                  <input v-model="stdForm.perspective" class="input" dir="rtl" />
+                </div>
+                <div>
+                  <label class="label">{{ t('standards.axis') }}</label>
+                  <input v-model="stdForm.axis" class="input" dir="rtl" />
+                </div>
+              </div>
               <div>
                 <label class="label">{{ t('standards.nameAr') }}</label>
                 <input v-model="stdForm.name_ar" class="input" required dir="rtl" />
               </div>
               <div>
                 <label class="label">{{ t('standards.nameEn') }}</label>
-                <input v-model="stdForm.name_en" class="input" required dir="ltr" />
+                <input v-model="stdForm.name_en" class="input" dir="ltr" />
+              </div>
+              <div>
+                <label class="label">{{ t('standards.objective') }}</label>
+                <textarea v-model="stdForm.description" class="input" rows="2" dir="rtl" />
+              </div>
+              <div>
+                <label class="label">{{ t('standards.applicationRequirements') }}</label>
+                <textarea v-model="stdForm.application_requirements" class="input" rows="3" dir="rtl" />
+              </div>
+              <div>
+                <label class="label">{{ t('standards.evidenceDocuments') }}</label>
+                <textarea v-model="stdForm.evidence_documents" class="input" rows="3" dir="rtl" />
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="label">{{ t('standards.scope') }}</label>
+                  <input v-model="stdForm.scope" class="input" dir="rtl" />
+                </div>
+                <div>
+                  <label class="label">{{ t('standards.references') }}</label>
+                  <input v-model="stdForm.related_references" class="input" dir="rtl" />
+                </div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -125,11 +157,22 @@
                   <input v-model="stdForm.due_date" type="date" class="input" />
                 </div>
               </div>
-              <div class="flex justify-end gap-3 pt-2">
-                <button type="button" class="btn-secondary" @click="showAddStandard = false">{{ t('common.cancel') }}</button>
-                <button type="submit" class="btn-primary" :disabled="saving">{{ saving ? t('common.loading') : t('common.save') }}</button>
+              <!-- Departments -->
+              <div>
+                <label class="label">{{ t('standards.departments') }}</label>
+                <div class="max-h-40 overflow-y-auto rounded-lg border border-line p-2 space-y-1">
+                  <label v-for="d in departments" :key="d.id" class="flex items-center gap-2.5 rounded px-2 py-1.5 hover:bg-surface-inset cursor-pointer">
+                    <input type="checkbox" :value="d.id" v-model="stdForm.department_ids" class="h-4 w-4 rounded border-line text-primary-600" />
+                    <span class="text-sm text-content">{{ d.name_ar }}</span>
+                  </label>
+                  <p v-if="!departments.length" class="text-sm text-content-subtle py-3 text-center">{{ t('common.noData') }}</p>
+                </div>
               </div>
             </form>
+            <div class="flex justify-end gap-3 p-6 pt-3 border-t border-line shrink-0">
+              <button type="button" class="btn-secondary" @click="showAddStandard = false">{{ t('common.cancel') }}</button>
+              <button type="button" class="btn-primary" :disabled="saving" @click="handleAddStandard">{{ saving ? t('common.loading') : t('common.save') }}</button>
+            </div>
           </div>
         </div>
       </Transition>
@@ -191,7 +234,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
-import { cyclesService, standardsService } from '@/services/index'
+import { cyclesService, standardsService, departmentsService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 
 const { t } = useI18n()
@@ -203,8 +246,15 @@ const loading        = ref(true)
 const saving         = ref(false)
 const cycle          = ref(null)
 const standards      = ref([])
+const departments    = ref([])
 const showAddStandard = ref(false)
-const stdForm = ref({ standard_number: '', name_ar: '', name_en: '', version: '', weight: '', due_date: '' })
+
+const emptyStdForm = () => ({
+  standard_number: '', name_ar: '', name_en: '', version: '', weight: '', due_date: '',
+  perspective: '', axis: '', description: '', application_requirements: '',
+  evidence_documents: '', scope: '', related_references: '', department_ids: [],
+})
+const stdForm = ref(emptyStdForm())
 
 // Import state
 const showImport         = ref(false)
@@ -226,7 +276,11 @@ async function load() {
   try {
     const id = route.params.id
     cycle.value = await cyclesService.get(id)
-    await refreshStandards()
+    const [, deptsRes] = await Promise.all([
+      refreshStandards(),
+      departmentsService.list().catch(() => ({ data: [] })),
+    ])
+    departments.value = deptsRes.data || deptsRes || []
   } catch {
     appStore.showToast(t('common.error'), 'error')
   } finally {
@@ -246,7 +300,7 @@ async function handleAddStandard() {
     await standardsService.create(cycle.value.id, stdForm.value)
     appStore.showToast(t('common.success'), 'success')
     showAddStandard.value = false
-    stdForm.value = { standard_number: '', name_ar: '', name_en: '', version: '', weight: '', due_date: '' }
+    stdForm.value = emptyStdForm()
     await refreshStandards()
   } catch (err) {
     appStore.showToast(err?.response?.data?.message || t('common.error'), 'error')

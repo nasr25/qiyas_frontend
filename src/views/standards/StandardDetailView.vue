@@ -80,12 +80,22 @@
                 <p v-if="req.title_en" class="text-xs text-content-subtle mb-2" dir="ltr">{{ req.title_en }}</p>
                 <p v-if="req.description" class="text-sm text-content-muted whitespace-pre-line leading-relaxed" dir="rtl">{{ req.description }}</p>
               </div>
-              <!-- Evidence upload (employees / coordinators) -->
-              <div v-if="canUpload" class="flex items-center gap-2 shrink-0 self-start">
+              <!-- Evidence upload (employees / coordinators) — inline -->
+              <div v-if="canUpload" class="flex flex-wrap items-center gap-2 shrink-0 self-start">
                 <StatusBadge v-if="docByReq(req.id)" :status="docByReq(req.id).status" />
-                <button class="btn-primary btn-sm" :disabled="busyReq === req.id" @click="uploadEvidence(req)">
-                  {{ docByReq(req.id) ? t('documents.openUpload') : t('documents.uploadEvidence') }}
+                <label
+                  class="btn-secondary btn-sm cursor-pointer"
+                  :class="{ 'opacity-50 pointer-events-none': busyReq === req.id }"
+                >
+                  {{ busyReq === req.id ? t('common.loading') : t('documents.uploadEvidence') }}
+                  <input type="file" class="hidden" @change="e => onPickEvidence(req, e)" />
+                </label>
+                <button v-if="canSubmit(req)" class="btn-primary btn-sm" :disabled="busyReq === req.id" @click="submitEvidence(req)">
+                  {{ t('documents.submitForReview') }}
                 </button>
+                <RouterLink v-if="docByReq(req.id)" :to="`/documents/${docByReq(req.id).id}`" class="btn-ghost btn-sm">
+                  {{ t('common.view') }}
+                </RouterLink>
               </div>
             </div>
           </div>
@@ -203,20 +213,54 @@ function docByReq(reqId) {
   return documents.value.find(d => d.requirement_id === reqId)
 }
 
-// Ensure a (dept-scoped) document exists for this requirement, then open it to
-// upload/submit using the existing document page. store() is firstOrCreate, so
-// this is safe to call repeatedly.
-async function uploadEvidence(req) {
+// A draft with an uploaded file can be submitted for review.
+function canSubmit(req) {
+  const d = docByReq(req.id)
+  return !!d && d.status === 'draft' && (d.current_version ?? 0) >= 1
+}
+
+// store() is firstOrCreate (dept-scoped), so calling it repeatedly is safe.
+async function ensureDoc(req) {
+  return docByReq(req.id) || await documentsService.create({
+    requirement_id: req.id,
+    cycle_id: standard.value.cycle_id,
+    title: req.title_ar || req.title || standard.value.name_ar,
+  })
+}
+
+async function reloadDocuments() {
+  const res = await documentsService.list({ standard_id: route.params.id })
+  documents.value = res.data || res || []
+}
+
+// Pick a file → create the document if needed → upload — all inline.
+async function onPickEvidence(req, e) {
+  const file = e.target.files?.[0]
+  e.target.value = ''
+  if (!file) return
   busyReq.value = req.id
   try {
-    const doc = await documentsService.create({
-      requirement_id: req.id,
-      cycle_id: standard.value.cycle_id,
-      title: req.title_ar || req.title || standard.value.name_ar,
-    })
-    router.push(`/documents/${doc.id}`)
-  } catch (e) {
-    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
+    const doc = await ensureDoc(req)
+    await documentsService.upload(doc.id, file)
+    appStore.showToast(t('documents.uploaded'), 'success')
+    await reloadDocuments()
+  } catch (err) {
+    appStore.showToast(err?.response?.data?.message || t('common.error'), 'error')
+  } finally {
+    busyReq.value = null
+  }
+}
+
+async function submitEvidence(req) {
+  const doc = docByReq(req.id)
+  if (!doc) return
+  busyReq.value = req.id
+  try {
+    await documentsService.submit(doc.id)
+    appStore.showToast(t('common.success'), 'success')
+    await reloadDocuments()
+  } catch (err) {
+    appStore.showToast(err?.response?.data?.message || t('common.error'), 'error')
   } finally {
     busyReq.value = null
   }

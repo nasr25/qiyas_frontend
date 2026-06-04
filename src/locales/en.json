@@ -94,7 +94,9 @@
     "scope": "Scope",
     "references": "References & Regulations",
     "noDepartments": "No departments assigned",
-    "assignDepartments": "Assign Departments"
+    "assignDepartments": "Assign Departments",
+    "perspective": "Perspective",
+    "axis": "Axis"
   },
   "documents": {
     "title": "Documents",
@@ -115,7 +117,9 @@
     "comments": "Comments & Discussions",
     "uploadEvidence": "Upload Evidence",
     "openUpload": "Open / Upload",
-    "mandatory": "Mandatory"
+    "mandatory": "Mandatory",
+    "submitForReview": "Submit for review",
+    "uploaded": "File uploaded"
   },
   "auditor": {
     "title": "Auditor Portal",
