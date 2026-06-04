@@ -3,6 +3,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { brandingService } from '@/services/index'
 
 export const useAppStore = defineStore('app', () => {
   const locale       = ref(localStorage.getItem('locale') || 'ar')
@@ -11,6 +12,7 @@ export const useAppStore = defineStore('app', () => {
   // via CSS (lg:translate-x-0), so this flag only governs the mobile overlay.
   const sidebarOpen  = ref(false)
   const toasts       = ref([])
+  const branding     = ref({ platform_name: '', platform_name_en: '', logo_url: '', favicon_url: '' })
 
   const isRTL  = computed(() => locale.value === 'ar')
   const isDark = computed(() => theme.value === 'dark')
@@ -48,15 +50,36 @@ export const useAppStore = defineStore('app', () => {
     toasts.value = toasts.value.filter(t => t.id !== id)
   }
 
+  /** Loads public branding (platform name + logo) and applies the favicon. */
+  async function loadBranding() {
+    try {
+      const b = await brandingService.get()
+      if (b) {
+        branding.value = b
+        if (b.favicon_url) applyFavicon(b.favicon_url)
+      }
+    } catch { /* keep defaults */ }
+  }
+
+  function applyFavicon(url) {
+    let link = document.querySelector("link[rel~='icon']")
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = 'icon'
+      document.head.appendChild(link)
+    }
+    link.href = url
+  }
+
   // Initialize on store creation
   document.documentElement.dir  = locale.value === 'ar' ? 'rtl' : 'ltr'
   document.documentElement.lang = locale.value
   document.documentElement.classList.toggle('dark', theme.value === 'dark')
 
   return {
-    locale, theme, sidebarOpen, toasts,
+    locale, theme, sidebarOpen, toasts, branding,
     isRTL, isDark,
     setLocale, toggleTheme, toggleSidebar,
-    showToast, removeToast,
+    showToast, removeToast, loadBranding,
   }
 })

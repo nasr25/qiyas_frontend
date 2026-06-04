@@ -61,6 +61,10 @@ export const dashboardService = {
   get: (params) => api.get('/dashboard', { params }).then(r => r.data.data),
 }
 
+export const brandingService = {
+  get: () => api.get('/branding').then(r => r.data.data),
+}
+
 export const notificationsService = {
   list:        (params) => api.get('/notifications', { params }).then(r => r.data),
   count:       ()       => api.get('/notifications/count').then(r => r.data.data.unread),
