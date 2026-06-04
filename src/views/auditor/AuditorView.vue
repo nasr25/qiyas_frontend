@@ -95,11 +95,12 @@
             <div class="space-y-4">
               <div>
                 <label class="label">{{ t('auditor.rejectionReason') }}</label>
-                <textarea v-model="rejectModal.reason" class="input" rows="4" required />
+                <textarea v-model="rejectModal.reason" class="input" rows="4" minlength="10" required />
+                <p class="hint">{{ t('auditor.rejectionReasonHint') }}</p>
               </div>
               <div class="flex justify-end gap-3">
                 <button class="btn-secondary" @click="rejectModal.show = false">{{ t('common.cancel') }}</button>
-                <button class="btn-danger" :disabled="!rejectModal.reason.trim() || rejectModal.saving" @click="handleReject">
+                <button class="btn-danger" :disabled="rejectModal.reason.trim().length < 10 || rejectModal.saving" @click="handleReject">
                   {{ rejectModal.saving ? t('common.loading') : t('auditor.reject') }}
                 </button>
               </div>
@@ -182,13 +183,14 @@ async function handleApprove(review) {
 async function handleReject() {
   rejectModal.saving = true
   try {
-    await auditorService.reject(rejectModal.docId, { rejection_reason: rejectModal.reason })
+    // Backend expects `reason` (min 10 chars).
+    await auditorService.reject(rejectModal.docId, { reason: rejectModal.reason })
     appStore.showToast(t('common.success'), 'success')
     rejectModal.show = false
     stats.rejectedToday++
     await fetchPending(meta.value.current_page)
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
   } finally {
     rejectModal.saving = false
   }
