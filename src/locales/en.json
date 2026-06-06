@@ -119,7 +119,9 @@
     "openUpload": "Open / Upload",
     "mandatory": "Mandatory",
     "submitForReview": "Submit for review",
-    "uploaded": "File uploaded"
+    "uploaded": "File uploaded",
+    "allowedTypes": "Allowed types",
+    "file": "File"
   },
   "auditor": {
     "title": "Auditor Portal",

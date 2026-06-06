@@ -91,8 +91,9 @@
         <h2 class="text-sm font-semibold text-content mb-4">{{ t('documents.upload') }}</h2>
         <div class="space-y-4">
           <div>
-            <label class="label">File</label>
-            <input type="file" class="input" @change="e => uploadForm.file = e.target.files[0]" />
+            <label class="label">{{ t('documents.file') }}</label>
+            <input type="file" class="input" :accept="appStore.acceptAttr" @change="onPickFile" />
+            <p class="hint">{{ t('documents.allowedTypes') }}: {{ appStore.upload.allowed_types.join(', ') }} · {{ t('common.max') }} {{ appStore.upload.max_size_mb }}MB</p>
           </div>
           <div>
             <label class="label">{{ t('documents.changeReason') }}</label>
@@ -257,15 +258,24 @@ async function downloadVersion(versionNumber) {
   }
 }
 
+function onPickFile(e) {
+  const file = e.target.files?.[0] || null
+  const err = file ? appStore.validateUploadFile(file) : null
+  if (err) { appStore.showToast(err, 'error'); e.target.value = ''; uploadForm.value.file = null; return }
+  uploadForm.value.file = file
+}
+
 async function handleUpload() {
+  const err = appStore.validateUploadFile(uploadForm.value.file)
+  if (err) { appStore.showToast(err, 'error'); return }
   uploading.value = true
   try {
     await documentsService.upload(doc.value.id, uploadForm.value.file, uploadForm.value.reason)
     appStore.showToast(t('common.success'), 'success')
     uploadForm.value = { file: null, reason: '' }
     await load()
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
   } finally {
     uploading.value = false
   }

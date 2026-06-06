@@ -68,6 +68,9 @@
             + {{ t('common.save') }}
           </button>
         </div>
+        <p v-if="canUpload && requirements.length" class="px-4 sm:px-6 pt-3 text-xs text-content-subtle">
+          {{ t('documents.allowedTypes') }}: {{ appStore.upload.allowed_types.join(', ') }} · {{ t('common.max') }} {{ appStore.upload.max_size_mb }}MB
+        </p>
         <div class="divide-y divide-line">
           <div v-if="!requirements.length" class="px-6 py-8 text-center text-content-subtle text-sm">{{ t('common.noData') }}</div>
           <div v-for="req in requirements" :key="req.id" class="px-4 sm:px-6 py-4">
@@ -88,7 +91,7 @@
                   :class="{ 'opacity-50 pointer-events-none': busyReq === req.id }"
                 >
                   {{ busyReq === req.id ? t('common.loading') : t('documents.uploadEvidence') }}
-                  <input type="file" class="hidden" @change="e => onPickEvidence(req, e)" />
+                  <input type="file" class="hidden" :accept="appStore.acceptAttr" @change="e => onPickEvidence(req, e)" />
                 </label>
                 <button v-if="canSubmit(req)" class="btn-primary btn-sm" :disabled="busyReq === req.id" @click="submitEvidence(req)">
                   {{ t('documents.submitForReview') }}
@@ -238,6 +241,8 @@ async function onPickEvidence(req, e) {
   const file = e.target.files?.[0]
   e.target.value = ''
   if (!file) return
+  const err = appStore.validateUploadFile(file)
+  if (err) { appStore.showToast(err, 'error'); return }
   busyReq.value = req.id
   try {
     const doc = await ensureDoc(req)
