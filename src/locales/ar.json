@@ -119,7 +119,9 @@
     "openUpload": "فتح / رفع",
     "mandatory": "إلزامي",
     "submitForReview": "إرسال للمراجعة",
-    "uploaded": "تم رفع الملف"
+    "uploaded": "تم رفع الملف",
+    "allowedTypes": "الأنواع المسموحة",
+    "file": "الملف"
   },
   "auditor": {
     "title": "بوابة المراجع",
