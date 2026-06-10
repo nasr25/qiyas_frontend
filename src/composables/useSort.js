@@ -31,7 +31,9 @@ export function useSort(rows, initialKey = null, initialDir = 'asc') {
   }
 
   const sorted = computed(() => {
-    const arr = [...(unref(rows) || [])]
+    const src = unref(rows)
+    // Source may temporarily be a non-array (e.g. object report payloads).
+    const arr = Array.isArray(src) ? [...src] : []
     if (!sortKey.value) return arr
     const factor = sortDir.value === 'asc' ? 1 : -1
     return arr.sort((a, b) => {
