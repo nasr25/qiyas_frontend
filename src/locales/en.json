@@ -232,6 +232,7 @@
     "comments": "Comments",
     "addComment": "Write a comment…",
     "newDate": "New requested date",
-    "reason": "Reason"
+    "reason": "Reason",
+    "reasonHint": "At least 20 characters."
   }
 }

@@ -79,7 +79,7 @@
                 </div>
                 <div>
                   <label class="label">{{ t('cycles.copyFromPrevious') }}</label>
-                  <select v-model="form.copy_from_cycle_id" class="input">
+                  <select v-model="form.copy_from_cycle" class="input">
                     <option value="">{{ t('cycles.createEmpty') }}</option>
                     <option v-for="c in cycles" :key="c.id" :value="c.id">{{ c.name }}</option>
                   </select>
@@ -167,7 +167,7 @@ const showModal     = ref(false)
 const showCloseModal = ref(false)
 const selectedCycle  = ref(null)
 
-const form = ref({ name: '', year: new Date().getFullYear(), start_date: '', end_date: '', copy_from_cycle_id: '' })
+const form = ref({ name: '', year: new Date().getFullYear(), start_date: '', end_date: '', copy_from_cycle: '' })
 const closeForm = ref({ final_score: '', closing_notes: '' })
 
 const confirm = ref({ show: false, title: '', message: '', danger: false, action: () => {} })
@@ -178,7 +178,7 @@ function formatDate(d) {
 }
 
 function openCreateModal() {
-  form.value = { name: '', year: new Date().getFullYear(), start_date: '', end_date: '', copy_from_cycle_id: '' }
+  form.value = { name: '', year: new Date().getFullYear(), start_date: '', end_date: '', copy_from_cycle: '' }
   showModal.value = true
 }
 
