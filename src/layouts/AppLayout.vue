@@ -207,17 +207,25 @@ function closeMobileSidebar() {
   if (appStore.sidebarOpen) appStore.toggleSidebar()
 }
 
+// Role-based navigation. `roles: []` = visible to everyone.
 const navItems = [
-  { name: 'dashboard',  to: '/dashboard',         label: 'nav.dashboard',  icon: '🏠', roles: [] },
-  { name: 'cycles',     to: '/cycles',            label: 'nav.cycles',     icon: '🔄', roles: ['super-admin', 'coordinator'] },
-  { name: 'departments',to: '/departments',       label: 'nav.departments',icon: '🏢', roles: ['super-admin'] },
-  { name: 'standards',  to: '/standards',         label: 'nav.standards',  icon: '📋', roles: [] },
-  { name: 'documents',  to: '/documents',         label: 'nav.documents',  icon: '📄', roles: [] },
-  { name: 'auditor',    to: '/auditor',           label: 'nav.auditor',    icon: '🔍', roles: ['auditor', 'super-admin'] },
-  { name: 'reports',    to: '/reports',           label: 'nav.reports',    icon: '📊', roles: ['super-admin', 'auditor', 'executive'] },
-  { name: 'users',      to: '/admin/users',       label: 'nav.users',      icon: '👥', roles: ['super-admin'] },
-  { name: 'settings',   to: '/admin/settings',    label: 'nav.settings',   icon: '⚙️', roles: ['super-admin'] },
-  { name: 'auditLogs',  to: '/admin/audit-logs',  label: 'nav.auditLogs',  icon: '📝', roles: ['super-admin'] },
+  { name: 'dashboard',     to: '/dashboard',          label: 'nav.dashboard',      icon: '🏠', roles: [] },
+  // Employee
+  { name: 'my-standards',  to: '/my-standards',       label: 'nav.myStandards',    icon: '📂', roles: ['employee', 'coordinator'] },
+  // Qiyas Administrator
+  { name: 'cycles',        to: '/cycles',             label: 'nav.cycles',         icon: '🔄', roles: ['super-admin', 'qiyas-admin'] },
+  { name: 'standards',     to: '/standards',          label: 'nav.standards',      icon: '📋', roles: ['super-admin', 'qiyas-admin'] },
+  { name: 'departments',   to: '/departments',        label: 'nav.departments',    icon: '🏢', roles: ['super-admin', 'qiyas-admin'] },
+  // Auditor
+  { name: 'auditor',          to: '/auditor',            label: 'nav.pendingReviews', icon: '🔍', roles: ['super-admin', 'auditor'] },
+  { name: 'auditor-extensions', to: '/auditor/extensions', label: 'nav.extensions',  icon: '⏳', roles: ['super-admin', 'auditor'] },
+  { name: 'auditLogs',        to: '/admin/audit-logs',   label: 'nav.auditLogs',      icon: '📝', roles: ['super-admin', 'auditor'] },
+  // Shared
+  { name: 'reports',       to: '/reports',            label: 'nav.reports',        icon: '📊', roles: ['super-admin', 'qiyas-admin', 'auditor', 'executive'] },
+  { name: 'notifications', to: '/notifications',      label: 'nav.notifications',  icon: '🔔', roles: ['employee', 'coordinator'] },
+  // Super Admin
+  { name: 'users',         to: '/admin/users',        label: 'nav.users',          icon: '👥', roles: ['super-admin'] },
+  { name: 'settings',      to: '/admin/settings',     label: 'nav.settings',       icon: '⚙️', roles: ['super-admin'] },
 ]
 
 function canSee(item) {
@@ -258,6 +266,7 @@ const pageTitle = computed(() => {
     'audit-logs':     'nav.auditLogs',
     profile:          'nav.profile',
     notifications:    'nav.notifications',
+    'my-standards':   'nav.myStandards',
   }
   return map[name] ? t(map[name]) : t('app.name')
 })

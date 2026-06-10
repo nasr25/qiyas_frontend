@@ -34,6 +34,7 @@ const router = createRouter({
         { path: 'admin/audit-logs', name: 'audit-logs', component: () => import('@/views/admin/AuditLogsView.vue'), meta: { roles: ['super-admin'] } },
         { path: 'profile', name: 'profile', component: () => import('@/views/profile/ProfileView.vue') },
         { path: 'notifications', name: 'notifications', component: () => import('@/views/notifications/NotificationsView.vue') },
+        { path: 'my-standards', name: 'my-standards', component: () => import('@/views/employee/MyDepartmentStandardsView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
       ],
     },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') },

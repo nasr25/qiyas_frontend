@@ -21,6 +21,12 @@ export const authService = {
     return data.data
   },
 
+  /** Dev-only list of test users (empty outside local/debug). */
+  async devUsers() {
+    const { data } = await api.get('/auth/dev-users')
+    return data.data
+  },
+
   /** Logs out and invalidates the server-side JWT. */
   async logout() {
     await api.post('/auth/logout').catch(() => {})

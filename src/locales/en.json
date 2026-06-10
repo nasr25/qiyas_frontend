@@ -16,7 +16,10 @@
     "auditLogs": "Audit Logs",
     "profile": "Profile",
     "logout": "Logout",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "myStandards": "My Department Standards",
+    "pendingReviews": "Pending Reviews",
+    "extensions": "Extension Requests"
   },
   "auth": {
     "login": "Sign In",
@@ -218,5 +221,17 @@
     "markAllRead": "Mark all as read",
     "empty": "No notifications yet",
     "new": "New notification"
+  },
+  "myStd": {
+    "noCycle": "No active assessment cycle yet.",
+    "noStandards": "No standards assigned to your department.",
+    "noRequirements": "No evidence requirements.",
+    "notUploaded": "Not uploaded",
+    "replaceFile": "Replace file",
+    "requestExtension": "Request extension",
+    "comments": "Comments",
+    "addComment": "Write a comment…",
+    "newDate": "New requested date",
+    "reason": "Reason"
   }
 }

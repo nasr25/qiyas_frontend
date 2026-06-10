@@ -16,7 +16,10 @@
     "auditLogs": "سجل التدقيق",
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
-    "notifications": "الإشعارات"
+    "notifications": "الإشعارات",
+    "myStandards": "معايير إدارتي",
+    "pendingReviews": "بانتظار المراجعة",
+    "extensions": "طلبات التمديد"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -218,5 +221,17 @@
     "markAllRead": "تعليم الكل كمقروء",
     "empty": "لا توجد إشعارات بعد",
     "new": "إشعار جديد"
+  },
+  "myStd": {
+    "noCycle": "لا توجد دورة تقييم نشطة بعد.",
+    "noStandards": "لا توجد معايير مسندة إلى إدارتك.",
+    "noRequirements": "لا توجد متطلبات إثبات.",
+    "notUploaded": "لم يُرفع",
+    "replaceFile": "استبدال الملف",
+    "requestExtension": "طلب تمديد",
+    "comments": "التعليقات",
+    "addComment": "اكتب تعليقًا…",
+    "newDate": "التاريخ الجديد المطلوب",
+    "reason": "السبب"
   }
 }
