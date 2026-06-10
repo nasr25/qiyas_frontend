@@ -27,21 +27,21 @@
           <table class="table">
             <thead>
               <tr>
-                <th>{{ t('users.name') }}</th>
-                <th>{{ t('users.username') }}</th>
-                <th>{{ t('users.email') }}</th>
-                <th>{{ t('users.department') }}</th>
+                <SortableTh field="name" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('users.name') }}</SortableTh>
+                <SortableTh field="username" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('users.username') }}</SortableTh>
+                <SortableTh field="email" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('users.email') }}</SortableTh>
+                <SortableTh field="department.name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('users.department') }}</SortableTh>
                 <th>{{ t('users.roles') }}</th>
-                <th>Auth</th>
-                <th>{{ t('users.active') }}</th>
+                <SortableTh field="auth_type" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Auth</SortableTh>
+                <SortableTh field="is_active" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('users.active') }}</SortableTh>
                 <th>{{ t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!users.length">
+              <tr v-if="!sorted.length">
                 <td colspan="8" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="user in users" :key="user.id">
+              <tr v-for="user in sorted" :key="user.id">
                 <td class="font-medium">{{ user.name }}</td>
                 <td class="font-mono text-xs">{{ user.username }}</td>
                 <td class="text-xs">{{ user.email }}</td>
@@ -245,6 +245,8 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { adminService, departmentsService } from '@/services/index'
 import AppPagination from '@/components/common/AppPagination.vue'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -252,6 +254,7 @@ const appStore = useAppStore()
 const loading     = ref(true)
 const saving      = ref(false)
 const users       = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(users)
 const departments = ref([])
 const search      = ref('')
 const meta = ref({ current_page: 1, last_page: 1, total: 0 })

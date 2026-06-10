@@ -27,19 +27,19 @@
           <table class="table">
             <thead>
               <tr>
-                <th>{{ t('common.date') }}</th>
-                <th>User</th>
-                <th>Action</th>
-                <th>Description</th>
-                <th>IP</th>
-                <th>Model</th>
+                <SortableTh field="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('common.date') }}</SortableTh>
+                <SortableTh field="user.name" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">User</SortableTh>
+                <SortableTh field="action" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Action</SortableTh>
+                <SortableTh field="description" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Description</SortableTh>
+                <SortableTh field="ip_address" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">IP</SortableTh>
+                <SortableTh field="auditable_type" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Model</SortableTh>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!logs.length">
+              <tr v-if="!sorted.length">
                 <td colspan="6" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="log in logs" :key="log.id">
+              <tr v-for="log in sorted" :key="log.id">
                 <td class="text-xs whitespace-nowrap">{{ formatDate(log.created_at) }}</td>
                 <td>
                   <div>
@@ -76,6 +76,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { adminService } from '@/services/index'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 import AppPagination from '@/components/common/AppPagination.vue'
 
 const { t } = useI18n()
@@ -83,6 +85,7 @@ const appStore = useAppStore()
 
 const loading = ref(true)
 const logs    = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(logs)
 const meta    = ref({ current_page: 1, last_page: 1, total: 0 })
 
 const actions = [

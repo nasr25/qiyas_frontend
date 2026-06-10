@@ -28,21 +28,21 @@
           <table class="table">
             <thead>
               <tr>
-                <th>{{ t('documents.title') }}</th>
-                <th>{{ t('departments.title') }}</th>
-                <th>Requested By</th>
-                <th>{{ t('common.date') }}</th>
-                <th>Requested Date</th>
-                <th>Reason</th>
-                <th>{{ t('common.status') }}</th>
+                <SortableTh field="document.title" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('documents.title') }}</SortableTh>
+                <SortableTh field="department.name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('departments.title') }}</SortableTh>
+                <SortableTh field="requested_by.name" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Requested By</SortableTh>
+                <SortableTh field="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('common.date') }}</SortableTh>
+                <SortableTh field="requested_date" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Requested Date</SortableTh>
+                <SortableTh field="reason" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Reason</SortableTh>
+                <SortableTh field="status" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('common.status') }}</SortableTh>
                 <th>{{ t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!extensions.length">
+              <tr v-if="!sorted.length">
                 <td colspan="8" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="ext in extensions" :key="ext.id">
+              <tr v-for="ext in sorted" :key="ext.id">
                 <td class="max-w-[160px] truncate font-medium">{{ ext.document?.title }}</td>
                 <td>{{ ext.department?.name_ar }}</td>
                 <td>{{ ext.requested_by?.name }}</td>
@@ -109,6 +109,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { auditorService } from '@/services/index'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 import AppPagination from '@/components/common/AppPagination.vue'
 
 const { t } = useI18n()
@@ -116,6 +118,7 @@ const appStore = useAppStore()
 
 const loading    = ref(true)
 const extensions = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(extensions)
 const meta = ref({ current_page: 1, last_page: 1, total: 0 })
 const filters = reactive({ status: '' })
 

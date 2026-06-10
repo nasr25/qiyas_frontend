@@ -18,18 +18,18 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ t('departments.nameAr') }}</th>
-              <th>{{ t('departments.nameEn') }}</th>
-              <th>{{ t('departments.active') }}</th>
-              <th>{{ t('users.title') }}</th>
+              <SortableTh field="name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('departments.nameAr') }}</SortableTh>
+              <SortableTh field="name_en" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('departments.nameEn') }}</SortableTh>
+              <SortableTh field="is_active" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('departments.active') }}</SortableTh>
+              <SortableTh field="users_count" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('users.title') }}</SortableTh>
               <th>{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="!departments.length">
+            <tr v-if="!sorted.length">
               <td colspan="5" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
-            <tr v-for="dept in departments" :key="dept.id">
+            <tr v-for="dept in sorted" :key="dept.id">
               <td class="font-medium">{{ dept.name_ar }}</td>
               <td>{{ dept.name_en }}</td>
               <td>
@@ -102,6 +102,8 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { departmentsService } from '@/services/index'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const { t } = useI18n()
@@ -110,6 +112,7 @@ const appStore = useAppStore()
 const loading     = ref(true)
 const saving      = ref(false)
 const departments = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(departments)
 const showModal   = ref(false)
 const editId      = ref(null)
 

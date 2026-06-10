@@ -127,19 +127,19 @@
           <table class="table">
             <thead>
               <tr>
-                <th>{{ t('departments.nameAr') }}</th>
-                <th>{{ t('dashboard.total') }}</th>
-                <th>{{ t('dashboard.approved') }}</th>
-                <th>{{ t('dashboard.underReview') }}</th>
-                <th>{{ t('dashboard.rejected') }}</th>
-                <th class="min-w-[10rem]">{{ t('dashboard.completionRate') }}</th>
+                <SortableTh field="name_ar" :sort-key="deptSortKey" :sort-dir="deptSortDir" @sort="sortDepts">{{ t('departments.nameAr') }}</SortableTh>
+                <SortableTh field="total" :sort-key="deptSortKey" :sort-dir="deptSortDir" @sort="sortDepts">{{ t('dashboard.total') }}</SortableTh>
+                <SortableTh field="approved" :sort-key="deptSortKey" :sort-dir="deptSortDir" @sort="sortDepts">{{ t('dashboard.approved') }}</SortableTh>
+                <SortableTh field="under_review" :sort-key="deptSortKey" :sort-dir="deptSortDir" @sort="sortDepts">{{ t('dashboard.underReview') }}</SortableTh>
+                <SortableTh field="rejected" :sort-key="deptSortKey" :sort-dir="deptSortDir" @sort="sortDepts">{{ t('dashboard.rejected') }}</SortableTh>
+                <SortableTh field="completion_rate" :sort-key="deptSortKey" :sort-dir="deptSortDir" @sort="sortDepts" class="min-w-[10rem]">{{ t('dashboard.completionRate') }}</SortableTh>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!data.departments?.length">
+              <tr v-if="!sortedDepts.length">
                 <td colspan="6" class="text-center py-8 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="dept in data.departments" :key="dept.id">
+              <tr v-for="dept in sortedDepts" :key="dept.id">
                 <td class="font-medium text-content">{{ dept.name_ar || dept.name }}</td>
                 <td>{{ dept.total }}</td>
                 <td><span class="badge-approved">{{ dept.approved }}</span></td>
@@ -194,6 +194,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { dashboardService } from '@/services/index'
 import { chartTheme, baseChartOptions } from '@/utils/chartTheme'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -204,6 +206,10 @@ const loading  = ref(true)
 const data     = ref(null)
 const chartRef = ref(null)
 let chartInstance = null
+
+// Sortable department comparison rows.
+const deptRows = computed(() => data.value?.departments || [])
+const { sorted: sortedDepts, sortKey: deptSortKey, sortDir: deptSortDir, sortBy: sortDepts } = useSort(deptRows)
 
 const stats = computed(() => [
   { key: 'total',        label: t('dashboard.total'),       color: 'text-content' },

@@ -62,20 +62,20 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>{{ t('departments.nameAr') }}</th>
-                  <th>{{ t('dashboard.total') }}</th>
-                  <th>{{ t('dashboard.approved') }}</th>
-                  <th>{{ t('dashboard.underReview') }}</th>
-                  <th>{{ t('dashboard.rejected') }}</th>
-                  <th>{{ t('dashboard.overdue') }}</th>
-                  <th>{{ t('dashboard.completionRate') }}</th>
+                  <SortableTh field="name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('departments.nameAr') }}</SortableTh>
+                  <SortableTh field="total" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.total') }}</SortableTh>
+                  <SortableTh field="approved" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.approved') }}</SortableTh>
+                  <SortableTh field="under_review" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.underReview') }}</SortableTh>
+                  <SortableTh field="rejected" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.rejected') }}</SortableTh>
+                  <SortableTh field="overdue" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.overdue') }}</SortableTh>
+                  <SortableTh field="completion_rate" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.completionRate') }}</SortableTh>
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="!reportData.length">
+                <tr v-if="!sortedRows.length">
                   <td colspan="7" class="text-center py-8 text-content-subtle">{{ t('common.noData') }}</td>
                 </tr>
-                <tr v-for="row in reportData" :key="row.id">
+                <tr v-for="row in sortedRows" :key="row.id">
                   <td class="font-medium">{{ row.name_ar || row.name }}</td>
                   <td>{{ row.total ?? 0 }}</td>
                   <td><span class="badge-approved">{{ row.approved ?? 0 }}</span></td>
@@ -104,18 +104,18 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>{{ t('standards.number') }}</th>
-                  <th>{{ t('standards.nameAr') }}</th>
-                  <th>{{ t('dashboard.total') }}</th>
-                  <th>{{ t('dashboard.approved') }}</th>
-                  <th>{{ t('dashboard.completionRate') }}</th>
+                  <SortableTh field="number" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.number') }}</SortableTh>
+                  <SortableTh field="name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.nameAr') }}</SortableTh>
+                  <SortableTh field="total" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.total') }}</SortableTh>
+                  <SortableTh field="approved" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.approved') }}</SortableTh>
+                  <SortableTh field="completion_rate" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('dashboard.completionRate') }}</SortableTh>
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="!reportData.length">
+                <tr v-if="!sortedRows.length">
                   <td colspan="5" class="text-center py-8 text-content-subtle">{{ t('common.noData') }}</td>
                 </tr>
-                <tr v-for="row in reportData" :key="row.id">
+                <tr v-for="row in sortedRows" :key="row.id">
                   <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ row.number }}</td>
                   <td>{{ row.name_ar }}</td>
                   <td>{{ row.total ?? 0 }}</td>
@@ -163,13 +163,32 @@
             </div>
           </div>
           <div class="card-body">
-            <div v-if="!reportData || (!reportData.length && !reportData.cycle)" class="text-center py-8 text-content-subtle text-sm">{{ t('common.noData') }}</div>
-            <div v-else class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div v-for="(val, key) in summaryItems" :key="key" class="text-center">
-                <p class="text-xs text-content-muted mb-1">{{ key }}</p>
-                <p class="text-xl font-bold text-content">{{ val }}</p>
+            <div v-if="!reportData?.cycle" class="text-center py-8 text-content-subtle text-sm">{{ t('common.noData') }}</div>
+            <template v-else>
+              <!-- Cycle header -->
+              <div class="mb-5">
+                <h4 class="font-bold text-content">{{ reportData.cycle.name }}</h4>
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-content-muted mt-1">
+                  <span>{{ t('cycles.year') }}: <strong class="text-content">{{ reportData.cycle.year }}</strong></span>
+                  <span class="inline-flex items-center gap-1">{{ t('common.status') }}: <StatusBadge :status="reportData.cycle.status" /></span>
+                  <span>{{ formatDate(reportData.cycle.start_date) }} → {{ formatDate(reportData.cycle.end_date) }}</span>
+                </div>
               </div>
-            </div>
+              <!-- Headline KPIs -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="kpi-card"><p class="kpi-label">{{ t('standards.title') }}</p><p class="kpi-value text-brand">{{ reportData.standards_count ?? 0 }}</p></div>
+                <div class="kpi-card"><p class="kpi-label">{{ t('departments.title') }}</p><p class="kpi-value">{{ reportData.departments_count ?? 0 }}</p></div>
+                <div class="kpi-card"><p class="kpi-label">{{ t('dashboard.total') }}</p><p class="kpi-value">{{ reportData.document_stats?.total ?? 0 }}</p></div>
+                <div class="kpi-card"><p class="kpi-label">{{ t('dashboard.completionRate') }}</p><p class="kpi-value text-success-600 dark:text-success-400">{{ (reportData.completion_rate ?? 0).toFixed(1) }}%</p></div>
+              </div>
+              <!-- Document status breakdown -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4">
+                <div v-for="s in summaryStatuses" :key="s.key" class="card p-3 text-center">
+                  <p class="text-xs text-content-muted mb-1">{{ s.label }}</p>
+                  <p class="text-lg font-bold text-content tabular-nums">{{ reportData.document_stats?.[s.key] ?? 0 }}</p>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
       </template>
@@ -183,6 +202,8 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { reportsService, cyclesService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -193,18 +214,28 @@ const selectedCycle = ref('')
 const activeTab    = ref('department')
 const reportData   = ref([])
 
+// Sortable rows (department / standard tabs hold arrays).
+const { sorted: sortedRows, sortKey, sortDir, sortBy } = useSort(reportData)
+
+const summaryStatuses = computed(() => [
+  { key: 'draft',        label: t('dashboard.draft') },
+  { key: 'under_review', label: t('dashboard.underReview') },
+  { key: 'approved',     label: t('dashboard.approved') },
+  { key: 'rejected',     label: t('dashboard.rejected') },
+  { key: 'overdue',      label: t('dashboard.overdue') },
+])
+
+function formatDate(d) {
+  if (!d) return '-'
+  return new Date(d).toLocaleDateString(appStore.isRTL ? 'ar-SA' : 'en-GB', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
 const tabs = computed(() => [
   { key: 'department', label: t('reports.byDepartment') },
   { key: 'standard',   label: t('reports.byStandard') },
   { key: 'status',     label: t('reports.byStatus') },
   { key: 'summary',    label: t('reports.cycleSummary') },
 ])
-
-const summaryItems = computed(() => {
-  const d = reportData.value
-  if (!d || typeof d !== 'object' || Array.isArray(d)) return {}
-  return d
-})
 
 function statusBarColor(status) {
   return {
