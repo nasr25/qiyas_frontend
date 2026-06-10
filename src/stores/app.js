@@ -12,7 +12,7 @@ export const useAppStore = defineStore('app', () => {
   // via CSS (lg:translate-x-0), so this flag only governs the mobile overlay.
   const sidebarOpen  = ref(false)
   const toasts       = ref([])
-  const branding     = ref({ platform_name: '', platform_name_en: '', logo_url: '', favicon_url: '' })
+  const branding     = ref({ platform_name: '', platform_name_en: '', logo_url: '', favicon_url: '', quick_login: false })
   const upload       = ref({ allowed_types: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'jpg', 'jpeg', 'png'], max_size_mb: 20 })
 
   const isRTL  = computed(() => locale.value === 'ar')

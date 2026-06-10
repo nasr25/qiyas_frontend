@@ -15,6 +15,12 @@ export const authService = {
     return data.data
   },
 
+  /** Dev-only quick login (no password). Backend gates to local/debug. */
+  async quickLogin(username) {
+    const { data } = await api.post('/auth/quick-login', { username })
+    return data.data
+  },
+
   /** Logs out and invalidates the server-side JWT. */
   async logout() {
     await api.post('/auth/logout').catch(() => {})

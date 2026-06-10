@@ -30,7 +30,8 @@
     "newPassword": "New Password",
     "confirmPassword": "Confirm New Password",
     "changePassword": "Change Password",
-    "passwordChanged": "Password changed successfully"
+    "passwordChanged": "Password changed successfully",
+    "quickLogin": "Quick login (testing)"
   },
   "dashboard": {
     "welcome": "Welcome",

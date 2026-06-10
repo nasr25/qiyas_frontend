@@ -95,6 +95,26 @@
           </button>
         </form>
       </div>
+
+      <!-- Dev-only quick login -->
+      <div v-if="appStore.branding.quick_login" class="card p-4 mt-4 border-dashed">
+        <p class="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3 flex items-center gap-2">
+          <span class="badge badge-under-review">DEV</span> {{ t('auth.quickLogin') }}
+        </p>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            v-for="acc in quickAccounts"
+            :key="acc.username"
+            type="button"
+            class="btn-secondary btn-sm justify-start"
+            :disabled="quickLoading"
+            @click="handleQuickLogin(acc.username)"
+          >
+            <span class="text-base leading-none">{{ acc.icon }}</span>
+            <span class="truncate">{{ acc.label }}</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -116,6 +136,29 @@ const form = ref({ username: '', password: '' })
 const loading      = ref(false)
 const error        = ref('')
 const showPassword = ref(false)
+const quickLoading = ref(false)
+
+const quickAccounts = [
+  { username: 'superadmin',  label: 'Super Admin', icon: '🛡️' },
+  { username: 'auditor',     label: 'Auditor',     icon: '🔍' },
+  { username: 'coordinator', label: 'Coordinator', icon: '🧭' },
+  { username: 'employee',    label: 'Employee',    icon: '👤' },
+  { username: 'executive',   label: 'Executive',   icon: '📊' },
+]
+
+async function handleQuickLogin(username) {
+  error.value = ''
+  quickLoading.value = true
+  try {
+    await authStore.quickLogin(username)
+    const redirect = route.query.redirect
+    router.push(redirect ? String(redirect) : { name: 'dashboard' })
+  } catch (err) {
+    error.value = err?.response?.data?.message || t('auth.loginFailed')
+  } finally {
+    quickLoading.value = false
+  }
+}
 
 async function handleLogin() {
   error.value = ''

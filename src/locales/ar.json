@@ -30,7 +30,8 @@
     "newPassword": "كلمة المرور الجديدة",
     "confirmPassword": "تأكيد كلمة المرور الجديدة",
     "changePassword": "تغيير كلمة المرور",
-    "passwordChanged": "تم تغيير كلمة المرور بنجاح"
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+    "quickLogin": "دخول سريع (للاختبار)"
   },
   "dashboard": {
     "welcome": "مرحباً",
