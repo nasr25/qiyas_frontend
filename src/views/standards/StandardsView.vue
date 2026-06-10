@@ -31,20 +31,20 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ t('standards.number') }}</th>
-              <th>{{ t('standards.nameAr') }}</th>
+              <SortableTh field="standard_number" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.number') }}</SortableTh>
+              <SortableTh field="name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.nameAr') }}</SortableTh>
               <th>{{ t('standards.departments') }}</th>
-              <th>{{ t('standards.weight') }}</th>
-              <th>{{ t('standards.dueDate') }}</th>
-              <th>{{ t('standards.requirements') }}</th>
+              <SortableTh field="weight" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.weight') }}</SortableTh>
+              <SortableTh field="due_date" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.dueDate') }}</SortableTh>
+              <SortableTh field="requirements_count" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.requirements') }}</SortableTh>
               <th>{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="!standards.length">
+            <tr v-if="!sorted.length">
               <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
-            <tr v-for="std in standards" :key="std.id">
+            <tr v-for="std in sorted" :key="std.id">
               <td class="font-mono font-medium text-primary-700 dark:text-primary-400 whitespace-nowrap">{{ std.standard_number }}</td>
               <td>
                 <p class="font-medium">{{ std.name_ar || std.name_en }}</p>
@@ -84,6 +84,8 @@ import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import { standardsService, cyclesService, departmentsService } from '@/services/index'
 import AppPagination from '@/components/common/AppPagination.vue'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const appStore  = useAppStore()
@@ -91,6 +93,7 @@ const authStore = useAuthStore()
 
 const loading     = ref(true)
 const standards   = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(standards)
 const cycles      = ref([])
 const departments = ref([])
 const filters     = ref({ cycleId: '', departmentId: '' })

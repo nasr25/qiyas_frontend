@@ -44,20 +44,20 @@
           <table class="table">
             <thead>
               <tr>
-                <th>{{ t('departments.title') }}</th>
-                <th>{{ t('standards.title') }}</th>
-                <th>{{ t('standards.requirements') }}</th>
-                <th>Submitted By</th>
-                <th>{{ t('common.date') }}</th>
-                <th>v</th>
+                <SortableTh field="department.name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('departments.title') }}</SortableTh>
+                <SortableTh field="requirement.standard.name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.title') }}</SortableTh>
+                <SortableTh field="requirement.title_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.requirements') }}</SortableTh>
+                <SortableTh field="submitted_by.name" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">Submitted By</SortableTh>
+                <SortableTh field="submitted_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('common.date') }}</SortableTh>
+                <SortableTh field="current_version" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">v</SortableTh>
                 <th>{{ t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!reviews.length">
+              <tr v-if="!sorted.length">
                 <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="review in reviews" :key="review.id">
+              <tr v-for="review in sorted" :key="review.id">
                 <td>{{ review.department?.name_ar }}</td>
                 <td>{{ review.standard?.number }}</td>
                 <td class="max-w-[160px] truncate">{{ review.requirement?.title_ar }}</td>
@@ -119,12 +119,15 @@ import { useAppStore } from '@/stores/app'
 import { auditorService, cyclesService, departmentsService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const appStore = useAppStore()
 
 const loading     = ref(true)
 const reviews     = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(reviews)
 const cycles      = ref([])
 const departments = ref([])
 const meta = ref({ current_page: 1, last_page: 1, total: 0 })

@@ -20,20 +20,20 @@
         <table class="table">
           <thead>
             <tr>
-              <th>{{ t('cycles.name') }}</th>
-              <th>{{ t('cycles.year') }}</th>
-              <th>{{ t('common.status') }}</th>
-              <th>{{ t('cycles.startDate') }}</th>
-              <th>{{ t('cycles.endDate') }}</th>
-              <th>{{ t('standards.title') }}</th>
+              <SortableTh field="name" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('cycles.name') }}</SortableTh>
+              <SortableTh field="year" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('cycles.year') }}</SortableTh>
+              <SortableTh field="status" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('common.status') }}</SortableTh>
+              <SortableTh field="start_date" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('cycles.startDate') }}</SortableTh>
+              <SortableTh field="end_date" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('cycles.endDate') }}</SortableTh>
+              <SortableTh field="standards_count" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.title') }}</SortableTh>
               <th>{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="!cycles.length">
+            <tr v-if="!sorted.length">
               <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
-            <tr v-for="cycle in cycles" :key="cycle.id">
+            <tr v-for="cycle in sorted" :key="cycle.id">
               <td class="font-medium">
                 <RouterLink :to="`/cycles/${cycle.id}`" class="text-primary-700 hover:underline dark:text-primary-400">
                   {{ cycle.name }}
@@ -151,6 +151,8 @@ import { useAppStore } from '@/stores/app'
 import { cyclesService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -159,6 +161,7 @@ const appStore  = useAppStore()
 const loading = ref(true)
 const saving  = ref(false)
 const cycles  = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(cycles)
 
 const showModal     = ref(false)
 const showCloseModal = ref(false)

@@ -56,19 +56,19 @@
           <table class="table">
             <thead>
               <tr>
-                <th>{{ t('standards.number') }}</th>
-                <th>{{ t('standards.nameAr') }}</th>
+                <SortableTh field="standard_number" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.number') }}</SortableTh>
+                <SortableTh field="name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.nameAr') }}</SortableTh>
                 <th>{{ t('standards.departments') }}</th>
-                <th>{{ t('standards.requirements') }}</th>
-                <th>{{ t('standards.dueDate') }}</th>
+                <SortableTh field="requirements_count" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.requirements') }}</SortableTh>
+                <SortableTh field="due_date" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.dueDate') }}</SortableTh>
                 <th>{{ t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!standards.length">
+              <tr v-if="!sorted.length">
                 <td colspan="6" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="std in standards" :key="std.id">
+              <tr v-for="std in sorted" :key="std.id">
                 <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.standard_number }}</td>
                 <td>{{ std.name_ar }}</td>
                 <td>
@@ -236,6 +236,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { cyclesService, standardsService, departmentsService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
+import SortableTh from '@/components/common/SortableTh.vue'
+import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
 const route     = useRoute()
@@ -246,6 +248,7 @@ const loading        = ref(true)
 const saving         = ref(false)
 const cycle          = ref(null)
 const standards      = ref([])
+const { sorted, sortKey, sortDir, sortBy } = useSort(standards)
 const departments    = ref([])
 const showAddStandard = ref(false)
 
