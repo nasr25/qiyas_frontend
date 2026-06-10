@@ -126,11 +126,12 @@
               </div>
               <div>
                 <label class="label">{{ t('myStd.reason') }}</label>
-                <textarea v-model="ext.reason" class="input" rows="3" required />
+                <textarea v-model="ext.reason" class="input" rows="3" minlength="20" required />
+                <p class="hint">{{ t('myStd.reasonHint') }}</p>
               </div>
               <div class="flex justify-end gap-3">
                 <button class="btn-secondary" @click="ext.show = false">{{ t('common.cancel') }}</button>
-                <button class="btn-primary" :disabled="!ext.date || !ext.reason.trim() || ext.saving" @click="submitExtension">{{ ext.saving ? t('common.loading') : t('common.save') }}</button>
+                <button class="btn-primary" :disabled="!ext.date || ext.reason.trim().length < 20 || ext.saving" @click="submitExtension">{{ ext.saving ? t('common.loading') : t('common.save') }}</button>
               </div>
             </div>
           </div>

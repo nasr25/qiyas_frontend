@@ -83,14 +83,14 @@
             </h3>
             <div class="space-y-4">
               <div>
-                <label class="label">Notes{{ actionModal.type === 'reject' ? ' (required)' : '' }}</label>
-                <textarea v-model="actionModal.notes" class="input" rows="4" :required="actionModal.type === 'reject'" />
+                <label class="label">Notes{{ actionModal.type === 'reject' ? ' (required, min 5 chars)' : '' }}</label>
+                <textarea v-model="actionModal.notes" class="input" rows="4" :minlength="actionModal.type === 'reject' ? 5 : 0" :required="actionModal.type === 'reject'" />
               </div>
               <div class="flex justify-end gap-3">
                 <button class="btn-secondary" @click="actionModal.show = false">{{ t('common.cancel') }}</button>
                 <button
                   :class="actionModal.type === 'approve' ? 'btn-success' : 'btn-danger'"
-                  :disabled="(actionModal.type === 'reject' && !actionModal.notes.trim()) || actionModal.saving"
+                  :disabled="(actionModal.type === 'reject' && actionModal.notes.trim().length < 5) || actionModal.saving"
                   @click="handleAction"
                 >
                   {{ actionModal.saving ? t('common.loading') : t('common.confirm') }}
@@ -159,7 +159,8 @@ function openAction(type, ext) {
 async function handleAction() {
   actionModal.saving = true
   try {
-    const payload = { notes: actionModal.notes }
+    // Backend expects `reviewer_notes` (required, min 5 on reject).
+    const payload = { reviewer_notes: actionModal.notes }
     if (actionModal.type === 'approve') {
       await auditorService.approveExtension(actionModal.extId, payload)
     } else {
@@ -168,8 +169,8 @@ async function handleAction() {
     appStore.showToast(t('common.success'), 'success')
     actionModal.show = false
     await fetchExtensions(meta.value.current_page)
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
   } finally {
     actionModal.saving = false
   }

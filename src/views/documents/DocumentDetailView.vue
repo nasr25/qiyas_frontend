@@ -130,9 +130,10 @@
             </div>
             <div>
               <label class="label">Reason</label>
-              <textarea v-model="extForm.reason" class="input" rows="3" />
+              <textarea v-model="extForm.reason" class="input" rows="3" minlength="20" />
+              <p class="hint">{{ t('myStd.reasonHint') }}</p>
             </div>
-            <button class="btn-primary btn-sm" :disabled="!extForm.requested_date || !extForm.reason || extSaving" @click="handleExtension">
+            <button class="btn-primary btn-sm" :disabled="!extForm.requested_date || extForm.reason.trim().length < 20 || extSaving" @click="handleExtension">
               {{ extSaving ? t('common.loading') : t('common.save') }}
             </button>
           </div>
