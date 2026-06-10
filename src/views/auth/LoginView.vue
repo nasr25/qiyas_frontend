@@ -97,21 +97,24 @@
       </div>
 
       <!-- Dev-only quick login -->
-      <div v-if="appStore.branding.quick_login" class="card p-4 mt-4 border-dashed">
+      <div v-if="devUsers.length" class="card p-4 mt-4 border-dashed">
         <p class="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3 flex items-center gap-2">
           <span class="badge badge-under-review">DEV</span> {{ t('auth.quickLogin') }}
         </p>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto -mx-1 px-1">
           <button
-            v-for="acc in quickAccounts"
-            :key="acc.username"
+            v-for="u in devUsers"
+            :key="u.username"
             type="button"
-            class="btn-secondary btn-sm justify-start"
+            class="btn-secondary btn-sm justify-start gap-2.5 !py-2"
             :disabled="quickLoading"
-            @click="handleQuickLogin(acc.username)"
+            @click="handleQuickLogin(u.username)"
           >
-            <span class="text-base leading-none">{{ acc.icon }}</span>
-            <span class="truncate">{{ acc.label }}</span>
+            <span class="text-base leading-none shrink-0">{{ roleIcon(u.role) }}</span>
+            <span class="min-w-0 text-start">
+              <span class="block truncate font-medium">{{ u.name }}</span>
+              <span class="block truncate text-[11px] text-content-subtle">{{ roleLabel(u.role) }}<template v-if="u.department"> · {{ u.department }}</template></span>
+            </span>
           </button>
         </div>
       </div>
@@ -120,11 +123,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
+import { authService } from '@/services/auth.service'
 
 const { t } = useI18n()
 const router    = useRouter()
@@ -137,14 +141,18 @@ const loading      = ref(false)
 const error        = ref('')
 const showPassword = ref(false)
 const quickLoading = ref(false)
+const devUsers     = ref([])
 
-const quickAccounts = [
-  { username: 'superadmin',  label: 'Super Admin', icon: '🛡️' },
-  { username: 'auditor',     label: 'Auditor',     icon: '🔍' },
-  { username: 'coordinator', label: 'Coordinator', icon: '🧭' },
-  { username: 'employee',    label: 'Employee',    icon: '👤' },
-  { username: 'executive',   label: 'Executive',   icon: '📊' },
-]
+const ROLE_META = {
+  'super-admin': { icon: '🛡️', label: 'Super Admin' },
+  'qiyas-admin': { icon: '🗂️', label: 'Qiyas Administrator' },
+  auditor:       { icon: '🔍', label: 'Auditor' },
+  employee:      { icon: '👤', label: 'Employee' },
+  executive:     { icon: '📊', label: 'Executive Viewer' },
+  coordinator:   { icon: '🧭', label: 'Coordinator' },
+}
+function roleIcon(role)  { return ROLE_META[role]?.icon || '👤' }
+function roleLabel(role) { return ROLE_META[role]?.label || role }
 
 async function handleQuickLogin(username) {
   error.value = ''
@@ -159,6 +167,10 @@ async function handleQuickLogin(username) {
     quickLoading.value = false
   }
 }
+
+onMounted(async () => {
+  try { devUsers.value = await authService.devUsers() } catch { /* not in dev */ }
+})
 
 async function handleLogin() {
   error.value = ''
