@@ -29,6 +29,16 @@ export const useAuthStore = defineStore('auth', () => {
     return result
   }
 
+  /** Dev-only quick login by username (no password). */
+  async function quickLogin(username) {
+    const result = await authService.quickLogin(username)
+    token.value = result.token
+    user.value  = result.user
+    localStorage.setItem('token', result.token)
+    localStorage.setItem('locale', result.user.locale || 'ar')
+    return result
+  }
+
   /** Logs out and clears local state. */
   async function logout() {
     await authService.logout()
@@ -66,6 +76,6 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated, isSuperAdmin, isAuditor,
     isCoordinator, isEmployee, isExecutive,
     mustChangePassword,
-    login, logout, fetchUser, hasRole, hasPermission,
+    login, quickLogin, logout, fetchUser, hasRole, hasPermission,
   }
 })
