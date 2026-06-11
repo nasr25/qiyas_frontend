@@ -218,8 +218,8 @@ async function handleSubmit(doc) {
 onMounted(async () => {
   try {
     const [cyclesRes, deptsRes] = await Promise.all([
-      cyclesService.list(),
-      departmentsService.list(),
+      cyclesService.list().catch(() => ({ data: [] })),
+      departmentsService.list().catch(() => ({ data: [] })),  // employees lack departments.view
     ])
     cycles.value = cyclesRes.data || cyclesRes
     departments.value = deptsRes.data || deptsRes
