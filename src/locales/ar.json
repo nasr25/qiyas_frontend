@@ -49,7 +49,8 @@
     "extensionRequests": "طلبات التمديد",
     "recentActivity": "آخر الأنشطة",
     "assignedStandards": "المعايير المسندة",
-    "requirements": "المتطلبات"
+    "requirements": "المتطلبات",
+    "upcomingDeadlines": "المواعيد القادمة"
   },
   "cycles": {
     "title": "دورات التقييم",

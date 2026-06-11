@@ -41,6 +41,14 @@
           <p class="kpi-label">{{ t('dashboard.requirements') }}</p>
           <p class="kpi-value">{{ (data.requirements_count ?? 0).toLocaleString(locale) }}</p>
         </div>
+        <div v-if="data.extension_requests !== undefined" class="kpi-card">
+          <p class="kpi-label">{{ t('auditor.extensionRequests') }}</p>
+          <p class="kpi-value">{{ (data.extension_requests ?? 0).toLocaleString(locale) }}</p>
+        </div>
+        <div v-if="data.upcoming_deadlines !== undefined" class="kpi-card">
+          <p class="kpi-label">{{ t('dashboard.upcomingDeadlines') }}</p>
+          <p class="kpi-value text-warning-600 dark:text-warning-400">{{ (data.upcoming_deadlines ?? 0).toLocaleString(locale) }}</p>
+        </div>
       </div>
 
       <!-- Auditor KPIs -->
