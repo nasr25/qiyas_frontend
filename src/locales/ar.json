@@ -235,5 +235,49 @@
     "newDate": "التاريخ الجديد المطلوب",
     "reason": "السبب",
     "reasonHint": "20 حرفًا على الأقل."
+  },
+  "extensions": {
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "معتمد",
+      "rejected": "مرفوض"
+    }
+  },
+  "audit": {
+    "actions": {
+      "auth.login": "تسجيل دخول",
+      "auth.quick_login": "دخول سريع",
+      "auth.logout": "تسجيل خروج",
+      "document.uploaded": "رفع مستند",
+      "document.submitted": "إرسال للمراجعة",
+      "document.approved": "اعتماد مستند",
+      "document.rejected": "رفض مستند",
+      "document.download": "تنزيل مستند",
+      "comment.added": "إضافة تعليق",
+      "extension.requested": "طلب تمديد",
+      "extension.approved": "اعتماد تمديد",
+      "extension.rejected": "رفض تمديد",
+      "standard.created": "إنشاء معيار",
+      "standard.updated": "تحديث معيار",
+      "standard.deleted": "حذف معيار",
+      "standard.assigned": "إسناد معيار",
+      "standard.imported": "استيراد معايير",
+      "requirement.created": "إنشاء متطلب",
+      "requirement.deleted": "حذف متطلب",
+      "cycle.created": "إنشاء دورة",
+      "cycle.activated": "تفعيل دورة",
+      "cycle.closed": "إغلاق دورة",
+      "cycle.archived": "أرشفة دورة",
+      "user.created": "إنشاء مستخدم",
+      "user.updated": "تحديث مستخدم",
+      "user.imported": "استيراد مستخدم",
+      "user.password_reset": "إعادة تعيين كلمة المرور",
+      "department.created": "إنشاء إدارة",
+      "department.updated": "تحديث إدارة",
+      "department.deleted": "حذف إدارة",
+      "settings.updated": "تحديث الإعدادات",
+      "settings.branding": "تحديث الهوية",
+      "report.export": "تصدير تقرير"
+    }
   }
 }
