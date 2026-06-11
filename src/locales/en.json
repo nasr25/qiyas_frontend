@@ -235,5 +235,49 @@
     "newDate": "New requested date",
     "reason": "Reason",
     "reasonHint": "At least 20 characters."
+  },
+  "extensions": {
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "audit": {
+    "actions": {
+      "auth.login": "Login",
+      "auth.quick_login": "Quick login",
+      "auth.logout": "Logout",
+      "document.uploaded": "Document uploaded",
+      "document.submitted": "Document submitted",
+      "document.approved": "Document approved",
+      "document.rejected": "Document rejected",
+      "document.download": "Document download",
+      "comment.added": "Comment added",
+      "extension.requested": "Extension requested",
+      "extension.approved": "Extension approved",
+      "extension.rejected": "Extension rejected",
+      "standard.created": "Standard created",
+      "standard.updated": "Standard updated",
+      "standard.deleted": "Standard deleted",
+      "standard.assigned": "Standard assigned",
+      "standard.imported": "Standards imported",
+      "requirement.created": "Requirement created",
+      "requirement.deleted": "Requirement deleted",
+      "cycle.created": "Cycle created",
+      "cycle.activated": "Cycle activated",
+      "cycle.closed": "Cycle closed",
+      "cycle.archived": "Cycle archived",
+      "user.created": "User created",
+      "user.updated": "User updated",
+      "user.imported": "User imported",
+      "user.password_reset": "Password reset",
+      "department.created": "Department created",
+      "department.updated": "Department updated",
+      "department.deleted": "Department deleted",
+      "settings.updated": "Settings updated",
+      "settings.branding": "Branding updated",
+      "report.export": "Report export"
+    }
   }
 }

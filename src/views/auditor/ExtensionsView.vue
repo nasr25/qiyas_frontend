@@ -50,7 +50,7 @@
                 <td>{{ formatDate(ext.requested_date) }}</td>
                 <td class="max-w-[160px] truncate text-xs">{{ ext.reason }}</td>
                 <td>
-                  <span :class="statusClass(ext.status)" class="badge">{{ ext.status }}</span>
+                  <span :class="statusClass(ext.status)" class="badge">{{ t('extensions.status.' + ext.status) }}</span>
                 </td>
                 <td>
                   <div v-if="ext.status === 'pending'" class="flex items-center gap-1">

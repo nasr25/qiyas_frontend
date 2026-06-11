@@ -48,7 +48,7 @@
                   </div>
                 </td>
                 <td>
-                  <span class="badge font-mono text-xs" :class="actionClass(log.action)">{{ log.action }}</span>
+                  <span class="badge text-xs" :class="actionClass(log.action)">{{ actionLabel(log.action) }}</span>
                 </td>
                 <td class="max-w-[240px]">
                   <p class="text-sm text-content-muted truncate" :title="log.description">{{ log.description }}</p>
@@ -80,8 +80,16 @@ import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
 import AppPagination from '@/components/common/AppPagination.vue'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const appStore = useAppStore()
+
+/** Translated action label, falling back to a humanized form. */
+function actionLabel(action) {
+  const key = `audit.actions.${action}`
+  if (te(key)) return t(key)
+  return String(action || '').split(/[._]/).filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
 
 const loading = ref(true)
 const logs    = ref([])
@@ -113,17 +121,17 @@ function formatDate(d) {
 }
 
 function actionClass(action) {
+  const verb = String(action || '').split('.').pop()
   const map = {
-    login: 'bg-info-100 text-info-700',
+    login: 'bg-info-100 text-info-700', quick_login: 'bg-info-100 text-info-700',
     logout: 'bg-surface-inset text-content-muted',
-    create: 'bg-success-100 text-success-700',
-    update: 'bg-warning-100 text-warning-700',
-    delete: 'bg-danger-100 text-danger-700',
-    approve: 'bg-success-100 text-success-700',
-    reject: 'bg-danger-100 text-danger-700',
-    submit: 'bg-primary-100 text-primary-700',
+    created: 'bg-success-100 text-success-700', approved: 'bg-success-100 text-success-700',
+    updated: 'bg-warning-100 text-warning-700', requested: 'bg-warning-100 text-warning-700',
+    deleted: 'bg-danger-100 text-danger-700', rejected: 'bg-danger-100 text-danger-700',
+    submitted: 'bg-primary-100 text-primary-700', assigned: 'bg-primary-100 text-primary-700',
+    uploaded: 'bg-info-100 text-info-700', imported: 'bg-info-100 text-info-700',
   }
-  return map[action] || 'bg-surface-inset text-content-muted'
+  return map[verb] || 'bg-surface-inset text-content-muted'
 }
 
 async function fetch(page = 1) {
