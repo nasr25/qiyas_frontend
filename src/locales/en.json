@@ -49,7 +49,8 @@
     "extensionRequests": "Extension Requests",
     "recentActivity": "Recent Activity",
     "assignedStandards": "Assigned Standards",
-    "requirements": "Requirements"
+    "requirements": "Requirements",
+    "upcomingDeadlines": "Upcoming Deadlines"
   },
   "cycles": {
     "title": "Assessment Cycles",
