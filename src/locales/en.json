@@ -19,7 +19,8 @@
     "notifications": "Notifications",
     "myStandards": "My Department Standards",
     "pendingReviews": "Pending Reviews",
-    "extensions": "Extension Requests"
+    "extensions": "Extension Requests",
+    "emailLogs": "Email Logs"
   },
   "auth": {
     "login": "Sign In",
@@ -279,5 +280,14 @@
       "settings.branding": "Branding updated",
       "report.export": "Report export"
     }
+  },
+  "emailLogs": {
+    "title": "Email Logs",
+    "to": "To",
+    "subject": "Subject",
+    "sent": "Sent",
+    "failed": "Failed",
+    "pending": "Pending",
+    "sentAt": "Sent at"
   }
 }

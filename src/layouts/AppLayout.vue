@@ -226,6 +226,7 @@ const navItems = [
   // Super Admin
   { name: 'users',         to: '/admin/users',        label: 'nav.users',          icon: '👥', roles: ['super-admin'] },
   { name: 'settings',      to: '/admin/settings',     label: 'nav.settings',       icon: '⚙️', roles: ['super-admin'] },
+  { name: 'email-logs',    to: '/admin/email-logs',   label: 'nav.emailLogs',      icon: '✉️', roles: ['super-admin'] },
 ]
 
 function canSee(item) {
@@ -267,6 +268,7 @@ const pageTitle = computed(() => {
     profile:          'nav.profile',
     notifications:    'nav.notifications',
     'my-standards':   'nav.myStandards',
+    'email-logs':     'nav.emailLogs',
   }
   return map[name] ? t(map[name]) : t('app.name')
 })
