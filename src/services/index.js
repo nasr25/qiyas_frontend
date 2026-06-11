@@ -96,4 +96,6 @@ export const adminService = {
   uploadBranding:(form)  => api.post('/admin/settings/branding/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data),
   // Audit Logs
   auditLogs:    (params) => api.get('/admin/audit-logs', { params }).then(r => r.data),
+  // Email delivery log
+  emailLogs:    (params) => api.get('/admin/email-logs', { params }).then(r => r.data),
 }

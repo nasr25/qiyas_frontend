@@ -19,7 +19,8 @@
     "notifications": "الإشعارات",
     "myStandards": "معايير إدارتي",
     "pendingReviews": "بانتظار المراجعة",
-    "extensions": "طلبات التمديد"
+    "extensions": "طلبات التمديد",
+    "emailLogs": "سجل البريد"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -279,5 +280,14 @@
       "settings.branding": "تحديث الهوية",
       "report.export": "تصدير تقرير"
     }
+  },
+  "emailLogs": {
+    "title": "سجل البريد",
+    "to": "إلى",
+    "subject": "الموضوع",
+    "sent": "تم الإرسال",
+    "failed": "فشل",
+    "pending": "قيد الانتظار",
+    "sentAt": "وقت الإرسال"
   }
 }
