@@ -5,6 +5,9 @@ Format: **Added / Changed / Fixed / Deps**.
 
 ## [Unreleased]
 
+### Changed
+- Housekeeping: tidy repository metadata and commit history.
+
 ### Added
 - **Email Logs** page (`/admin/email-logs`, super-admin): list of sent/failed
   emails with recipient + status, and a modal showing the full email **body**
