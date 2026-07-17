@@ -245,11 +245,16 @@ function programNavItems(code) {
   const base = `/programs/${code}`
   return [
     { name: 'dashboard',       to: `${base}/dashboard`,          label: 'nav.dashboard',      icon: '🏠', roles: [] },
-    { name: 'my-standards',    to: `${base}/my-standards`,       label: 'nav.myStandards',    icon: '📂', roles: ['employee', 'coordinator'] },
+    { name: 'my-requirements', to: `${base}/my-requirements`,    label: 'nav.myRequirements', icon: '📂', roles: ['employee', 'coordinator'] },
+    { name: 'assignments',     to: `${base}/assignments`,        label: 'nav.assignments',    icon: '📌', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'cycles',          to: `${base}/cycles`,             label: 'nav.cycles',         icon: '🔄', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'requirements',    to: `${base}/requirements`,       label: 'nav.standards',      icon: '📋', roles: ['super-admin', 'qiyas-admin'] },
-    { name: 'auditor',         to: `${base}/auditor`,            label: 'nav.pendingReviews', icon: '🔍', roles: ['super-admin', 'auditor'] },
+    { name: 'review-department-manager', to: `${base}/reviews/department-manager`, label: 'nav.departmentManagerReview', icon: '✅', roles: ['coordinator', 'super-admin'] },
+    { name: 'review-auditor', to: `${base}/reviews/auditor`,     label: 'nav.pendingReviews', icon: '🔍', roles: ['super-admin', 'auditor'] },
+    { name: 'review-program-manager', to: `${base}/reviews/program-manager`, label: 'nav.programManagerReview', icon: '🏁', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'auditor-extensions', to: `${base}/auditor/extensions`, label: 'nav.extensions',  icon: '⏳', roles: ['super-admin', 'auditor'] },
+    { name: 'requirements-import', to: `${base}/requirements-import`, label: 'nav.requirementsImport', icon: '📥', roles: ['super-admin', 'qiyas-admin'] },
+    { name: 'sla-settings',    to: `${base}/sla-settings`,       label: 'nav.slaSettings',    icon: '⏱️', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'reports',         to: `${base}/reports`,            label: 'nav.reports',        icon: '📊', roles: ['super-admin', 'qiyas-admin', 'auditor', 'executive'] },
   ]
 }
@@ -310,6 +315,13 @@ const pageTitle = computed(() => {
     profile:          'nav.profile',
     notifications:    'nav.notifications',
     'program-my-standards': 'nav.myStandards',
+    'program-my-requirements': 'nav.myRequirements',
+    'program-my-requirement-detail': 'nav.myRequirements',
+    'program-review-queue': 'nav.pendingReviews',
+    'program-review-detail': 'nav.pendingReviews',
+    'program-assignments': 'nav.assignments',
+    'program-sla-settings': 'nav.slaSettings',
+    'program-requirements-import': 'nav.requirementsImport',
     'email-logs':     'nav.emailLogs',
   }
   const base = map[name] ? t(map[name]) : t('app.name')

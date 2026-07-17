@@ -80,6 +80,80 @@ export const reportsService = {
   cycleSummary: (params) => api.get('/reports/cycle-summary', { params }).then(r => r.data.data),
 }
 
+// ── Phase 2: Qiyas operational workflow ──────────────────────────────────────
+
+export const assignmentsService = {
+  list:     (program, params) => api.get(`/programs/${program}/assignments`, { params }).then(r => r.data),
+  get:      (program, id)     => api.get(`/programs/${program}/assignments/${id}`).then(r => r.data.data),
+  create:   (program, data)   => api.post(`/programs/${program}/assignments`, data).then(r => r.data),
+  update:   (program, id, d)  => api.put(`/programs/${program}/assignments/${id}`, d).then(r => r.data),
+  reassign: (program, id, d)  => api.post(`/programs/${program}/assignments/${id}/reassign`, d).then(r => r.data),
+  history:  (program, id)     => api.get(`/programs/${program}/assignments/${id}/history`).then(r => r.data.data),
+  openDraft:(program, id)     => api.post(`/programs/${program}/assignments/${id}/draft`).then(r => r.data.data),
+  requestExtension: (program, id, d) => api.post(`/programs/${program}/assignments/${id}/extension-requests`, d).then(r => r.data),
+  extensionHistory: (program, id) => api.get(`/programs/${program}/assignments/${id}/extension-requests`).then(r => r.data.data),
+}
+
+export const myRequirementsService = {
+  list: (program, params) => api.get(`/programs/${program}/my-requirements`, { params }).then(r => r.data),
+}
+
+export const evidenceService = {
+  get:       (program, id) => api.get(`/programs/${program}/evidence-submissions/${id}`).then(r => r.data.data),
+  timeline:  (program, id) => api.get(`/programs/${program}/evidence-submissions/${id}/timeline`).then(r => r.data.data),
+  uploadFile:(program, id, file) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post(`/programs/${program}/evidence-submissions/${id}/files`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data)
+  },
+  removeFile:  (program, fileId) => api.delete(`/programs/${program}/evidence-files/${fileId}`).then(r => r.data),
+  download:    (program, fileId) => api.get(`/programs/${program}/evidence-files/${fileId}/download`, { responseType: 'blob' }).then(r => r.data),
+  submit:      (program, id, comment) => api.post(`/programs/${program}/evidence-submissions/${id}/submit`, { comment }).then(r => r.data),
+}
+
+export const reviewQueueService = {
+  // stage: 'department-manager' | 'auditor' | 'program-manager'
+  list:    (program, stage, params) => api.get(`/programs/${program}/reviews/${stage}`, { params }).then(r => r.data),
+  approve: (program, stage, id, notes) => api.post(`/programs/${program}/reviews/${stage}/${id}/approve`, { notes }).then(r => r.data),
+  reject:  (program, stage, id, reason, notes) => api.post(`/programs/${program}/reviews/${stage}/${id}/reject`, { reason, notes }).then(r => r.data),
+  extensionRequests: (program, params) => api.get(`/programs/${program}/reviews/auditor/extension-requests`, { params }).then(r => r.data),
+  approveExtension:  (program, id, notes) => api.post(`/programs/${program}/reviews/auditor/extension-requests/${id}/approve`, { notes }).then(r => r.data),
+  rejectExtension:   (program, id, reason, notes) => api.post(`/programs/${program}/reviews/auditor/extension-requests/${id}/reject`, { reason, notes }).then(r => r.data),
+}
+
+export const slaSettingsService = {
+  get:    (program)    => api.get(`/programs/${program}/sla-settings`).then(r => r.data.data),
+  update: (program, d) => api.put(`/programs/${program}/sla-settings`, d).then(r => r.data.data),
+}
+
+export const workflowDashboardService = {
+  programManager:    (program) => api.get(`/programs/${program}/dashboards/program-manager`).then(r => r.data.data),
+  departmentManager: (program, params) => api.get(`/programs/${program}/dashboards/department-manager`, { params }).then(r => r.data.data),
+  auditor:           (program) => api.get(`/programs/${program}/dashboards/auditor`).then(r => r.data.data),
+  employee:          (program) => api.get(`/programs/${program}/dashboards/employee`).then(r => r.data.data),
+}
+
+export const qiyasImportService = {
+  downloadTemplate: (program, cycleId) => api.get(`/programs/${program}/requirements-template`, { params: { cycle_id: cycleId }, responseType: 'blob' }).then(r => r.data),
+  preview: (program, file, cycleId) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('cycle_id', cycleId)
+    return api.post(`/programs/${program}/requirements-import/preview`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data.data)
+  },
+  confirm: (program, importLogId) => api.post(`/programs/${program}/requirements-import/${importLogId}/confirm`).then(r => r.data),
+  downloadErrorReport: (program, importLogId) => api.get(`/programs/${program}/requirements-import/${importLogId}/error-report`, { responseType: 'blob' }).then(r => r.data),
+  history: (program, params) => api.get(`/programs/${program}/requirements-imports`, { params }).then(r => r.data),
+}
+
+export const emailTemplatesService = {
+  list:     ()        => api.get('/admin/email-templates').then(r => r.data.data),
+  get:      (id)       => api.get(`/admin/email-templates/${id}`).then(r => r.data.data),
+  update:   (id, d)    => api.put(`/admin/email-templates/${id}`, d).then(r => r.data.data),
+  preview:  (id, locale) => api.post(`/admin/email-templates/${id}/preview`, { locale }).then(r => r.data.data),
+  testSend: (id, email) => api.post(`/admin/email-templates/${id}/test-send`, { email }).then(r => r.data),
+}
+
 export const programsService = {
   list:      ()             => api.get('/programs').then(r => r.data.data),
   get:       (code)         => api.get(`/programs/${code}`).then(r => r.data.data),

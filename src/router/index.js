@@ -61,6 +61,15 @@ const router = createRouter({
             { path: 'auditor/extensions', name: 'program-auditor-extensions', component: () => import('@/views/auditor/ExtensionsView.vue'), meta: { roles: ['auditor', 'super-admin'] } },
             { path: 'reports', name: 'program-reports', component: () => import('@/views/reports/ReportsView.vue'), meta: { roles: ['super-admin', 'auditor', 'executive'] } },
             { path: 'my-standards', name: 'program-my-standards', component: () => import('@/views/employee/MyDepartmentStandardsView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
+
+            // ── Phase 2: Qiyas operational workflow ─────────────────────
+            { path: 'my-requirements', name: 'program-my-requirements', component: () => import('@/views/workflow/MyRequirementsView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
+            { path: 'my-requirements/:id', name: 'program-my-requirement-detail', component: () => import('@/views/workflow/MyRequirementDetailView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
+            { path: 'reviews/:stage', name: 'program-review-queue', component: () => import('@/views/workflow/ReviewQueueView.vue'), meta: { roles: ['super-admin', 'qiyas-admin', 'auditor', 'coordinator'] } },
+            { path: 'reviews/:stage/:id', name: 'program-review-detail', component: () => import('@/views/workflow/ReviewDetailView.vue'), meta: { roles: ['super-admin', 'qiyas-admin', 'auditor', 'coordinator'] } },
+            { path: 'assignments', name: 'program-assignments', component: () => import('@/views/workflow/RequirementAssignmentsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
+            { path: 'sla-settings', name: 'program-sla-settings', component: () => import('@/views/workflow/SlaSettingsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
+            { path: 'requirements-import', name: 'program-requirements-import', component: () => import('@/views/workflow/QiyasImportView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
           ],
         },
 
