@@ -14,8 +14,11 @@ async function createAndAssignStandard(request: any): Promise<{ code: string; as
   const code = uniqueStandardCode()
   const { context, token } = await apiLoginAs(USERS.programManager)
 
-  const cyclesRes = await context.get('/api/v1/cycles', { headers: authHeaders(token) })
-  const activeCycle = (await cyclesRes.json()).data.find((c: any) => c.status === 'active')
+  // Program-scoped, not the legacy unscoped /api/v1/cycles — now that
+  // Sumoud also has an active cycle, the unscoped list mixes both
+  // programs' cycles together and .find() could pick either one.
+  const cyclesRes = await context.get('/api/v1/programs/QIYAS/cycles', { headers: authHeaders(token), params: { status: 'active' } })
+  const activeCycle = (await cyclesRes.json()).data[0]
 
   await context.post(`/api/v1/cycles/${activeCycle.id}/standards`, {
     headers: authHeaders(token),

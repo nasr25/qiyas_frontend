@@ -139,6 +139,8 @@ async function load() {
     items.value = assignRes.data
     departments.value = deptRes.data.map(d => ({ id: d.id, name: d.name }))
     requirements.value = reqRes.data.data
+  } catch {
+    appStore.showToast(t('common.error'), 'error')
   } finally {
     loading.value = false
   }

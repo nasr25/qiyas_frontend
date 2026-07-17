@@ -8,14 +8,25 @@ export { documentsService } from './documents.service'
 
 // ── Inline services for simpler CRUD resources ───────────────────────────────
 
+/**
+ * Program-scoped cycle lifecycle — always through /programs/{program}/cycles
+ * (see ProgramCycleController), never the legacy flat /cycles routes. The
+ * legacy routes return/act on cycles across ALL programs with no filtering
+ * (AssessmentCycleController::index() lists every cycle regardless of
+ * program, and its create() silently defaults to QIYAS) — safe only for a
+ * single-program platform. Once Sumoud exists, calling them from a
+ * program-scoped page would leak another program's cycles into the list
+ * and could create a new cycle under the wrong program. See
+ * docs/cross-program-isolation.md.
+ */
 export const cyclesService = {
-  list:     (params) => api.get('/cycles', { params }).then(r => r.data),
-  get:      (id)     => api.get(`/cycles/${id}`).then(r => r.data.data),
-  create:   (data)   => api.post('/cycles', data).then(r => r.data),
-  update:   (id, d)  => api.put(`/cycles/${id}`, d).then(r => r.data),
-  activate: (id)     => api.post(`/cycles/${id}/activate`).then(r => r.data),
-  close:    (id, d)  => api.post(`/cycles/${id}/close`, d).then(r => r.data),
-  archive:  (id)     => api.post(`/cycles/${id}/archive`).then(r => r.data),
+  list:     (program, params) => api.get(`/programs/${program}/cycles`, { params }).then(r => r.data),
+  get:      (program, id)     => api.get(`/programs/${program}/cycles/${id}`).then(r => r.data.data),
+  create:   (program, data)   => api.post(`/programs/${program}/cycles`, data).then(r => r.data),
+  update:   (program, id, d)  => api.put(`/programs/${program}/cycles/${id}`, d).then(r => r.data),
+  activate: (program, id)     => api.post(`/programs/${program}/cycles/${id}/activate`).then(r => r.data),
+  close:    (program, id, d)  => api.post(`/programs/${program}/cycles/${id}/close`, d).then(r => r.data),
+  archive:  (program, id)     => api.post(`/programs/${program}/cycles/${id}/archive`).then(r => r.data),
 }
 
 export const departmentsService = {

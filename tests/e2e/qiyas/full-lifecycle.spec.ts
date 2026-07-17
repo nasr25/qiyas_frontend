@@ -55,9 +55,11 @@ test.describe.serial('Qiyas full requirement lifecycle', () => {
     await expect(row).toContainText(`معيار اختبار شامل ${standardCode}`)
 
     const { context, token } = await apiLoginAs(USERS.programManager)
-    const listResp = await context.get(`/api/v1/cycles`, { headers: authHeaders(token) })
-    const cycles = (await listResp.json()).data
-    const activeCycle = cycles.find((c: any) => c.status === 'active')
+    // Program-scoped, not the legacy unscoped /api/v1/cycles — now that
+    // Sumoud also has an active cycle, the unscoped list mixes both
+    // programs' cycles together and .find() could pick either one.
+    const listResp = await context.get(`/api/v1/programs/QIYAS/cycles`, { headers: authHeaders(token), params: { status: 'active' } })
+    const activeCycle = (await listResp.json()).data[0]
     const stdResp = await context.get(`/api/v1/cycles/${activeCycle.id}/standards`, {
       headers: authHeaders(token), params: { per_page: 500 },
     })

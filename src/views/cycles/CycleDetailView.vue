@@ -38,7 +38,7 @@
       <div class="card">
         <div class="card-header flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 class="text-sm font-semibold text-content">{{ t('standards.title') }}</h2>
-          <div v-if="(authStore.isSuperAdmin || authStore.isQiyasAdmin || authStore.isCoordinator) && !cycleReadOnly" class="flex flex-wrap gap-2">
+          <div v-if="canManageStandards && !cycleReadOnly" class="flex flex-wrap gap-2">
             <button class="btn-secondary btn-sm" :disabled="downloadingTemplate" @click="downloadTemplate">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" /></svg>
               {{ t('standards.downloadTemplate') }}
@@ -235,6 +235,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { cyclesService, standardsService, departmentsService } from '@/services/index'
+import { canAccessInProgram } from '@/utils/roleAccess'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
@@ -269,6 +270,14 @@ const downloadingTemplate = ref(false)
 
 const cycleReadOnly = computed(() => ['closed', 'archived'].includes(cycle.value?.status))
 
+// Program-role-aware: authStore.isQiyasAdmin/isCoordinator are platform-wide
+// spatie roles that a Sumoud (or any non-Qiyas program) Program
+// Manager/Department Manager will never hold — see
+// docs/cross-program-role-resolution.md.
+const canManageStandards = computed(() => canAccessInProgram(
+  authStore, route.params.programCode || 'QIYAS', ['super-admin', 'qiyas-admin', 'coordinator'],
+))
+
 function formatDate(d) {
   if (!d) return '-'
   return new Date(d).toLocaleDateString()
@@ -278,7 +287,7 @@ async function load() {
   loading.value = true
   try {
     const id = route.params.id
-    cycle.value = await cyclesService.get(id)
+    cycle.value = await cyclesService.get(route.params.programCode || 'QIYAS', id)
     const [, deptsRes] = await Promise.all([
       refreshStandards(),
       departmentsService.list().catch(() => ({ data: [] })),

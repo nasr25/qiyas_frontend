@@ -16,6 +16,7 @@
  */
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { canAccessInProgram } from '@/utils/roleAccess'
 
 const DEFAULT_PROGRAM_CODE = 'QIYAS'
 
@@ -105,7 +106,7 @@ router.beforeEach(async (to) => {
     if (!auth.isAuthenticated) return { name: 'login', query: { redirect: to.fullPath } }
     if (auth.mustChangePassword && to.name !== 'change-password') return { name: 'change-password' }
     const requiredRoles = to.meta.roles
-    if (requiredRoles?.length && !requiredRoles.some(r => auth.hasRole(r))) return { name: 'programs' }
+    if (!canAccessInProgram(auth, to.params.programCode, requiredRoles)) return { name: 'programs' }
   }
 
   return true

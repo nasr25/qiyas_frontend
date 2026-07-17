@@ -19,6 +19,17 @@ export const USERS = {
   employeeA2: 'it_employee_2',
   deptManagerB: 'hr_manager',
   employeeB: 'hr_employee_1',
+  // Sumoud (Phase 5) — see backend/database/seeders/SumoudTestAccountsSeeder.php
+  sumoudProgramManager: 'sumoud_pm',
+  sumoudAuditor: 'sumoud_auditor',
+  sumoudDeptManagerA: 'sumoud_dept_a_manager',
+  sumoudEmployeeA: 'sumoud_employee_a',
+  sumoudDeptManagerB: 'sumoud_dept_b_manager',
+  sumoudEmployeeB: 'sumoud_employee_b',
+  // Cross-program role scenarios.
+  crossProgramManagerAuditor: 'cross_pm_qiyas_auditor_sumoud',
+  crossEmployeeDeptManager: 'cross_employee_qiyas_deptmgr_sumoud',
+  crossEmployeeBothPrograms: 'cross_employee_both_programs',
 } as const
 
 export type TestUsername = (typeof USERS)[keyof typeof USERS]
@@ -54,4 +65,12 @@ export async function openQiyasProgram(page: Page): Promise<void> {
   await expect(card).toBeVisible({ timeout: 10_000 })
   await card.click()
   await page.waitForURL(/\/programs\/QIYAS\//, { timeout: 10_000 })
+}
+
+export async function openSumoudProgram(page: Page): Promise<void> {
+  await page.goto('/programs')
+  const card = page.getByTestId('program-card-SUMOUD')
+  await expect(card).toBeVisible({ timeout: 10_000 })
+  await card.click()
+  await page.waitForURL(/\/programs\/SUMOUD\//, { timeout: 10_000 })
 }

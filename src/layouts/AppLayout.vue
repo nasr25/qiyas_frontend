@@ -208,6 +208,7 @@ import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useProgramsStore } from '@/stores/programs'
+import { canAccessInProgram } from '@/utils/roleAccess'
 
 const { t, locale } = useI18n()
 const router    = useRouter()
@@ -278,8 +279,7 @@ const navItems = computed(() =>
 )
 
 function canSee(item) {
-  if (!item.roles || item.roles.length === 0) return true
-  return item.roles.some(r => authStore.hasRole(r))
+  return canAccessInProgram(authStore, currentProgramCode.value, item.roles)
 }
 
 function isActive(path) {

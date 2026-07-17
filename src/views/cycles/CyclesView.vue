@@ -35,7 +35,7 @@
             </tr>
             <tr v-for="cycle in sorted" :key="cycle.id" :data-testid="`cycle-row-${cycle.status}`">
               <td class="font-medium">
-                <RouterLink :to="`/cycles/${cycle.id}`" class="text-primary-700 hover:underline dark:text-primary-400">
+                <RouterLink :to="{ name: 'program-cycle-detail', params: { programCode: programCode(), id: cycle.id } }" class="text-primary-700 hover:underline dark:text-primary-400">
                   {{ cycle.name }}
                 </RouterLink>
               </td>
@@ -46,7 +46,7 @@
               <td>{{ cycle.standards_count ?? 0 }}</td>
               <td>
                 <div class="flex items-center gap-2">
-                  <RouterLink :to="`/cycles/${cycle.id}`" class="btn-secondary btn-sm" data-testid="open-cycle-link">{{ t('common.view') }}</RouterLink>
+                  <RouterLink :to="{ name: 'program-cycle-detail', params: { programCode: programCode(), id: cycle.id } }" class="btn-secondary btn-sm" data-testid="open-cycle-link">{{ t('common.view') }}</RouterLink>
                   <template v-if="authStore.isSuperAdmin">
                     <button v-if="cycle.status === 'draft'" class="btn-primary btn-sm" @click="confirmAction('activate', cycle)">{{ t('cycles.activate') }}</button>
                     <button v-if="cycle.status === 'active'" class="btn btn-sm bg-warning-500 text-white hover:bg-warning-600" @click="openCloseModal(cycle)">{{ t('cycles.close') }}</button>
@@ -146,6 +146,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { cyclesService } from '@/services/index'
@@ -155,8 +156,10 @@ import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
+const route = useRoute()
 const authStore = useAuthStore()
 const appStore  = useAppStore()
+const programCode = () => route.params.programCode || 'QIYAS'
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -206,7 +209,7 @@ function confirmAction(type, cycle) {
 async function fetchCycles() {
   loading.value = true
   try {
-    const res = await cyclesService.list()
+    const res = await cyclesService.list(programCode())
     cycles.value = res.data || res
   } catch {
     appStore.showToast(t('common.error'), 'error')
@@ -218,7 +221,7 @@ async function fetchCycles() {
 async function handleCreate() {
   saving.value = true
   try {
-    await cyclesService.create(form.value)
+    await cyclesService.create(programCode(), form.value)
     appStore.showToast(t('common.success'), 'success')
     showModal.value = false
     await fetchCycles()
@@ -231,7 +234,7 @@ async function handleCreate() {
 
 async function handleActivate(cycle) {
   try {
-    await cyclesService.activate(cycle.id)
+    await cyclesService.activate(programCode(), cycle.id)
     appStore.showToast(t('common.success'), 'success')
     await fetchCycles()
   } catch {
@@ -242,7 +245,7 @@ async function handleActivate(cycle) {
 async function handleClose() {
   saving.value = true
   try {
-    await cyclesService.close(selectedCycle.value.id, closeForm.value)
+    await cyclesService.close(programCode(), selectedCycle.value.id, closeForm.value)
     appStore.showToast(t('common.success'), 'success')
     showCloseModal.value = false
     await fetchCycles()
@@ -255,7 +258,7 @@ async function handleClose() {
 
 async function handleArchive(cycle) {
   try {
-    await cyclesService.archive(cycle.id)
+    await cyclesService.archive(programCode(), cycle.id)
     appStore.showToast(t('common.success'), 'success')
     await fetchCycles()
   } catch {
