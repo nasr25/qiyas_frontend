@@ -116,7 +116,7 @@ async function handleSubmit() {
     // Refresh user so must_change_password = false
     await authStore.fetchUser()
     appStore.showToast(t('auth.passwordChanged'), 'success')
-    router.push({ name: 'dashboard' })
+    router.push({ name: 'programs' })
   } catch (err) {
     error.value = err?.response?.data?.message || t('common.error')
   } finally {

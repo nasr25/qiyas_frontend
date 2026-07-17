@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "منصة قياس",
-    "tagline": "إدارة متطلبات قياس الجهات الحكومية الرقمية"
+    "name": "منصة إدارة الامتثال والحوكمة الحكومية",
+    "tagline": "منصة موحدة لإدارة برامج الامتثال الحكومية"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -20,7 +20,23 @@
     "myStandards": "معايير إدارتي",
     "pendingReviews": "بانتظار المراجعة",
     "extensions": "طلبات التمديد",
-    "emailLogs": "سجل البريد"
+    "emailLogs": "سجل البريد",
+    "programs": "برامج الامتثال",
+    "executiveDashboard": "اللوحة التنفيذية"
+  },
+  "programs": {
+    "title": "برامج الامتثال",
+    "subtitle": "اختر أحد برامج الامتثال للمتابعة",
+    "switchProgram": "تبديل البرنامج",
+    "open": "فتح",
+    "empty": "لا توجد برامج متاحة لحسابك حالياً",
+    "currentCycle": "الدورة الحالية",
+    "completion": "نسبة الإنجاز",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "draft": "مسودة"
+    }
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -51,7 +67,8 @@
     "recentActivity": "آخر الأنشطة",
     "assignedStandards": "المعايير المسندة",
     "requirements": "المتطلبات",
-    "upcomingDeadlines": "المواعيد القادمة"
+    "upcomingDeadlines": "المواعيد القادمة",
+    "executiveSubtitle": "نظرة عامة على الامتثال عبر جميع البرامج"
   },
   "cycles": {
     "title": "دورات التقييم",

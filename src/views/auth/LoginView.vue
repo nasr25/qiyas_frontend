@@ -160,7 +160,7 @@ async function handleQuickLogin(username) {
   try {
     await authStore.quickLogin(username)
     const redirect = route.query.redirect
-    router.push(redirect ? String(redirect) : { name: 'dashboard' })
+    router.push(redirect ? String(redirect) : { name: 'programs' })
   } catch (err) {
     error.value = err?.response?.data?.message || t('auth.loginFailed')
   } finally {
@@ -181,7 +181,7 @@ async function handleLogin() {
       router.push({ name: 'change-password' })
     } else {
       const redirect = route.query.redirect
-      router.push(redirect ? String(redirect) : { name: 'dashboard' })
+      router.push(redirect ? String(redirect) : { name: 'programs' })
     }
   } catch (err) {
     error.value = err?.response?.data?.message || t('auth.loginFailed')

@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Qiyas Platform",
-    "tagline": "DGA Qiyas Requirements Management"
+    "name": "Government Compliance Management Platform",
+    "tagline": "A unified platform for government compliance programs"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -20,7 +20,23 @@
     "myStandards": "My Department Standards",
     "pendingReviews": "Pending Reviews",
     "extensions": "Extension Requests",
-    "emailLogs": "Email Logs"
+    "emailLogs": "Email Logs",
+    "programs": "Compliance Programs",
+    "executiveDashboard": "Executive Dashboard"
+  },
+  "programs": {
+    "title": "Compliance Programs",
+    "subtitle": "Select a compliance program to continue",
+    "switchProgram": "Switch Program",
+    "open": "Open",
+    "empty": "No programs are currently available to your account",
+    "currentCycle": "Current Cycle",
+    "completion": "Completion",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "draft": "Draft"
+    }
   },
   "auth": {
     "login": "Sign In",
@@ -51,7 +67,8 @@
     "recentActivity": "Recent Activity",
     "assignedStandards": "Assigned Standards",
     "requirements": "Requirements",
-    "upcomingDeadlines": "Upcoming Deadlines"
+    "upcomingDeadlines": "Upcoming Deadlines",
+    "executiveSubtitle": "Cross-program compliance overview"
   },
   "cycles": {
     "title": "Assessment Cycles",

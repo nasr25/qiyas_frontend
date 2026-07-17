@@ -1,4 +1,11 @@
-# frontend
+# Government Compliance Management Platform — Frontend (Vue 3 SPA)
+
+Vue 3 / Vite frontend for the multi-program compliance platform. Qiyas is
+the first compliance program; after login users land on the Program
+Selection page (`/programs`) and enter a program at
+`/programs/:programCode/...`. See the backend repo's
+`docs/multi-program-architecture.md` for the full architecture, and
+`docs/roles-and-scopes.md` for the role/access model this UI reflects.
 
 This template should help get you started developing with Vue 3 in Vite.
 

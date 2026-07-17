@@ -80,6 +80,16 @@ export const reportsService = {
   cycleSummary: (params) => api.get('/reports/cycle-summary', { params }).then(r => r.data.data),
 }
 
+export const programsService = {
+  list:      ()             => api.get('/programs').then(r => r.data.data),
+  get:       (code)         => api.get(`/programs/${code}`).then(r => r.data.data),
+  dashboard: (code, params) => api.get(`/programs/${code}/dashboard`, { params }).then(r => r.data.data),
+}
+
+export const executiveDashboardService = {
+  get: () => api.get('/executive-dashboard').then(r => r.data.data),
+}
+
 export const adminService = {
   // Users
   listUsers:    (params) => api.get('/admin/users', { params }).then(r => r.data),

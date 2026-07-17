@@ -20,7 +20,7 @@
       ]"
       aria-label="Sidebar"
     >
-      <!-- Logo -->
+      <!-- Logo / current program indicator -->
       <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b border-white/10">
         <div class="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0 overflow-hidden">
           <img v-if="appStore.branding.logo_url" :src="appStore.branding.logo_url" class="h-full w-full object-contain" alt="logo" />
@@ -29,10 +29,25 @@
               d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
           </svg>
         </div>
-        <div class="min-w-0">
-          <p class="text-sm font-bold text-white truncate">{{ appStore.branding.platform_name || t('app.name') }}</p>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-bold text-white truncate">
+            {{ currentProgramCode ? (programsStore.currentProgram?.name || currentProgramCode) : (appStore.branding.platform_name || t('app.name')) }}
+          </p>
           <p class="text-xs text-primary-200/80 truncate">{{ t('app.tagline') }}</p>
         </div>
+      </div>
+
+      <!-- Switch Program -->
+      <div v-if="currentProgramCode" class="px-3 pt-3">
+        <RouterLink
+          :to="{ name: 'programs' }"
+          class="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs font-medium text-primary-100 bg-white/5 hover:bg-white/10 transition-colors"
+        >
+          <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          {{ t('programs.switchProgram') }}
+        </RouterLink>
       </div>
 
       <!-- Nav -->
@@ -184,12 +199,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useProgramsStore } from '@/stores/programs'
 
 const { t, locale } = useI18n()
 const router    = useRouter()
@@ -197,6 +213,21 @@ const route     = useRoute()
 const appStore  = useAppStore()
 const authStore = useAuthStore()
 const notifStore = useNotificationsStore()
+const programsStore = useProgramsStore()
+
+// The current program context, derived from the :programCode route param.
+// Kept loaded so the sidebar/header can show its name — see the watcher below.
+const currentProgramCode = computed(() => route.params.programCode || null)
+
+// Refetch on program-code change AND on language switch, since the API
+// response embeds locale-resolved name/description fields server-side.
+watch([currentProgramCode, locale], ([code]) => {
+  if (code) {
+    programsStore.fetchCurrentProgram(code).catch(() => {})
+  } else {
+    programsStore.clearCurrentProgram()
+  }
+}, { immediate: true })
 
 const sidebarOpen  = computed(() => appStore.sidebarOpen)
 const userMenuOpen = ref(false)
@@ -207,27 +238,36 @@ function closeMobileSidebar() {
   if (appStore.sidebarOpen) appStore.toggleSidebar()
 }
 
-// Role-based navigation. `roles: []` = visible to everyone.
-const navItems = [
-  { name: 'dashboard',     to: '/dashboard',          label: 'nav.dashboard',      icon: '🏠', roles: [] },
-  // Employee
-  { name: 'my-standards',  to: '/my-standards',       label: 'nav.myStandards',    icon: '📂', roles: ['employee', 'coordinator'] },
-  // Qiyas Administrator
-  { name: 'cycles',        to: '/cycles',             label: 'nav.cycles',         icon: '🔄', roles: ['super-admin', 'qiyas-admin'] },
-  { name: 'standards',     to: '/standards',          label: 'nav.standards',      icon: '📋', roles: ['super-admin', 'qiyas-admin'] },
+// Nav items are program-aware: inside a program context they point at that
+// program's pages (/programs/:programCode/...); outside one, they show the
+// platform-level pages. `roles: []` = visible to everyone.
+function programNavItems(code) {
+  const base = `/programs/${code}`
+  return [
+    { name: 'dashboard',       to: `${base}/dashboard`,          label: 'nav.dashboard',      icon: '🏠', roles: [] },
+    { name: 'my-standards',    to: `${base}/my-standards`,       label: 'nav.myStandards',    icon: '📂', roles: ['employee', 'coordinator'] },
+    { name: 'cycles',          to: `${base}/cycles`,             label: 'nav.cycles',         icon: '🔄', roles: ['super-admin', 'qiyas-admin'] },
+    { name: 'requirements',    to: `${base}/requirements`,       label: 'nav.standards',      icon: '📋', roles: ['super-admin', 'qiyas-admin'] },
+    { name: 'auditor',         to: `${base}/auditor`,            label: 'nav.pendingReviews', icon: '🔍', roles: ['super-admin', 'auditor'] },
+    { name: 'auditor-extensions', to: `${base}/auditor/extensions`, label: 'nav.extensions',  icon: '⏳', roles: ['super-admin', 'auditor'] },
+    { name: 'reports',         to: `${base}/reports`,            label: 'nav.reports',        icon: '📊', roles: ['super-admin', 'qiyas-admin', 'auditor', 'executive'] },
+  ]
+}
+
+const platformNavItems = [
+  { name: 'programs',      to: '/programs',           label: 'nav.programs',       icon: '🗂️', roles: [] },
+  { name: 'executive-dashboard', to: '/executive-dashboard', label: 'nav.executiveDashboard', icon: '📈', roles: ['super-admin', 'executive'] },
   { name: 'departments',   to: '/departments',        label: 'nav.departments',    icon: '🏢', roles: ['super-admin', 'qiyas-admin'] },
-  // Auditor
-  { name: 'auditor',          to: '/auditor',            label: 'nav.pendingReviews', icon: '🔍', roles: ['super-admin', 'auditor'] },
-  { name: 'auditor-extensions', to: '/auditor/extensions', label: 'nav.extensions',  icon: '⏳', roles: ['super-admin', 'auditor'] },
-  { name: 'auditLogs',        to: '/admin/audit-logs',   label: 'nav.auditLogs',      icon: '📝', roles: ['super-admin', 'auditor'] },
-  // Shared
-  { name: 'reports',       to: '/reports',            label: 'nav.reports',        icon: '📊', roles: ['super-admin', 'qiyas-admin', 'auditor', 'executive'] },
   { name: 'notifications', to: '/notifications',      label: 'nav.notifications',  icon: '🔔', roles: ['employee', 'coordinator'] },
-  // Super Admin
+  { name: 'auditLogs',     to: '/admin/audit-logs',   label: 'nav.auditLogs',      icon: '📝', roles: ['super-admin', 'auditor'] },
   { name: 'users',         to: '/admin/users',        label: 'nav.users',          icon: '👥', roles: ['super-admin'] },
   { name: 'settings',      to: '/admin/settings',     label: 'nav.settings',       icon: '⚙️', roles: ['super-admin'] },
   { name: 'email-logs',    to: '/admin/email-logs',   label: 'nav.emailLogs',      icon: '✉️', roles: ['super-admin'] },
 ]
+
+const navItems = computed(() =>
+  currentProgramCode.value ? programNavItems(currentProgramCode.value) : platformNavItems
+)
 
 function canSee(item) {
   if (!item.roles || item.roles.length === 0) return true
@@ -251,26 +291,31 @@ const userRoleLabel = computed(() => {
 const pageTitle = computed(() => {
   const name = route.name
   const map = {
-    dashboard:        'nav.dashboard',
-    cycles:           'nav.cycles',
-    'cycle-detail':   'nav.cycles',
-    departments:      'nav.departments',
-    standards:        'nav.standards',
-    'standard-detail':'nav.standards',
-    documents:        'nav.documents',
-    'document-detail':'nav.documents',
-    auditor:          'nav.auditor',
-    'auditor-extensions': 'nav.auditor',
-    reports:          'nav.reports',
+    programs:                  'programs.title',
+    'executive-dashboard':     'nav.executiveDashboard',
+    'program-dashboard':       'nav.dashboard',
+    'program-cycles':          'nav.cycles',
+    'program-cycle-detail':    'nav.cycles',
+    departments:               'nav.departments',
+    'program-requirements':        'nav.standards',
+    'program-requirement-detail':  'nav.standards',
+    'program-documents':       'nav.documents',
+    'program-document-detail': 'nav.documents',
+    'program-auditor':         'nav.auditor',
+    'program-auditor-extensions': 'nav.auditor',
+    'program-reports':         'nav.reports',
     'admin-users':    'nav.users',
     'admin-settings': 'nav.settings',
     'audit-logs':     'nav.auditLogs',
     profile:          'nav.profile',
     notifications:    'nav.notifications',
-    'my-standards':   'nav.myStandards',
+    'program-my-standards': 'nav.myStandards',
     'email-logs':     'nav.emailLogs',
   }
-  return map[name] ? t(map[name]) : t('app.name')
+  const base = map[name] ? t(map[name]) : t('app.name')
+  return currentProgramCode.value && programsStore.currentProgram
+    ? `${programsStore.currentProgram.name} · ${base}`
+    : base
 })
 
 function toggleLocale() {
