@@ -46,6 +46,7 @@
               :placeholder="t('auth.username')"
               required
               :disabled="loading"
+              data-testid="login-username-input"
             />
           </div>
 
@@ -61,6 +62,7 @@
                 :placeholder="t('auth.password')"
                 required
                 :disabled="loading"
+                data-testid="login-password-input"
               />
               <button
                 type="button"
@@ -86,6 +88,7 @@
             type="submit"
             class="btn-primary w-full mt-2"
             :disabled="loading"
+            data-testid="login-submit-button"
           >
             <svg v-if="loading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -108,6 +111,7 @@
             type="button"
             class="btn-secondary btn-sm justify-start gap-2.5 !py-2"
             :disabled="quickLoading"
+            :data-testid="`quick-login-${u.username}`"
             @click="handleQuickLogin(u.username)"
           >
             <span class="text-base leading-none shrink-0">{{ roleIcon(u.role) }}</span>

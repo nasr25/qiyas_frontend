@@ -24,14 +24,14 @@
           <StatusBadge :status="submission.status" namespace="workflow.status" />
         </div>
 
-        <div v-if="submission.status === 'returned_for_revision'" class="card border-danger-200 bg-danger-50 dark:bg-danger-950/30 p-3 mb-4">
+        <div v-if="canEdit && lastRejectionReason" class="card border-danger-200 bg-danger-50 dark:bg-danger-950/30 p-3 mb-4" data-testid="rejection-reason-banner">
           <p class="text-sm font-medium text-danger-700 dark:text-danger-300">{{ t('workflow.rejectionReason') }}</p>
           <p class="text-sm text-danger-700 dark:text-danger-300">{{ lastRejectionReason }}</p>
         </div>
 
         <!-- Files -->
-        <div class="space-y-2 mb-4">
-          <div v-for="f in submission.files" :key="f.id" class="flex items-center justify-between p-2 rounded-lg bg-surface-inset">
+        <div class="space-y-2 mb-4" data-testid="evidence-file-list">
+          <div v-for="f in submission.files" :key="f.id" class="flex items-center justify-between p-2 rounded-lg bg-surface-inset" :data-testid="`evidence-file-${f.original_name}`">
             <span class="text-sm text-content truncate">{{ f.original_name }} ({{ f.file_size }})</span>
             <div class="flex gap-2">
               <button class="btn-icon" @click="download(f.id, f.original_name)" :aria-label="t('common.download')">
@@ -46,30 +46,30 @@
         </div>
 
         <div v-if="canEdit" class="space-y-3">
-          <input type="file" ref="fileInput" class="input" @change="onFileChange" />
-          <textarea v-model="comment" :placeholder="t('workflow.employeeComment')" class="input" rows="3"></textarea>
+          <input type="file" ref="fileInput" class="input" data-testid="evidence-upload" @change="onFileChange" />
+          <textarea v-model="comment" :placeholder="t('workflow.employeeComment')" class="input" rows="3" data-testid="employee-comment-input"></textarea>
           <div class="flex gap-2">
-            <button class="btn-primary" :disabled="submitting || submission.files.length === 0" @click="submit">
+            <button class="btn-primary" :disabled="submitting || submission.files.length === 0" data-testid="submit-evidence-button" @click="submit">
               {{ t('workflow.submitForReview') }}
             </button>
-            <button class="btn-secondary" @click="showExtensionForm = !showExtensionForm">{{ t('workflow.requestExtension') }}</button>
+            <button class="btn-secondary" data-testid="extension-request-button" @click="showExtensionForm = !showExtensionForm">{{ t('workflow.requestExtension') }}</button>
           </div>
 
           <div v-if="showExtensionForm" class="card p-3 space-y-2">
             <label class="label">{{ t('workflow.requestedDueDate') }}</label>
-            <input type="date" v-model="extensionForm.requested_due_date" class="input" />
+            <input type="date" v-model="extensionForm.requested_due_date" class="input" data-testid="extension-date-input" />
             <label class="label">{{ t('workflow.extensionReason') }}</label>
-            <textarea v-model="extensionForm.reason" class="input" rows="2"></textarea>
-            <button class="btn-primary btn-sm" @click="requestExtension">{{ t('common.submit') }}</button>
+            <textarea v-model="extensionForm.reason" class="input" rows="2" data-testid="extension-reason-input"></textarea>
+            <button class="btn-primary btn-sm" data-testid="extension-submit-button" @click="requestExtension">{{ t('common.submit') }}</button>
           </div>
         </div>
       </div>
 
       <!-- Timeline -->
-      <div class="card p-4">
+      <div class="card p-4" data-testid="workflow-timeline">
         <h2 class="card-title mb-3">{{ t('workflow.history') }}</h2>
         <ul class="space-y-2">
-          <li v-for="(e, i) in timeline" :key="i" class="text-sm border-s-2 border-line ps-3 py-1">
+          <li v-for="(e, i) in timeline" :key="i" class="text-sm border-s-2 border-line ps-3 py-1" :data-testid="`timeline-event-${e.event_type}`">
             <span class="font-medium text-content">{{ t(`workflow.events.${e.event_type}`, e.event_type) }}</span>
             <span class="text-content-subtle"> — {{ e.user || t('workflow.system') }} · {{ formatDate(e.created_at) }}</span>
             <p v-if="e.notes" class="text-content-subtle">{{ e.notes }}</p>
@@ -105,9 +105,16 @@ const extensionForm = ref({ requested_due_date: '', reason: '' })
 
 const programCode = () => route.params.programCode
 const canEdit = computed(() => submission.value && ['draft', 'returned_for_revision'].includes(submission.value.status))
+// Read from the assignment-level timeline, not submission.decisions:
+// reopening a returned submission immediately starts a new evidence
+// version (see WorkflowService::getOrCreateDraft()), which has no
+// decisions of its own yet — the rejection that produced it lives on the
+// PREVIOUS version. The timeline is scoped to the assignment across every
+// version, so the most recent "*_rejected" event there is always the
+// right one to show, whether the new draft has been created yet or not.
 const lastRejectionReason = computed(() => {
-  const rejected = (submission.value?.decisions || []).filter(d => d.decision === 'rejected')
-  return rejected.length ? rejected[rejected.length - 1].rejection_reason : ''
+  const rejectionEvents = timeline.value.filter(e => e.event_type?.endsWith('_rejected'))
+  return rejectionEvents.length ? rejectionEvents[rejectionEvents.length - 1].notes : ''
 })
 
 function formatDate(d) {

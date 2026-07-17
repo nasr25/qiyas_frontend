@@ -38,7 +38,7 @@
       <div class="card">
         <div class="card-header flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 class="text-sm font-semibold text-content">{{ t('standards.title') }}</h2>
-          <div v-if="(authStore.isSuperAdmin || authStore.isCoordinator) && !cycleReadOnly" class="flex flex-wrap gap-2">
+          <div v-if="(authStore.isSuperAdmin || authStore.isQiyasAdmin || authStore.isCoordinator) && !cycleReadOnly" class="flex flex-wrap gap-2">
             <button class="btn-secondary btn-sm" :disabled="downloadingTemplate" @click="downloadTemplate">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" /></svg>
               {{ t('standards.downloadTemplate') }}
@@ -47,7 +47,7 @@
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 8l5-5 5 5M12 3v12" /></svg>
               {{ t('standards.importExcel') }}
             </button>
-            <button class="btn-primary btn-sm" @click="showAddStandard = true">
+            <button class="btn-primary btn-sm" data-testid="create-standard-button" @click="showAddStandard = true">
               + {{ t('standards.new') }}
             </button>
           </div>
@@ -68,7 +68,7 @@
               <tr v-if="!sorted.length">
                 <td colspan="6" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
               </tr>
-              <tr v-for="std in sorted" :key="std.id">
+              <tr v-for="std in sorted" :key="std.id" :data-testid="`standard-row-${std.standard_number}`">
                 <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.standard_number }}</td>
                 <td>{{ std.name_ar }}</td>
                 <td>
@@ -100,7 +100,7 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('standards.number') }}</label>
-                  <input v-model="stdForm.standard_number" class="input" required />
+                  <input v-model="stdForm.standard_number" class="input" required data-testid="standard-code-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('standards.version') }}</label>
@@ -110,20 +110,20 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('standards.perspective') }}</label>
-                  <input v-model="stdForm.perspective" class="input" dir="rtl" />
+                  <input v-model="stdForm.perspective" class="input" dir="rtl" data-testid="standard-perspective-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('standards.axis') }}</label>
-                  <input v-model="stdForm.axis" class="input" dir="rtl" />
+                  <input v-model="stdForm.axis" class="input" dir="rtl" data-testid="standard-axis-input" />
                 </div>
               </div>
               <div>
                 <label class="label">{{ t('standards.nameAr') }}</label>
-                <input v-model="stdForm.name_ar" class="input" required dir="rtl" />
+                <input v-model="stdForm.name_ar" class="input" required dir="rtl" data-testid="standard-name-ar-input" />
               </div>
               <div>
                 <label class="label">{{ t('standards.nameEn') }}</label>
-                <input v-model="stdForm.name_en" class="input" dir="ltr" />
+                <input v-model="stdForm.name_en" class="input" dir="ltr" data-testid="standard-name-en-input" />
               </div>
               <div>
                 <label class="label">{{ t('standards.objective') }}</label>
@@ -150,11 +150,11 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('standards.weight') }}</label>
-                  <input v-model="stdForm.weight" type="number" step="0.1" class="input" />
+                  <input v-model="stdForm.weight" type="number" step="0.1" class="input" data-testid="standard-weight-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('standards.dueDate') }}</label>
-                  <input v-model="stdForm.due_date" type="date" class="input" />
+                  <input v-model="stdForm.due_date" type="date" class="input" data-testid="standard-due-date-input" />
                 </div>
               </div>
               <!-- Departments -->
@@ -162,7 +162,7 @@
                 <label class="label">{{ t('standards.departments') }}</label>
                 <div class="max-h-40 overflow-y-auto rounded-lg border border-line p-2 space-y-1">
                   <label v-for="d in departments" :key="d.id" class="flex items-center gap-2.5 rounded px-2 py-1.5 hover:bg-surface-inset cursor-pointer">
-                    <input type="checkbox" :value="d.id" v-model="stdForm.department_ids" class="h-4 w-4 rounded border-line text-primary-600" />
+                    <input type="checkbox" :value="d.id" v-model="stdForm.department_ids" class="h-4 w-4 rounded border-line text-primary-600" :data-testid="`standard-department-checkbox-${d.id}`" />
                     <span class="text-sm text-content">{{ d.name_ar }}</span>
                   </label>
                   <p v-if="!departments.length" class="text-sm text-content-subtle py-3 text-center">{{ t('common.noData') }}</p>
@@ -171,7 +171,7 @@
             </form>
             <div class="flex justify-end gap-3 p-6 pt-3 border-t border-line shrink-0">
               <button type="button" class="btn-secondary" @click="showAddStandard = false">{{ t('common.cancel') }}</button>
-              <button type="button" class="btn-primary" :disabled="saving" @click="handleAddStandard">{{ saving ? t('common.loading') : t('common.save') }}</button>
+              <button type="button" class="btn-primary" :disabled="saving" data-testid="save-standard-button" @click="handleAddStandard">{{ saving ? t('common.loading') : t('common.save') }}</button>
             </div>
           </div>
         </div>

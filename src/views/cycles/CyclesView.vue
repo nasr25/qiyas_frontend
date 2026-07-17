@@ -33,7 +33,7 @@
             <tr v-if="!sorted.length">
               <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
-            <tr v-for="cycle in sorted" :key="cycle.id">
+            <tr v-for="cycle in sorted" :key="cycle.id" :data-testid="`cycle-row-${cycle.status}`">
               <td class="font-medium">
                 <RouterLink :to="`/cycles/${cycle.id}`" class="text-primary-700 hover:underline dark:text-primary-400">
                   {{ cycle.name }}
@@ -46,7 +46,7 @@
               <td>{{ cycle.standards_count ?? 0 }}</td>
               <td>
                 <div class="flex items-center gap-2">
-                  <RouterLink :to="`/cycles/${cycle.id}`" class="btn-secondary btn-sm">{{ t('common.view') }}</RouterLink>
+                  <RouterLink :to="`/cycles/${cycle.id}`" class="btn-secondary btn-sm" data-testid="open-cycle-link">{{ t('common.view') }}</RouterLink>
                   <template v-if="authStore.isSuperAdmin">
                     <button v-if="cycle.status === 'draft'" class="btn-primary btn-sm" @click="confirmAction('activate', cycle)">{{ t('cycles.activate') }}</button>
                     <button v-if="cycle.status === 'active'" class="btn btn-sm bg-warning-500 text-white hover:bg-warning-600" @click="openCloseModal(cycle)">{{ t('cycles.close') }}</button>

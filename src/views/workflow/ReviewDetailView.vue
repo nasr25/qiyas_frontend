@@ -34,10 +34,10 @@
         </div>
       </div>
 
-      <div class="card p-4" v-if="submission.decisions.length">
+      <div class="card p-4" v-if="submission.decisions.length" data-testid="prior-decisions">
         <h2 class="card-title mb-3">{{ t('workflow.priorDecisions') }}</h2>
         <ul class="space-y-2 text-sm">
-          <li v-for="(d, i) in submission.decisions" :key="i" class="border-s-2 border-line ps-3">
+          <li v-for="(d, i) in submission.decisions" :key="i" class="border-s-2 border-line ps-3" :data-testid="`prior-decision-${d.stage}`">
             <span class="font-medium">{{ t(`workflow.stages.${d.stage}`) }}</span> —
             <span :class="d.decision === 'approved' ? 'text-success-600' : 'text-danger-600'">{{ t(`workflow.decision.${d.decision}`) }}</span>
             <span class="text-content-subtle"> · {{ d.reviewer }}</span>
@@ -48,15 +48,15 @@
 
       <div v-if="isPendingThisStage" class="card p-4 space-y-3">
         <h2 class="card-title">{{ t('workflow.makeDecision') }}</h2>
-        <textarea v-model="notes" :placeholder="t('workflow.reviewNotes')" class="input" rows="2"></textarea>
+        <textarea v-model="notes" :placeholder="t('workflow.reviewNotes')" class="input" rows="2" data-testid="review-notes-input"></textarea>
         <div class="flex gap-2">
-          <button class="btn-primary" :disabled="acting" @click="approve">{{ t('workflow.approve') }}</button>
-          <button class="btn-secondary text-danger-600" :disabled="acting" @click="showReject = !showReject">{{ t('workflow.reject') }}</button>
+          <button class="btn-primary" :disabled="acting" data-testid="approve-button" @click="approve">{{ t('workflow.approve') }}</button>
+          <button class="btn-secondary text-danger-600" :disabled="acting" data-testid="reject-button" @click="showReject = !showReject">{{ t('workflow.reject') }}</button>
         </div>
         <div v-if="showReject" class="space-y-2">
           <label class="label">{{ t('workflow.rejectionReasonRequired') }}</label>
-          <textarea v-model="rejectionReason" class="input" rows="2"></textarea>
-          <button class="btn-primary btn-sm" :disabled="!rejectionReason || acting" @click="reject">{{ t('common.confirm') }}</button>
+          <textarea v-model="rejectionReason" class="input" rows="2" data-testid="rejection-reason-input"></textarea>
+          <button class="btn-primary btn-sm" :disabled="!rejectionReason || acting" data-testid="confirm-reject-button" @click="reject">{{ t('common.confirm') }}</button>
         </div>
       </div>
     </template>

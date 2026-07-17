@@ -68,6 +68,7 @@ const router = createRouter({
             { path: 'reviews/:stage', name: 'program-review-queue', component: () => import('@/views/workflow/ReviewQueueView.vue'), meta: { roles: ['super-admin', 'qiyas-admin', 'auditor', 'coordinator'] } },
             { path: 'reviews/:stage/:id', name: 'program-review-detail', component: () => import('@/views/workflow/ReviewDetailView.vue'), meta: { roles: ['super-admin', 'qiyas-admin', 'auditor', 'coordinator'] } },
             { path: 'assignments', name: 'program-assignments', component: () => import('@/views/workflow/RequirementAssignmentsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
+            { path: 'extension-requests', name: 'program-extension-queue', component: () => import('@/views/workflow/AuditorExtensionQueueView.vue'), meta: { roles: ['super-admin', 'auditor'] } },
             { path: 'sla-settings', name: 'program-sla-settings', component: () => import('@/views/workflow/SlaSettingsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
             { path: 'requirements-import', name: 'program-requirements-import', component: () => import('@/views/workflow/QiyasImportView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
           ],

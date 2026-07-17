@@ -51,7 +51,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in items" :key="item.id" class="border-b border-line last:border-0">
+          <tr v-for="item in items" :key="item.id" class="border-b border-line last:border-0" :data-testid="`my-requirement-row-${item.requirement.code}`">
             <td class="px-4 py-2 font-medium text-content">{{ item.requirement.code }}</td>
             <td class="px-4 py-2 text-content">{{ item.requirement.name }}</td>
             <td class="px-4 py-2 text-content-subtle">{{ item.department }}</td>
@@ -61,7 +61,7 @@
             </td>
             <td class="px-4 py-2 text-content-subtle">{{ item.effective_due_date || '—' }}</td>
             <td class="px-4 py-2 text-end">
-              <RouterLink :to="{ name: 'program-my-requirement-detail', params: { id: item.id } }" class="btn-secondary btn-sm">
+              <RouterLink :to="{ name: 'program-my-requirement-detail', params: { id: item.id } }" class="btn-secondary btn-sm" data-testid="open-my-requirement-link">
                 {{ t('common.view') }}
               </RouterLink>
             </td>

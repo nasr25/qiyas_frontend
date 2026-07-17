@@ -22,6 +22,7 @@
         :key="program.code"
         type="button"
         class="card p-5 text-start hover:shadow-lg hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand"
+        :data-testid="`program-card-${program.code}`"
         @click="openProgram(program)"
       >
         <div class="flex items-center gap-3 mb-3">

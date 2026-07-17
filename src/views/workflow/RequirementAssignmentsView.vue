@@ -5,28 +5,28 @@
         <h1 class="text-xl font-bold text-content">{{ t('workflow.assignments') }}</h1>
         <p class="text-sm text-content-subtle mt-1">{{ t('workflow.assignmentsSubtitle') }}</p>
       </div>
-      <button class="btn-primary" @click="showForm = !showForm">{{ t('workflow.newAssignment') }}</button>
+      <button class="btn-primary" data-testid="new-assignment-button" @click="showForm = !showForm">{{ t('workflow.newAssignment') }}</button>
     </div>
 
     <div v-if="showForm" class="card p-4 space-y-3">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="label">{{ t('workflow.requirement') }}</label>
-          <select v-model="form.requirement_id" class="input">
+          <select v-model="form.requirement_id" class="input" data-testid="assign-requirement-select">
             <option value="">{{ t('common.select') }}</option>
             <option v-for="r in requirements" :key="r.id" :value="r.id">{{ r.number }} — {{ r.name }}</option>
           </select>
         </div>
         <div>
           <label class="label">{{ t('nav.departments') }}</label>
-          <select v-model="form.department_id" class="input">
+          <select v-model="form.department_id" class="input" data-testid="department-select">
             <option value="">{{ t('common.select') }}</option>
             <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name }}</option>
           </select>
         </div>
         <div>
           <label class="label">{{ t('workflow.dueDate') }}</label>
-          <input type="date" v-model="form.due_date" class="input" />
+          <input type="date" v-model="form.due_date" class="input" data-testid="assign-due-date-input" />
         </div>
         <div>
           <label class="label">{{ t('workflow.priority') }}</label>
@@ -39,14 +39,14 @@
         </div>
         <div>
           <label class="label">{{ t('workflow.instructionsAr') }}</label>
-          <textarea v-model="form.instructions_ar" class="input" rows="2" dir="rtl"></textarea>
+          <textarea v-model="form.instructions_ar" class="input" rows="2" dir="rtl" data-testid="assign-instructions-ar-input"></textarea>
         </div>
         <div>
           <label class="label">{{ t('workflow.instructionsEn') }}</label>
-          <textarea v-model="form.instructions_en" class="input" rows="2" dir="ltr"></textarea>
+          <textarea v-model="form.instructions_en" class="input" rows="2" dir="ltr" data-testid="assign-instructions-en-input"></textarea>
         </div>
       </div>
-      <button class="btn-primary" :disabled="saving" @click="createAssignment">{{ t('workflow.assign') }}</button>
+      <button class="btn-primary" :disabled="saving" data-testid="assign-standard-button" @click="createAssignment">{{ t('workflow.assign') }}</button>
     </div>
 
     <div v-if="loading" class="flex items-center justify-center py-20">
@@ -69,7 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in items" :key="item.id" class="border-b border-line last:border-0">
+          <tr v-for="item in items" :key="item.id" class="border-b border-line last:border-0" :data-testid="`assignment-row-${item.requirement.code}`">
             <td class="px-4 py-2 font-medium text-content">{{ item.requirement.code }}</td>
             <td class="px-4 py-2 text-content">{{ item.requirement.name }}</td>
             <td class="px-4 py-2 text-content-subtle">{{ item.department.name }}</td>
