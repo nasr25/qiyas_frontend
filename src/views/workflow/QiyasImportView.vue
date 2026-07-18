@@ -123,7 +123,7 @@ async function downloadErrorReport() {
 }
 
 onMounted(async () => {
-  const res = await cyclesService.list()
+  const res = await cyclesService.list(programCode())
   cycles.value = res.data
 })
 </script>

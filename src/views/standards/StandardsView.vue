@@ -80,6 +80,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import { standardsService, cyclesService, departmentsService } from '@/services/index'
@@ -88,6 +89,8 @@ import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
+const route = useRoute()
+const programCode = () => route.params.programCode || 'QIYAS'
 const appStore  = useAppStore()
 const authStore = useAuthStore()
 
@@ -149,7 +152,7 @@ onMounted(async () => {
   }
   try {
     const [cyclesRes, deptsRes] = await Promise.all([
-      cyclesService.list(),
+      cyclesService.list(programCode()),
       // Only admins/auditors need the full department list for the filter.
       deptScoped.value ? Promise.resolve({ data: [] }) : departmentsService.list(),
     ])

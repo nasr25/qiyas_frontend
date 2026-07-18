@@ -122,6 +122,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { documentsService, cyclesService, departmentsService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
@@ -130,6 +131,8 @@ import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
+const route = useRoute()
+const programCode = () => route.params.programCode || 'QIYAS'
 const appStore = useAppStore()
 
 const loading     = ref(true)
@@ -218,7 +221,7 @@ async function handleSubmit(doc) {
 onMounted(async () => {
   try {
     const [cyclesRes, deptsRes] = await Promise.all([
-      cyclesService.list().catch(() => ({ data: [] })),
+      cyclesService.list(programCode()).catch(() => ({ data: [] })),
       departmentsService.list().catch(() => ({ data: [] })),  // employees lack departments.view
     ])
     cycles.value = cyclesRes.data || cyclesRes

@@ -144,12 +144,15 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
 import { standardsService, documentsService, cyclesService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 
 const { t } = useI18n()
+const route = useRoute()
+const programCode = () => route.params.programCode || 'QIYAS'
 const appStore  = useAppStore()
 const authStore = useAuthStore()
 
@@ -221,7 +224,7 @@ async function load() {
   loading.value = true
   try {
     if (!selectedCycleId.value) {
-      const res = await cyclesService.list()
+      const res = await cyclesService.list(programCode())
       cycles.value = res.data || res
       const active = cycles.value.find(c => c.status === 'active')
       selectedCycleId.value = active?.id || cycles.value[0]?.id || ''
