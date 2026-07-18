@@ -23,7 +23,7 @@
           <div>
             <div class="flex items-center gap-3 mb-1">
               <h1 class="text-xl font-bold text-content">{{ cycle.name }}</h1>
-              <StatusBadge :status="cycle.status" />
+              <StatusBadge :status="cycle.status" namespace="cycles.status" />
             </div>
             <div class="flex flex-wrap gap-4 text-sm text-content-muted mt-2">
               <span>{{ t('cycles.year') }}: <strong class="text-content">{{ cycle.year }}</strong></span>

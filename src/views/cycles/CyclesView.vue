@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
       <h1 class="text-xl font-bold text-content">{{ t('cycles.title') }}</h1>
-      <button v-if="authStore.isSuperAdmin" class="btn-primary btn-sm" @click="openCreateModal">
+      <button v-if="authStore.isSuperAdmin || authStore.isQiyasAdmin" class="btn-primary btn-sm" @click="openCreateModal">
         + {{ t('cycles.new') }}
       </button>
     </div>
@@ -40,14 +40,14 @@
                 </RouterLink>
               </td>
               <td>{{ cycle.year }}</td>
-              <td><StatusBadge :status="cycle.status" /></td>
+              <td><StatusBadge :status="cycle.status" namespace="cycles.status" /></td>
               <td>{{ formatDate(cycle.start_date) }}</td>
               <td>{{ formatDate(cycle.end_date) }}</td>
               <td>{{ cycle.standards_count ?? 0 }}</td>
               <td>
                 <div class="flex items-center gap-2">
                   <RouterLink :to="{ name: 'program-cycle-detail', params: { programCode: programCode(), id: cycle.id } }" class="btn-secondary btn-sm" data-testid="open-cycle-link">{{ t('common.view') }}</RouterLink>
-                  <template v-if="authStore.isSuperAdmin">
+                  <template v-if="authStore.isSuperAdmin || authStore.isQiyasAdmin">
                     <button v-if="cycle.status === 'draft'" class="btn-primary btn-sm" @click="confirmAction('activate', cycle)">{{ t('cycles.activate') }}</button>
                     <button v-if="cycle.status === 'active'" class="btn btn-sm bg-warning-500 text-white hover:bg-warning-600" @click="openCloseModal(cycle)">{{ t('cycles.close') }}</button>
                     <button v-if="cycle.status === 'closed'" class="btn-secondary btn-sm" @click="confirmAction('archive', cycle)">{{ t('cycles.archive') }}</button>
@@ -70,12 +70,12 @@
             <form @submit.prevent="handleCreate" class="space-y-4">
               <div>
                 <label class="label">{{ t('cycles.name') }}</label>
-                <input v-model="form.name" class="input" required />
+                <input v-model="form.name" class="input" required data-testid="cycle-name-input" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('cycles.year') }}</label>
-                  <input v-model="form.year" type="number" class="input" required />
+                  <input v-model="form.year" type="number" class="input" required data-testid="cycle-year-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('cycles.copyFromPrevious') }}</label>
@@ -88,16 +88,16 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('cycles.startDate') }}</label>
-                  <input v-model="form.start_date" type="date" class="input" required />
+                  <input v-model="form.start_date" type="date" class="input" required data-testid="cycle-start-date-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('cycles.endDate') }}</label>
-                  <input v-model="form.end_date" type="date" class="input" required />
+                  <input v-model="form.end_date" type="date" class="input" required data-testid="cycle-end-date-input" />
                 </div>
               </div>
               <div class="flex justify-end gap-3 pt-2">
                 <button type="button" class="btn-secondary" @click="showModal = false">{{ t('common.cancel') }}</button>
-                <button type="submit" class="btn-primary" :disabled="saving">{{ saving ? t('common.loading') : t('common.save') }}</button>
+                <button type="submit" class="btn-primary" :disabled="saving" data-testid="cycle-save-button">{{ saving ? t('common.loading') : t('common.save') }}</button>
               </div>
             </form>
           </div>
