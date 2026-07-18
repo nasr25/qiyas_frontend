@@ -382,7 +382,12 @@
     "passwordConfigured": "Password configured",
     "passwordNotConfigured": "Password not configured",
     "testConnection": "Test Connection",
-    "smtpUnencryptedRejected": "Unencrypted SMTP requires an approved internal relay."
+    "smtpUnencryptedRejected": "Unencrypted SMTP requires an approved internal relay.",
+    "emailTemplates": "Email Templates",
+    "availableVariables": "Available variables",
+    "previewAr": "Preview (AR)",
+    "previewEn": "Preview (EN)",
+    "testSend": "Send Test"
   },
   "common": {
     "save": "Save",

@@ -214,6 +214,83 @@
         </p>
       </div>
 
+      <!-- Email Templates -->
+      <div v-else-if="activeTab === 'email-templates'" class="space-y-4">
+        <div class="card divide-y divide-line">
+          <button
+            v-for="tpl in emailTemplates"
+            :key="tpl.id"
+            class="w-full flex items-center justify-between px-4 py-3 text-start hover:bg-surface-inset transition-colors"
+            :data-testid="`email-template-row-${tpl.template_key}`"
+            @click="selectEmailTemplate(tpl)"
+          >
+            <div>
+              <p class="text-sm font-medium text-content">{{ tpl.event_type }}</p>
+              <p class="text-xs text-content-subtle">{{ tpl.template_key }}</p>
+            </div>
+            <span
+              class="text-xs px-2 py-0.5 rounded"
+              :class="tpl.is_enabled ? 'bg-success-100 text-success-700 dark:bg-success-950/40 dark:text-success-400' : 'bg-surface-inset text-content-subtle'"
+            >{{ tpl.is_enabled ? t('common.active') : t('common.inactive') }}</span>
+          </button>
+          <p v-if="!emailTemplates.length" class="px-4 py-6 text-sm text-content-subtle">{{ t('common.noData') }}</p>
+        </div>
+
+        <div v-if="editingTemplate" class="card p-6 space-y-4" data-testid="email-template-editor">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-content">{{ editingTemplate.event_type }}</h3>
+            <label class="flex items-center gap-2 text-sm">
+              <input type="checkbox" v-model="editingTemplate.is_enabled" class="h-4 w-4 rounded border-line" data-testid="email-template-enabled" />
+              {{ t('common.active') }}
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Subject (AR)</label>
+              <input v-model="editingTemplate.subject_ar" class="input" dir="rtl" data-testid="email-template-subject-ar" />
+            </div>
+            <div>
+              <label class="label">Subject (EN)</label>
+              <input v-model="editingTemplate.subject_en" class="input" dir="ltr" data-testid="email-template-subject-en" />
+            </div>
+            <div>
+              <label class="label">Body (AR)</label>
+              <textarea v-model="editingTemplate.body_ar" rows="5" class="textarea" dir="rtl" data-testid="email-template-body-ar" />
+            </div>
+            <div>
+              <label class="label">Body (EN)</label>
+              <textarea v-model="editingTemplate.body_en" rows="5" class="textarea" dir="ltr" data-testid="email-template-body-en" />
+            </div>
+          </div>
+
+          <div>
+            <p class="label">{{ t('settings.availableVariables') }}</p>
+            <div class="flex flex-wrap gap-1.5 mt-1" data-testid="email-template-variables">
+              <code v-for="v in wrappedVariables" :key="v" class="text-[11px] px-1.5 py-0.5 rounded bg-surface-inset text-content-subtle">{{ v }}</code>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button class="btn-primary btn-sm" :disabled="emailTemplateSaving" @click="saveEmailTemplate" data-testid="email-template-save">
+              {{ emailTemplateSaving ? t('common.loading') : t('settings.save') }}
+            </button>
+            <button class="btn-secondary btn-sm" @click="previewEmailTemplate('ar')" data-testid="email-template-preview-ar">{{ t('settings.previewAr') }}</button>
+            <button class="btn-secondary btn-sm" @click="previewEmailTemplate('en')" data-testid="email-template-preview-en">{{ t('settings.previewEn') }}</button>
+            <input v-model="emailTestRecipient" type="email" class="input max-w-xs" placeholder="test recipient" data-testid="email-template-test-email" />
+            <button class="btn-secondary btn-sm" :disabled="!emailTestRecipient" @click="testSendEmailTemplate" data-testid="email-template-test-send">
+              {{ t('settings.testSend') }}
+            </button>
+          </div>
+
+          <div v-if="emailPreview" class="rounded border border-line p-3 space-y-1" data-testid="email-template-preview-result">
+            <p class="text-xs font-semibold text-content">{{ emailPreview.subject }}</p>
+            <p class="text-xs text-content-subtle whitespace-pre-wrap">{{ emailPreview.body }}</p>
+          </div>
+          <p v-if="emailActionMessage" class="text-xs text-success-600" data-testid="email-template-action-message">{{ emailActionMessage }}</p>
+        </div>
+      </div>
+
       <!-- Upload -->
       <div v-else-if="activeTab === 'upload'" class="card p-6 space-y-4">
         <h2 class="text-sm font-semibold text-content">{{ t('settings.upload') }}</h2>
@@ -297,7 +374,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
-import { adminService, brandingAdminService, smtpSettingsService } from '@/services/index'
+import { adminService, brandingAdminService, smtpSettingsService, emailTemplateService } from '@/services/index'
 
 const { t } = useI18n()
 const appStore = useAppStore()
@@ -307,11 +384,12 @@ const saving    = ref(false)
 const activeTab = ref('branding')
 
 const tabs = computed(() => [
-  { key: 'branding',      label: t('settings.branding') },
-  { key: 'smtp',          label: t('settings.smtp') },
-  { key: 'upload',        label: t('settings.upload') },
-  { key: 'notifications', label: t('settings.notifications') },
-  { key: 'localization',  label: t('settings.localization') },
+  { key: 'branding',        label: t('settings.branding') },
+  { key: 'smtp',            label: t('settings.smtp') },
+  { key: 'email-templates', label: t('settings.emailTemplates') },
+  { key: 'upload',          label: t('settings.upload') },
+  { key: 'notifications',   label: t('settings.notifications') },
+  { key: 'localization',    label: t('settings.localization') },
 ])
 
 const fileTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'zip']
@@ -553,8 +631,83 @@ async function testSmtp() {
   }
 }
 
+// ── Email templates: global, Super-Admin-managed ──────────────────────────
+
+const supportedVariables = [
+  'recipient_name', 'employee_name', 'reviewer_name', 'department_name',
+  'program_name', 'cycle_name', 'requirement_code', 'requirement_name',
+  'current_status', 'due_date', 'effective_due_date', 'requested_due_date',
+  'days_remaining', 'days_overdue', 'sla_due_at', 'sla_breach_duration',
+  'rejection_reason', 'review_notes', 'action_url',
+]
+const wrappedVariables = supportedVariables.map(v => `{{${v}}}`)
+
+const emailTemplates = ref([])
+const editingTemplate = ref(null)
+const emailTemplateSaving = ref(false)
+const emailPreview = ref(null)
+const emailTestRecipient = ref('')
+const emailActionMessage = ref('')
+
+async function loadEmailTemplates() {
+  try {
+    emailTemplates.value = await emailTemplateService.list()
+  } catch {
+    appStore.showToast(t('common.error'), 'error')
+  }
+}
+
+function selectEmailTemplate(tpl) {
+  editingTemplate.value = { ...tpl }
+  emailPreview.value = null
+  emailActionMessage.value = ''
+}
+
+async function saveEmailTemplate() {
+  if (!editingTemplate.value) return
+  emailTemplateSaving.value = true
+  try {
+    const saved = await emailTemplateService.update(editingTemplate.value.id, {
+      subject_ar: editingTemplate.value.subject_ar,
+      subject_en: editingTemplate.value.subject_en,
+      body_ar: editingTemplate.value.body_ar,
+      body_en: editingTemplate.value.body_en,
+      is_enabled: editingTemplate.value.is_enabled,
+      cc_rules: editingTemplate.value.cc_rules ?? null,
+    })
+    const idx = emailTemplates.value.findIndex(t2 => t2.id === saved.id)
+    if (idx !== -1) emailTemplates.value[idx] = saved
+    editingTemplate.value = { ...saved }
+    appStore.showToast(t('common.success'), 'success')
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
+  } finally {
+    emailTemplateSaving.value = false
+  }
+}
+
+async function previewEmailTemplate(locale) {
+  if (!editingTemplate.value) return
+  try {
+    emailPreview.value = await emailTemplateService.preview(editingTemplate.value.id, locale)
+  } catch {
+    appStore.showToast(t('common.error'), 'error')
+  }
+}
+
+async function testSendEmailTemplate() {
+  if (!editingTemplate.value || !emailTestRecipient.value) return
+  emailActionMessage.value = ''
+  try {
+    const result = await emailTemplateService.testSend(editingTemplate.value.id, emailTestRecipient.value)
+    emailActionMessage.value = result.message
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message || t('common.error'), 'error')
+  }
+}
+
 onMounted(async () => {
   await loadSettings()
-  await Promise.all([loadAllBrandingHistory(), loadSmtp()])
+  await Promise.all([loadAllBrandingHistory(), loadSmtp(), loadEmailTemplates()])
 })
 </script>

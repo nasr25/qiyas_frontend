@@ -250,3 +250,12 @@ export const smtpSettingsService = {
   test:    (data) => api.post('/admin/smtp-settings/test', data).then(r => r.data),
   history: ()     => api.get('/admin/smtp-settings/history').then(r => r.data.data),
 }
+
+/** Global, Super-Admin-managed email notification templates. See docs/email-notifications.md. */
+export const emailTemplateService = {
+  list:     ()               => api.get('/admin/email-templates').then(r => r.data.data),
+  get:      (id)              => api.get(`/admin/email-templates/${id}`).then(r => r.data.data),
+  update:   (id, data)        => api.put(`/admin/email-templates/${id}`, data).then(r => r.data.data),
+  preview:  (id, locale)      => api.post(`/admin/email-templates/${id}/preview`, { locale }).then(r => r.data.data),
+  testSend: (id, email)       => api.post(`/admin/email-templates/${id}/test-send`, { email }).then(r => r.data),
+}

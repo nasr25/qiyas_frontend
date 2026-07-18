@@ -382,7 +382,12 @@
     "passwordConfigured": "كلمة المرور مُعدة",
     "passwordNotConfigured": "كلمة المرور غير مُعدة",
     "testConnection": "اختبار الاتصال",
-    "smtpUnencryptedRejected": "الاتصال غير المشفر يتطلب مرحلًا داخليًا معتمدًا."
+    "smtpUnencryptedRejected": "الاتصال غير المشفر يتطلب مرحلًا داخليًا معتمدًا.",
+    "emailTemplates": "قوالب البريد الإلكتروني",
+    "availableVariables": "المتغيرات المتاحة",
+    "previewAr": "معاينة (عربي)",
+    "previewEn": "معاينة (إنجليزي)",
+    "testSend": "إرسال تجريبي"
   },
   "common": {
     "save": "حفظ",
