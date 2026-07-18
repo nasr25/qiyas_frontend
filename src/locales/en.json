@@ -28,7 +28,22 @@
     "departmentManagerReview": "Department Manager Review",
     "programManagerReview": "Final Approval",
     "requirementsImport": "Requirements Import",
-    "slaSettings": "SLA Settings"
+    "slaSettings": "SLA Settings",
+    "hierarchy": "Hierarchy"
+  },
+  "hierarchy": {
+    "title": "Hierarchy",
+    "subtitle": "Manage domains and controls within the program's configurable hierarchy",
+    "notConfigured": "No hierarchy is configured for this program.",
+    "root": "Root",
+    "assessable": "Assessable",
+    "children": "item(s)",
+    "code": "Code",
+    "nameAr": "Arabic Name",
+    "nameEn": "English Name",
+    "guidance": "Guidance",
+    "evidenceRequirements": "Evidence Requirements",
+    "weight": "Weight"
   },
   "workflow": {
     "myRequirements": "My Requirements",

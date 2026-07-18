@@ -72,6 +72,9 @@ const router = createRouter({
             { path: 'extension-requests', name: 'program-extension-queue', component: () => import('@/views/workflow/AuditorExtensionQueueView.vue'), meta: { roles: ['super-admin', 'auditor'] } },
             { path: 'sla-settings', name: 'program-sla-settings', component: () => import('@/views/workflow/SlaSettingsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
             { path: 'requirements-import', name: 'program-requirements-import', component: () => import('@/views/workflow/QiyasImportView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
+
+            // ── Phase 6: generic arbitrary-depth hierarchy (used by ECC) ──
+            { path: 'hierarchy', name: 'program-hierarchy', component: () => import('@/views/hierarchy/HierarchyExplorerView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
           ],
         },
 

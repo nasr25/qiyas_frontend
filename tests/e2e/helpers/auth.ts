@@ -30,6 +30,15 @@ export const USERS = {
   crossProgramManagerAuditor: 'cross_pm_qiyas_auditor_sumoud',
   crossEmployeeDeptManager: 'cross_employee_qiyas_deptmgr_sumoud',
   crossEmployeeBothPrograms: 'cross_employee_both_programs',
+  // ECC (Phase 6) — see backend/database/seeders/ECCTestAccountsSeeder.php
+  eccProgramManager: 'ecc_pm',
+  eccAuditor: 'ecc_auditor',
+  eccDeptManagerA: 'ecc_dept_a_manager',
+  eccEmployeeA: 'ecc_employee_a',
+  eccDeptManagerB: 'ecc_dept_b_manager',
+  eccEmployeeB: 'ecc_employee_b',
+  triProgramA: 'triprogram_qiyas_pm_sumoud_auditor_ecc_employee',
+  triProgramB: 'triprogram_qiyas_emp_sumoud_deptmgr_ecc_pm',
 } as const
 
 export type TestUsername = (typeof USERS)[keyof typeof USERS]

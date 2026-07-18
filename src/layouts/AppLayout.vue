@@ -252,6 +252,7 @@ function programNavItems(code) {
     { name: 'assignments',     to: `${base}/assignments`,        label: 'nav.assignments',    icon: '📌', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'cycles',          to: `${base}/cycles`,             label: 'nav.cycles',         icon: '🔄', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'requirements',    to: `${base}/requirements`,       label: 'nav.standards',      icon: '📋', roles: ['super-admin', 'qiyas-admin'] },
+    { name: 'hierarchy',       to: `${base}/hierarchy`,          label: 'nav.hierarchy',      icon: '🌳', roles: ['super-admin', 'qiyas-admin'] },
     { name: 'review-department-manager', to: `${base}/reviews/department-manager`, label: 'nav.departmentManagerReview', icon: '✅', roles: ['coordinator', 'super-admin'] },
     { name: 'review-auditor', to: `${base}/reviews/auditor`,     label: 'nav.pendingReviews', icon: '🔍', roles: ['super-admin', 'auditor'] },
     { name: 'review-program-manager', to: `${base}/reviews/program-manager`, label: 'nav.programManagerReview', icon: '🏁', roles: ['super-admin', 'qiyas-admin'] },

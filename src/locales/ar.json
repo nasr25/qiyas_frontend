@@ -28,7 +28,22 @@
     "departmentManagerReview": "مراجعة مدير الإدارة",
     "programManagerReview": "الاعتماد النهائي",
     "requirementsImport": "استيراد المعايير",
-    "slaSettings": "إعدادات SLA"
+    "slaSettings": "إعدادات SLA",
+    "hierarchy": "الهيكل"
+  },
+  "hierarchy": {
+    "title": "الهيكل الهرمي",
+    "subtitle": "إدارة المجالات والضوابط ضمن هيكل البرنامج القابل للتهيئة",
+    "notConfigured": "لا يوجد هيكل هرمي مُهيَّأ لهذا البرنامج.",
+    "root": "الجذر",
+    "assessable": "قابل للتقييم",
+    "children": "عنصر فرعي",
+    "code": "الرمز",
+    "nameAr": "الاسم بالعربية",
+    "nameEn": "الاسم بالإنجليزية",
+    "guidance": "الإرشادات",
+    "evidenceRequirements": "متطلبات الإثبات",
+    "weight": "الوزن"
   },
   "workflow": {
     "myRequirements": "متطلباتي",

@@ -175,6 +175,20 @@ export const executiveDashboardService = {
   get: () => api.get('/executive-dashboard').then(r => r.data.data),
 }
 
+/**
+ * Generic, arbitrary-depth hierarchy engine (Phase 6) — used by ECC, not
+ * ECC-specific in code. Qiyas/Sumoud have no `hierarchy` configuration and
+ * the levels() call returns an empty list for them; the UI treats that as
+ * "this program manages its hierarchy through the Cycles page instead."
+ */
+export const hierarchyService = {
+  levels:         (program)             => api.get(`/programs/${program}/hierarchy-levels`).then(r => r.data.data),
+  children:       (program, parentId, cycleId) => api.get(`/programs/${program}/hierarchy`, { params: { parent_id: parentId, cycle_id: cycleId } }).then(r => r.data.data),
+  show:           (program, id)         => api.get(`/programs/${program}/hierarchy/${id}`).then(r => r.data.data),
+  create:         (program, data)       => api.post(`/programs/${program}/hierarchy`, data).then(r => r.data.data),
+  contentVersions: (program)            => api.get(`/programs/${program}/content-versions`).then(r => r.data.data),
+}
+
 export const adminService = {
   // Users
   listUsers:    (params) => api.get('/admin/users', { params }).then(r => r.data),
