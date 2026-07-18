@@ -60,7 +60,7 @@ const router = createRouter({
             { path: 'documents/:id', name: 'program-document-detail', component: () => import('@/views/documents/DocumentDetailView.vue') },
             { path: 'auditor', name: 'program-auditor', component: () => import('@/views/auditor/AuditorView.vue'), meta: { roles: ['auditor', 'super-admin'] } },
             { path: 'auditor/extensions', name: 'program-auditor-extensions', component: () => import('@/views/auditor/ExtensionsView.vue'), meta: { roles: ['auditor', 'super-admin'] } },
-            { path: 'reports', name: 'program-reports', component: () => import('@/views/reports/ReportsView.vue'), meta: { roles: ['super-admin', 'auditor', 'executive'] } },
+            { path: 'reports', name: 'program-reports', component: () => import('@/views/reports/ReportsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin', 'auditor', 'executive'] } },
             { path: 'my-standards', name: 'program-my-standards', component: () => import('@/views/employee/MyDepartmentStandardsView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
 
             // ── Phase 2: Qiyas operational workflow ─────────────────────

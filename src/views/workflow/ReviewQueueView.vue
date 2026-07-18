@@ -68,6 +68,8 @@ async function load() {
   try {
     const res = await reviewQueueService.list(route.params.programCode, stage.value)
     items.value = res.data
+  } catch {
+    items.value = []
   } finally {
     loading.value = false
   }
