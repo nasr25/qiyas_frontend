@@ -215,9 +215,38 @@ export const adminService = {
   // Settings
   getSettings:  ()       => api.get('/admin/settings').then(r => r.data.data),
   updateSettings:(data)  => api.post('/admin/settings', data).then(r => r.data),
-  uploadBranding:(form)  => api.post('/admin/settings/branding/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data),
   // Audit Logs
   auditLogs:    (params) => api.get('/admin/audit-logs', { params }).then(r => r.data),
   // Email delivery log
   emailLogs:    (params) => api.get('/admin/email-logs', { params }).then(r => r.data),
+}
+
+/**
+ * Super-Admin-only versioned branding asset management (logos/favicon).
+ * Every upload is a new, inactive version — activate() promotes it live,
+ * restore() reactivates a superseded version. Distinct from the public
+ * `brandingService` above (GET /branding), which only reads the current
+ * active state. See docs/administration/branding.md.
+ */
+export const brandingAdminService = {
+  history:  (type)        => api.get(`/admin/branding/${type}`).then(r => r.data.data),
+  upload:   (type, file)  => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post(`/admin/branding/${type}/upload`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data.data)
+  },
+  activate: (type, assetId) => api.post(`/admin/branding/${type}/${assetId}/activate`).then(r => r.data.data),
+  restore:  (type, assetId) => api.post(`/admin/branding/${type}/${assetId}/restore`).then(r => r.data.data),
+}
+
+/**
+ * Super Admin SMTP configuration. The password is write-only: the API
+ * never returns it, only a `password_configured` boolean — see
+ * docs/security/smtp-security.md.
+ */
+export const smtpSettingsService = {
+  get:     ()     => api.get('/admin/smtp-settings').then(r => r.data.data),
+  update:  (data) => api.put('/admin/smtp-settings', data).then(r => r.data.data),
+  test:    (data) => api.post('/admin/smtp-settings/test', data).then(r => r.data),
+  history: ()     => api.get('/admin/smtp-settings/history').then(r => r.data.data),
 }

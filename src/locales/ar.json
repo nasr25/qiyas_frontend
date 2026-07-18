@@ -372,7 +372,17 @@
     "upload": "إعدادات الرفع",
     "notifications": "الإشعارات",
     "localization": "الترجمة والمنطقة الزمنية",
-    "save": "حفظ الإعدادات"
+    "save": "حفظ الإعدادات",
+    "versionHistory": "سجل الإصدارات",
+    "pendingVersion": "تم الرفع — لم يُفعَّل بعد",
+    "restore": "استعادة",
+    "smtpEnabled": "تفعيل البريد الإلكتروني (SMTP)",
+    "internalRelayMode": "مرحل داخلي معتمد وموثوق",
+    "smtpAuth": "المصادقة",
+    "passwordConfigured": "كلمة المرور مُعدة",
+    "passwordNotConfigured": "كلمة المرور غير مُعدة",
+    "testConnection": "اختبار الاتصال",
+    "smtpUnencryptedRejected": "الاتصال غير المشفر يتطلب مرحلًا داخليًا معتمدًا."
   },
   "common": {
     "save": "حفظ",
@@ -384,6 +394,7 @@
     "filter": "تصفية",
     "loading": "جاري التحميل...",
     "noData": "لا توجد بيانات",
+    "none": "لا يوجد",
     "confirm": "تأكيد",
     "actions": "الإجراءات",
     "yes": "نعم",

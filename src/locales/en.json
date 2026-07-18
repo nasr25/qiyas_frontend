@@ -372,7 +372,17 @@
     "upload": "Upload Settings",
     "notifications": "Notifications",
     "localization": "Localization",
-    "save": "Save Settings"
+    "save": "Save Settings",
+    "versionHistory": "Version history",
+    "pendingVersion": "Uploaded — not yet live",
+    "restore": "Restore",
+    "smtpEnabled": "Enable SMTP",
+    "internalRelayMode": "Approved trusted internal relay",
+    "smtpAuth": "Authenticate",
+    "passwordConfigured": "Password configured",
+    "passwordNotConfigured": "Password not configured",
+    "testConnection": "Test Connection",
+    "smtpUnencryptedRejected": "Unencrypted SMTP requires an approved internal relay."
   },
   "common": {
     "save": "Save",
@@ -384,6 +394,7 @@
     "filter": "Filter",
     "loading": "Loading...",
     "noData": "No data available",
+    "none": "None",
     "confirm": "Confirm",
     "actions": "Actions",
     "yes": "Yes",
