@@ -21,6 +21,7 @@
           :class="activeTab === tab.key
             ? 'border-b-2 border-primary-700 text-primary-700 dark:text-primary-400 dark:border-primary-400'
             : 'text-content-muted hover:text-content'"
+          :data-testid="`settings-tab-${tab.key}`"
           @click="activeTab = tab.key"
         >
           {{ tab.label }}

@@ -18,22 +18,35 @@
 # widen. Add a new entry only after confirming the match is a genuine
 # false positive (third-party package metadata, official regulatory
 # content, or a documented platform-limitation disclosure) and
-# recording the justification here. As of this writing, this repo has
-# no such matches — the allowlist below is intentionally empty.
+# recording the justification here. As of this writing, this repo's
+# only matches are this script's own necessary self-documentation
+# below (see the allowlist entries at the bottom of this array).
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 PATTERN='claude|anthropic|chatgpt|openai|\bgpt\b|copilot|gemini|\bllm\b|language model|generative ai|ai-generated|vibe coding|الذكاء الاصطناعي|تم إنشاؤه بواسطة|نموذج لغوي|مساعد ذكي'
 
 # format: <path>:<line-number>:<sha256 of the exact line content>
-ALLOWLIST=()
+ALLOWLIST=(
+  # This script's own header comment and PATTERN line necessarily spell
+  # out the exact trigger words to document what the scan searches for
+  # — inherently self-matching, and not an attribution of any kind.
+  'scripts/scan-prohibited-references.sh:4:f9eb4c730a47c1cb4bffde0b6b9ebefe3938dd0e626da1dca21a382d4a24ca63'
+  'scripts/scan-prohibited-references.sh:5:949478f556e1723e2ff9a66c74560b68c32e2346890e8e16d660cc280fb5e6f5'
+  'scripts/scan-prohibited-references.sh:6:2dcb046d383c91bc46d14ab37df187674e25d84486b63e2964718ba64507b5f6'
+  'scripts/scan-prohibited-references.sh:27:bd05f0134916815d96aaa1d7b2b813930443d6c0559ed0e966adda7feaa7dbe7'
+)
 
 is_allowed() {
   local file="$1" line="$2" content="$3"
   local content_hash
   content_hash=$(printf '%s' "$content" | shasum -a 256 | cut -d' ' -f1)
   local entry entry_file entry_line entry_hash
-  for entry in "${ALLOWLIST[@]}"; do
+  # The bash-3.2 shipped on macOS (pre-4.4 behavior) treats expanding an
+  # empty array under `set -u` as an unbound-variable error — the
+  # `+"${ALLOWLIST[@]}"` guard keeps this portable across bash versions.
+  for entry in "${ALLOWLIST[@]+"${ALLOWLIST[@]}"}"; do
+    [[ -z "$entry" ]] && continue
     entry_file="${entry%%:*}"
     local rest="${entry#*:}"
     entry_line="${rest%%:*}"
