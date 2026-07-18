@@ -189,6 +189,19 @@ export const hierarchyService = {
   contentVersions: (program)            => api.get(`/programs/${program}/content-versions`).then(r => r.data.data),
 }
 
+/**
+ * Generic responsibility labels (Data Owner, Data Steward, ...) — Phase 7.
+ * Returns an empty types() list for any program that has not enabled the
+ * feature (Qiyas/Sumoud/ECC); the UI renders nothing in that case.
+ */
+export const responsibilityService = {
+  types:            (program)              => api.get(`/programs/${program}/responsibility-types`).then(r => r.data.data),
+  departmentUsers:  (program, departmentId) => api.get(`/programs/${program}/departments/${departmentId}/users`).then(r => r.data.data),
+  list:             (program, assignmentId) => api.get(`/programs/${program}/assignments/${assignmentId}/responsibilities`).then(r => r.data.data),
+  assign:           (program, assignmentId, data) => api.post(`/programs/${program}/assignments/${assignmentId}/responsibilities`, data).then(r => r.data.data),
+  revoke:           (program, responsibilityId, reason) => api.delete(`/programs/${program}/responsibilities/${responsibilityId}`, { data: { reason } }).then(r => r.data),
+}
+
 export const adminService = {
   // Users
   listUsers:    (params) => api.get('/admin/users', { params }).then(r => r.data),

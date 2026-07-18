@@ -39,6 +39,16 @@ export const USERS = {
   eccEmployeeB: 'ecc_employee_b',
   triProgramA: 'triprogram_qiyas_pm_sumoud_auditor_ecc_employee',
   triProgramB: 'triprogram_qiyas_emp_sumoud_deptmgr_ecc_pm',
+  // NDMO (Phase 7) — see backend/database/seeders/NDMOTestAccountsSeeder.php
+  ndmoProgramManager: 'ndmo_pm',
+  ndmoAuditor: 'ndmo_auditor',
+  ndmoDeptManagerA: 'ndmo_dept_a_manager',
+  ndmoEmployeeA: 'ndmo_employee_a',
+  ndmoDeptManagerB: 'ndmo_dept_b_manager',
+  ndmoEmployeeB: 'ndmo_employee_b',
+  ndmoDataOwnerA: 'ndmo_data_owner_a',
+  ndmoDataStewardA: 'ndmo_data_steward_a',
+  quadProgramUser: 'quadprogram_qiyas_pm_sumoud_auditor_ecc_emp_ndmo_deptmgr',
 } as const
 
 export type TestUsername = (typeof USERS)[keyof typeof USERS]

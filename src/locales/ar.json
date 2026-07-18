@@ -55,6 +55,7 @@
     "effectiveDueDate": "تاريخ الاستحقاق الفعلي",
     "overdue": "متأخر",
     "instructions": "تعليمات الإسناد",
+    "responsibilities": "المسؤوليات",
     "evidenceSubmission": "مستند الإثبات",
     "rejectionReason": "سبب الرفض",
     "noFiles": "لم يتم رفع أي ملفات بعد",

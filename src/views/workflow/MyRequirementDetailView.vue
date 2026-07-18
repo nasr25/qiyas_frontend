@@ -18,6 +18,16 @@
         <p class="text-sm text-content">{{ locale === 'ar' ? assignment.instructions_ar : assignment.instructions_en }}</p>
       </div>
 
+      <!-- Phase 7: responsibility labels, shown only when the program has any assigned -->
+      <div v-if="responsibilities.length" class="card p-4" data-testid="responsibilities-list">
+        <h2 class="card-title mb-2">{{ t('workflow.responsibilities') }}</h2>
+        <ul class="space-y-1">
+          <li v-for="r in responsibilities" :key="r.id" class="text-sm text-content" :data-testid="`responsibility-${r.responsibility_type}`">
+            <span class="font-medium">{{ r.responsibility_type }}:</span> {{ r.user?.name }}
+          </li>
+        </ul>
+      </div>
+
       <div class="card p-4" v-if="submission">
         <div class="flex items-center justify-between mb-3">
           <h2 class="card-title">{{ t('workflow.evidenceSubmission') }} v{{ submission.version_number }}</h2>
@@ -84,7 +94,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { assignmentsService, evidenceService } from '@/services/index'
+import { assignmentsService, evidenceService, responsibilityService } from '@/services/index'
 import { saveBlob } from '@/composables/useFileDownload'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import { useAppStore } from '@/stores/app'
@@ -102,6 +112,7 @@ const submitting = ref(false)
 const fileInput = ref(null)
 const showExtensionForm = ref(false)
 const extensionForm = ref({ requested_due_date: '', reason: '' })
+const responsibilities = ref([])
 
 const programCode = () => route.params.programCode
 const canEdit = computed(() => submission.value && ['draft', 'returned_for_revision'].includes(submission.value.status))
@@ -135,6 +146,7 @@ async function load() {
     const detail = await assignmentsService.get(programCode(), route.params.id)
     assignment.value = detail
     await loadTimeline()
+    responsibilities.value = await responsibilityService.list(programCode(), route.params.id).catch(() => [])
   } finally {
     loading.value = false
   }

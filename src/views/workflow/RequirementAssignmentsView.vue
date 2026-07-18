@@ -19,7 +19,7 @@
         </div>
         <div>
           <label class="label">{{ t('nav.departments') }}</label>
-          <select v-model="form.department_id" class="input" data-testid="department-select">
+          <select v-model="form.department_id" class="input" data-testid="department-select" @change="onDepartmentChange">
             <option value="">{{ t('common.select') }}</option>
             <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name }}</option>
           </select>
@@ -46,6 +46,18 @@
           <textarea v-model="form.instructions_en" class="input" rows="2" dir="ltr" data-testid="assign-instructions-en-input"></textarea>
         </div>
       </div>
+
+      <!-- Phase 7: optional responsibility labels, only shown when the program enables them -->
+      <div v-if="responsibilityTypes.length" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-line">
+        <div v-for="type in responsibilityTypes" :key="type.type">
+          <label class="label">{{ type.label_ar }}</label>
+          <select v-model="responsibilityAssignees[type.type]" class="input" :data-testid="`responsibility-select-${type.type}`" :disabled="!departmentUsers.length">
+            <option :value="undefined">{{ t('common.select') }}</option>
+            <option v-for="u in departmentUsers" :key="u.id" :value="u.id">{{ u.name }}</option>
+          </select>
+        </div>
+      </div>
+
       <button class="btn-primary" :disabled="saving" data-testid="assign-standard-button" @click="createAssignment">{{ t('workflow.assign') }}</button>
     </div>
 
@@ -106,7 +118,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { assignmentsService, departmentsService } from '@/services/index'
+import { assignmentsService, departmentsService, responsibilityService } from '@/services/index'
 import api from '@/services/api'
 import StatusBadge from '@/components/common/StatusBadge.vue'
 import { useAppStore } from '@/stores/app'
@@ -126,19 +138,28 @@ const reassignForm = reactive({ department_id: '', reason: '' })
 
 const form = reactive({ requirement_id: '', department_id: '', due_date: '', priority: '', instructions_ar: '', instructions_en: '' })
 
+// Phase 7: optional responsibility labels (Data Owner, Data Steward, ...)
+// — empty for any program that has not enabled the feature (Qiyas/
+// Sumoud/ECC), so this section renders nothing for them.
+const responsibilityTypes = ref([])
+const departmentUsers = ref([])
+const responsibilityAssignees = reactive({}) // { [type]: userId }
+
 const programCode = () => route.params.programCode
 
 async function load() {
   loading.value = true
   try {
-    const [assignRes, deptRes, reqRes] = await Promise.all([
+    const [assignRes, deptRes, reqRes, respTypes] = await Promise.all([
       assignmentsService.list(programCode()),
       departmentsService.list(),
       api.get(`/programs/${programCode()}/requirements`, { params: { per_page: 200 } }),
+      responsibilityService.types(programCode()),
     ])
     items.value = assignRes.data
     departments.value = deptRes.data.map(d => ({ id: d.id, name: d.name }))
     requirements.value = reqRes.data.data
+    responsibilityTypes.value = respTypes
   } catch {
     appStore.showToast(t('common.error'), 'error')
   } finally {
@@ -146,10 +167,27 @@ async function load() {
   }
 }
 
+async function onDepartmentChange() {
+  departmentUsers.value = []
+  Object.keys(responsibilityAssignees).forEach(k => delete responsibilityAssignees[k])
+  if (form.department_id) {
+    departmentUsers.value = await responsibilityService.departmentUsers(programCode(), form.department_id)
+  }
+}
+
 async function createAssignment() {
   saving.value = true
   try {
-    await assignmentsService.create(programCode(), form)
+    const res = await assignmentsService.create(programCode(), form)
+    const assignmentId = res.data.id
+
+    for (const type of responsibilityTypes.value) {
+      const userId = responsibilityAssignees[type.type]
+      if (userId) {
+        await responsibilityService.assign(programCode(), assignmentId, { responsibility_type: type.type, user_id: userId })
+      }
+    }
+
     appStore.showToast(t('workflow.assignmentCreated'), 'success')
     showForm.value = false
     await load()
