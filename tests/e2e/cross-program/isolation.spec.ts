@@ -66,7 +66,7 @@ test.describe('Cross-program isolation', () => {
 
   test('Uploading a Sumoud XLSX template into Qiyas is rejected, and vice versa', async ({}) => {
     const { context: sumoudPmCtx, token: sumoudPmToken } = await apiLoginAs(USERS.sumoudProgramManager)
-    const templateRes = await sumoudPmCtx.get('/api/v1/programs/SUMOUD/requirements-template', { headers: authHeaders(sumoudPmToken) })
+    const templateRes = await sumoudPmCtx.get('/api/v1/programs/SUMOUD/hierarchy-template', { headers: authHeaders(sumoudPmToken) })
     expect(templateRes.ok()).toBeTruthy()
     const templateBuffer = await templateRes.body()
     await sumoudPmCtx.dispose()
@@ -75,14 +75,14 @@ test.describe('Cross-program isolation', () => {
     const qiyasCyclesRes = await qiyasCtx.get('/api/v1/programs/QIYAS/cycles', { headers: authHeaders(qiyasToken), params: { status: 'active' } })
     const qiyasCycleId = (await qiyasCyclesRes.json()).data[0].id
 
-    const preview = await qiyasCtx.post('/api/v1/programs/QIYAS/requirements-import/preview', {
+    const preview = await qiyasCtx.post('/api/v1/programs/QIYAS/hierarchy-import/preview', {
       headers: authHeaders(qiyasToken),
       multipart: { file: { name: 'sumoud-template.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: templateBuffer }, cycle_id: String(qiyasCycleId) },
     })
     expect(preview.ok()).toBeTruthy()
     const previewBody = await preview.json()
-    expect(previewBody.data.status).toBe('validation_failed')
-    expect(previewBody.data.errors[0].code).toBe('WRONG_PROGRAM')
+    expect(previewBody.data.can_import).toBe(false)
+    expect(previewBody.data.errors.map((e: any) => e.code)).toContain('WRONG_PROGRAM')
     await qiyasCtx.dispose()
   })
 })

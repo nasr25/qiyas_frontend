@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test'
+import { E2E_CONFIG } from '../../helpers/env'
 
 /**
  * Shared helpers for the Qiyas illustrated-guide screenshot suite. See
@@ -82,4 +83,53 @@ export async function captureScreenshot(page: Page, filename: string): Promise<v
     path: `docs/user-guides/qiyas/screenshots/${filename}`,
     fullPage: false, // fixed viewport frame — matches what a reader's screen actually shows
   })
+}
+
+/**
+ * Opens the first assignment whose detail page offers the given control.
+ *
+ * Not every assignment can do everything: only a draft can upload, only a
+ * returned submission shows the rejection banner, only an assignment with
+ * no pending request can ask for an extension.
+ *
+ * Resolves the candidate through the API first and navigates straight to
+ * it. Walking the rendered rows one by one worked but cost a page load per
+ * candidate, which pushed the spec past its timeout once the fixture grew.
+ */
+export async function openRequirementOffering(page: Page, testId: string): Promise<void> {
+  // Which assignment states can offer which control.
+  const wanted: Record<string, string[]> = {
+    'evidence-upload': ['draft', 'returned_for_revision', 'assigned'],
+    'rejection-reason-banner': ['returned_for_revision'],
+    'extension-request-button': ['draft', 'returned_for_revision', 'assigned'],
+  }
+
+  const states = wanted[testId] ?? []
+  const list = await page.evaluate(async (apiURL) => {
+    const res = await fetch(`${apiURL}/api/v1/programs/QIYAS/my-requirements`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, Accept: 'application/json' },
+    })
+    return res.ok ? (await res.json()).data : []
+  }, E2E_CONFIG.apiURL)
+
+  const candidates = list.filter((row: any) => states.includes(row.status))
+  expect(candidates.length, `no assignment is in a state that can offer "${testId}"`).toBeGreaterThan(0)
+
+  for (const candidate of candidates) {
+    await page.goto(`/programs/QIYAS/my-requirements/${candidate.id}`)
+
+    // An assignment on a level that does not accept evidence has no
+    // submission and therefore no timeline. That is correct behaviour, not
+    // a failure — move on to the next candidate.
+    const settled = await page.getByTestId('workflow-timeline')
+      .waitFor({ state: 'visible', timeout: 8_000 })
+      .then(() => true)
+      .catch(() => false)
+
+    if (settled && await page.getByTestId(testId).count()) {
+      return
+    }
+  }
+
+  throw new Error(`No assignment offers "${testId}" — the documentation fixture must seed one.`)
 }

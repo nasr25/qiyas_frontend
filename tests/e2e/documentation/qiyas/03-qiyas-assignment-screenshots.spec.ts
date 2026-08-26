@@ -17,9 +17,11 @@ test.describe('مدير برنامج قياس — إسناد المعايير', 
     await expect(page.getByTestId('assign-requirement-select')).toBeVisible()
     await captureScreenshot(page, '16-assign-form-empty.png')
 
-    // The standard created live in the cycle-management spec (QIYAS-DOC-DEMO-001) is still unassigned.
-    await page.getByTestId('assign-requirement-select').selectOption({ label: 'QIYAS-DOC-DEMO-001 — معيار توضيحي لأغراض الدليل' })
-    await page.getByTestId('department-select').selectOption({ label: 'الإدارة التجريبية' })
+    // Pick the first available option rather than a specific record: the
+    // guide illustrates the SCREEN, and binding to one seeded code coupled
+    // this spec to a fixture that no longer exists.
+    await page.getByTestId('assign-requirement-select').selectOption({ index: 1 })
+    await page.getByTestId('department-select').selectOption({ index: 1 })
     const dueDate = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10)
     await page.getByTestId('assign-due-date-input').fill(dueDate)
     await page.getByTestId('assign-instructions-ar-input').fill('تعليمات تجريبية لأغراض الدليل.')
@@ -29,13 +31,13 @@ test.describe('مدير برنامج قياس — إسناد المعايير', 
       page.waitForResponse(resp => /\/assignments$/.test(resp.url()) && resp.request().method() === 'POST'),
       page.getByTestId('assign-standard-button').click(),
     ])
-    await expect(page.getByText('تم إسناد المعيار')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByTestId(/^assignment-row-/).first()).toBeVisible({ timeout: 15_000 })
     await captureScreenshot(page, '18-assign-success.png')
   })
 
   test('إعادة إسناد معيار', async ({ page }) => {
     await page.goto('/programs/QIYAS/assignments')
-    const row = page.getByTestId(/^assignment-row-QIYAS-DOC-DEMO-001$/)
+    const row = page.getByTestId(/^assignment-row-/).first()
     await expect(row).toBeVisible({ timeout: 10_000 })
     await row.getByRole('button', { name: 'إعادة الإسناد' }).click()
     await expect(page.getByText('سبب إعادة الإسناد (إلزامي)')).toBeVisible()

@@ -55,7 +55,12 @@ test.describe('Department and role isolation', () => {
     })
     expect(assignAttempt.status()).toBe(403)
 
-    const importAttempt = await context.get('/api/v1/programs/QIYAS/requirements-template', { headers: authHeaders(token) })
+    // The template itself is readable by any program member; what an
+    // employee must NOT be able to do is import. Assert the write.
+    const importAttempt = await context.post('/api/v1/programs/QIYAS/hierarchy-import/preview', {
+      headers: authHeaders(token),
+      multipart: { cycle_id: '1', file: { name: 'x.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('not a workbook') } },
+    })
     expect(importAttempt.status()).toBe(403)
 
     await context.dispose()
@@ -64,7 +69,8 @@ test.describe('Department and role isolation', () => {
     await loginAs(page, USERS.employeeA)
     await page.goto('/programs/QIYAS/dashboard')
     await expect(page.getByTestId('nav-assignments')).toHaveCount(0)
-    await expect(page.getByTestId('nav-requirements-import')).toHaveCount(0)
+    // The legacy standalone import screen was retired; import now lives
+    // inside the cycle screen and is guarded server-side (asserted above).
   })
 
   test('Executive Viewer cannot perform any write action', async ({ page }) => {

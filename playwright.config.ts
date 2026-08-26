@@ -18,7 +18,13 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['list'],
   ],
-  timeout: 30_000,
+  // 30s was too tight for the specs that legitimately perform many
+  // sequential navigations (the documentation screenshot suite) or file
+  // uploads (branding). Under full-suite load on a machine also running two
+  // API servers and two Vite instances, those tests intermittently hit the
+  // limit and were reported as failures despite passing in isolation — a
+  // flaky threshold, not a weakened assertion. No expectation was relaxed.
+  timeout: 60_000,
   expect: { timeout: 10_000 },
   use: {
     baseURL,
@@ -32,17 +38,23 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      // production-smoke targets a DEPLOYED environment and is run
+      // explicitly by path (see docs/testing/production-smoke.md). It must
+      // never be picked up by a normal regression run.
+      testIgnore: /production-smoke/,
     },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
       // Smoke-only — see docs/playwright-e2e-guide.md for what's run per browser.
       testMatch: /smoke\.spec\.ts/,
+      testIgnore: /production-smoke/,
     },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
       testMatch: /smoke\.spec\.ts/,
+      testIgnore: /production-smoke/,
     },
     {
       name: 'tablet',

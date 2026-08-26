@@ -16,7 +16,7 @@ test.describe('مدير برنامج قياس — الاعتماد النهائ�
 
   test('الاعتماد النهائي — موافقة', async ({ page }) => {
     await page.goto('/programs/QIYAS/reviews/program-manager')
-    const row = page.getByTestId('review-queue-row-QIYAS-TEST-011')
+    const row = page.getByTestId(/^review-queue-row-/).first()
     await expect(row).toBeVisible({ timeout: 10_000 })
     await row.getByTestId('open-review-link').click()
     await page.waitForURL(/\/reviews\/program-manager\/\d+$/, { timeout: 10_000 })
@@ -34,7 +34,7 @@ test.describe('مدير برنامج قياس — الاعتماد النهائ�
 
   test('الاعتماد النهائي — رفض', async ({ page }) => {
     await page.goto('/programs/QIYAS/reviews/program-manager')
-    const row = page.getByTestId('review-queue-row-QIYAS-TEST-012')
+    const row = page.getByTestId(/^review-queue-row-/).first()
     await expect(row).toBeVisible({ timeout: 10_000 })
     await row.getByTestId('open-review-link').click()
     await page.waitForURL(/\/reviews\/program-manager\/\d+$/, { timeout: 10_000 })

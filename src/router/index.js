@@ -54,14 +54,7 @@ const router = createRouter({
             { path: 'dashboard', name: 'program-dashboard', component: () => import('@/views/dashboards/DashboardView.vue') },
             { path: 'cycles', name: 'program-cycles', component: () => import('@/views/cycles/CyclesView.vue') },
             { path: 'cycles/:id', name: 'program-cycle-detail', component: () => import('@/views/cycles/CycleDetailView.vue') },
-            { path: 'requirements', name: 'program-requirements', component: () => import('@/views/standards/StandardsView.vue') },
-            { path: 'requirements/:id', name: 'program-requirement-detail', component: () => import('@/views/standards/StandardDetailView.vue') },
-            { path: 'documents', name: 'program-documents', component: () => import('@/views/documents/DocumentsView.vue') },
-            { path: 'documents/:id', name: 'program-document-detail', component: () => import('@/views/documents/DocumentDetailView.vue') },
-            { path: 'auditor', name: 'program-auditor', component: () => import('@/views/auditor/AuditorView.vue'), meta: { roles: ['auditor', 'super-admin'] } },
-            { path: 'auditor/extensions', name: 'program-auditor-extensions', component: () => import('@/views/auditor/ExtensionsView.vue'), meta: { roles: ['auditor', 'super-admin'] } },
             { path: 'reports', name: 'program-reports', component: () => import('@/views/reports/ReportsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin', 'auditor', 'executive'] } },
-            { path: 'my-standards', name: 'program-my-standards', component: () => import('@/views/employee/MyDepartmentStandardsView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
 
             // ── Phase 2: Qiyas operational workflow ─────────────────────
             { path: 'my-requirements', name: 'program-my-requirements', component: () => import('@/views/workflow/MyRequirementsView.vue'), meta: { roles: ['employee', 'coordinator', 'super-admin'] } },
@@ -71,10 +64,21 @@ const router = createRouter({
             { path: 'assignments', name: 'program-assignments', component: () => import('@/views/workflow/RequirementAssignmentsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
             { path: 'extension-requests', name: 'program-extension-queue', component: () => import('@/views/workflow/AuditorExtensionQueueView.vue'), meta: { roles: ['super-admin', 'auditor'] } },
             { path: 'sla-settings', name: 'program-sla-settings', component: () => import('@/views/workflow/SlaSettingsView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
-            { path: 'requirements-import', name: 'program-requirements-import', component: () => import('@/views/workflow/QiyasImportView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
 
             // ── Phase 6: generic arbitrary-depth hierarchy (used by ECC) ──
             { path: 'hierarchy', name: 'program-hierarchy', component: () => import('@/views/hierarchy/HierarchyExplorerView.vue'), meta: { roles: ['super-admin', 'qiyas-admin'] } },
+            // Program Structure Settings. No role meta: the page is readable
+            // by anyone with program access (it explains the structure their
+            // screens use) and the backend refuses writes from anyone who is
+            // not this program's Program Manager. Gating the route by the
+            // legacy platform role would wrongly exclude a program-manager
+            // who holds no platform role at all.
+            // Hierarchy analytics: universal metrics, metadata-driven
+            // drill-down, cascading filters and the dynamic report. Readable
+            // by anyone with program access; every query is department- and
+            // program-scoped server-side.
+            { path: 'analytics', name: 'program-analytics', component: () => import('@/views/analytics/StructureAnalyticsView.vue') },
+            { path: 'settings/structure', name: 'program-structure-settings', component: () => import('@/views/structure/ProgramStructureSettingsView.vue') },
           ],
         },
 
@@ -82,14 +86,7 @@ const router = createRouter({
         { path: 'dashboard', redirect: { name: 'program-dashboard', params: { programCode: DEFAULT_PROGRAM_CODE } } },
         { path: 'cycles', redirect: { name: 'program-cycles', params: { programCode: DEFAULT_PROGRAM_CODE } } },
         { path: 'cycles/:id', redirect: to => ({ name: 'program-cycle-detail', params: { programCode: DEFAULT_PROGRAM_CODE, id: to.params.id } }) },
-        { path: 'standards', redirect: { name: 'program-requirements', params: { programCode: DEFAULT_PROGRAM_CODE } } },
-        { path: 'standards/:id', redirect: to => ({ name: 'program-requirement-detail', params: { programCode: DEFAULT_PROGRAM_CODE, id: to.params.id } }) },
-        { path: 'documents', redirect: { name: 'program-documents', params: { programCode: DEFAULT_PROGRAM_CODE } } },
-        { path: 'documents/:id', redirect: to => ({ name: 'program-document-detail', params: { programCode: DEFAULT_PROGRAM_CODE, id: to.params.id } }) },
-        { path: 'auditor', redirect: { name: 'program-auditor', params: { programCode: DEFAULT_PROGRAM_CODE } } },
-        { path: 'auditor/extensions', redirect: { name: 'program-auditor-extensions', params: { programCode: DEFAULT_PROGRAM_CODE } } },
         { path: 'reports', redirect: { name: 'program-reports', params: { programCode: DEFAULT_PROGRAM_CODE } } },
-        { path: 'my-standards', redirect: { name: 'program-my-standards', params: { programCode: DEFAULT_PROGRAM_CODE } } },
       ],
     },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') },

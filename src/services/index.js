@@ -4,7 +4,6 @@
 import api from './api'
 
 export { authService } from './auth.service'
-export { documentsService } from './documents.service'
 
 // ── Inline services for simpler CRUD resources ───────────────────────────────
 
@@ -37,20 +36,6 @@ export const departmentsService = {
   destroy: (id)     => api.delete(`/departments/${id}`).then(r => r.data),
 }
 
-export const standardsService = {
-  list:    (cycleId, params) => api.get(`/cycles/${cycleId}/standards`, { params }).then(r => r.data),
-  get:     (cycleId, id)     => api.get(`/cycles/${cycleId}/standards/${id}`).then(r => r.data.data),
-  show:    (id)              => api.get(`/standards/${id}`).then(r => r.data.data),
-  create:  (cycleId, data)   => api.post(`/cycles/${cycleId}/standards`, data).then(r => r.data),
-  update:  (cycleId, id, d)  => api.put(`/cycles/${cycleId}/standards/${id}`, d).then(r => r.data),
-  destroy: (cycleId, id)     => api.delete(`/cycles/${cycleId}/standards/${id}`).then(r => r.data),
-  template: (cycleId)        => api.get(`/cycles/${cycleId}/standards/template`, { responseType: 'blob' }).then(r => r.data),
-  importExcel: (cycleId, file) => {
-    const form = new FormData()
-    form.append('file', file)
-    return api.post(`/cycles/${cycleId}/standards/import`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data)
-  },
-}
 
 export const requirementsService = {
   list:    (standardId)       => api.get(`/standards/${standardId}/requirements`).then(r => r.data.data),
@@ -59,17 +44,11 @@ export const requirementsService = {
   destroy: (standardId, id)   => api.delete(`/standards/${standardId}/requirements/${id}`).then(r => r.data),
 }
 
-export const auditorService = {
-  pendingReviews:    (params) => api.get('/auditor/pending-reviews', { params }).then(r => r.data),
-  approve:           (id)     => api.post(`/auditor/documents/${id}/approve`).then(r => r.data),
-  reject:            (id, d)  => api.post(`/auditor/documents/${id}/reject`, d).then(r => r.data),
-  extensions:        (params) => api.get('/auditor/extension-requests', { params }).then(r => r.data),
-  approveExtension:  (id, d)  => api.post(`/auditor/extension-requests/${id}/approve`, d).then(r => r.data),
-  rejectExtension:   (id, d)  => api.post(`/auditor/extension-requests/${id}/reject`, d).then(r => r.data),
-}
 
 export const dashboardService = {
-  get: (params) => api.get('/dashboard', { params }).then(r => r.data.data),
+  // Program-scoped: the unscoped /dashboard endpoint mixed every program's
+  // data together on a per-program screen and has been retired.
+  get: (program, params) => api.get(`/programs/${program}/dashboard`, { params }).then(r => r.data.data),
 }
 
 export const brandingService = {
@@ -181,11 +160,79 @@ export const executiveDashboardService = {
  * the levels() call returns an empty list for them; the UI treats that as
  * "this program manages its hierarchy through the Cycles page instead."
  */
+/**
+ * Program Structure Settings — the Program Manager's control over their own
+ * program's hierarchy shape and terminology.
+ *
+ * Reads (`get`, `versions`) are available to anyone with program access,
+ * because level labels drive every hierarchy screen. Writes require the
+ * program-manager role for THAT program and return 403 otherwise (or 404 if
+ * the caller has no access to the program at all) — enforced by
+ * HierarchyStructurePolicy on the backend, never by hiding buttons.
+ */
+/**
+ * Hierarchy-driven dashboard and reporting. Every endpoint takes the level
+ * as a PARAMETER rather than having one route per level, so a program that
+ * adds a seventh level needs no client change (audit findings H1, H2, H3).
+ */
+export const hierarchyAnalyticsService = {
+  dashboardLevels: (program)                 => api.get(`/programs/${program}/dashboard/levels`).then(r => r.data.data),
+  metrics:         (program, params)         => api.get(`/programs/${program}/dashboard/metrics`, { params }).then(r => r.data.data),
+  byLevel:         (program, levelKey, params) => api.get(`/programs/${program}/dashboard/by-level/${levelKey}`, { params }).then(r => r.data.data),
+
+  dimensions:      (program)                 => api.get(`/programs/${program}/reports/dimensions`).then(r => r.data.data),
+  filterOptions:   (program, levelKey, parentNodeId) =>
+    api.get(`/programs/${program}/reports/filter-options/${levelKey}`, { params: { parent_node_id: parentNodeId } }).then(r => r.data.data),
+  report:          (program, params)         => api.get(`/programs/${program}/reports/hierarchy`, { params }).then(r => r.data.data),
+  exportUrl:       (program, params = {})    => {
+    const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v != null)).toString()
+    return `${api.defaults.baseURL}/programs/${program}/reports/hierarchy/export${qs ? `?${qs}` : ''}`
+  },
+}
+
+export const structureService = {
+  get:         (program)            => api.get(`/programs/${program}/structure`).then(r => r.data.data),
+  versions:    (program)            => api.get(`/programs/${program}/structure/versions`).then(r => r.data.data),
+  getDraft:    (program)            => api.get(`/programs/${program}/structure/draft`).then(r => r.data.data),
+  openDraft:   (program)            => api.post(`/programs/${program}/structure/draft`).then(r => r.data.data),
+  discardDraft:(program)            => api.delete(`/programs/${program}/structure/draft`).then(r => r.data),
+  impact:      (program)            => api.get(`/programs/${program}/structure/draft/impact`).then(r => r.data.data),
+  activate:    (program, data)      => api.post(`/programs/${program}/structure/draft/activate`, data).then(r => r.data.data),
+  addLevel:    (program, data)      => api.post(`/programs/${program}/structure/draft/levels`, data).then(r => r.data.data),
+  updateLevel: (program, id, data)  => api.put(`/programs/${program}/structure/draft/levels/${id}`, data).then(r => r.data.data),
+  removeLevel: (program, id)        => api.delete(`/programs/${program}/structure/draft/levels/${id}`).then(r => r.data.data),
+  moveLevel:   (program, id, dir)   => api.post(`/programs/${program}/structure/draft/levels/${id}/move`, { direction: dir }).then(r => r.data.data),
+}
+
+/**
+ * Structure-driven XLSX: template download, import preview and confirm.
+ * Column count follows the program's structure, so this client needs no
+ * knowledge of depth.
+ */
+export const hierarchyImportService = {
+  templateUrl: (program) => `${api.defaults.baseURL}/programs/${program}/hierarchy-template`,
+  exportUrl:   (program) => `${api.defaults.baseURL}/programs/${program}/hierarchy-export`,
+  preview:     (program, file, cycleId) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('cycle_id', cycleId)
+    return api.post(`/programs/${program}/hierarchy-import/preview`, form,
+      { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data.data)
+  },
+  confirm:     (program, importLogId) =>
+    api.post(`/programs/${program}/hierarchy-import/${importLogId}/confirm`).then(r => r.data.data),
+  errorReportUrl: (program, importLogId) =>
+    `${api.defaults.baseURL}/programs/${program}/hierarchy-import/${importLogId}/error-report`,
+}
+
 export const hierarchyService = {
   levels:         (program)             => api.get(`/programs/${program}/hierarchy-levels`).then(r => r.data.data),
   children:       (program, parentId, cycleId) => api.get(`/programs/${program}/hierarchy`, { params: { parent_id: parentId, cycle_id: cycleId } }).then(r => r.data.data),
   show:           (program, id)         => api.get(`/programs/${program}/hierarchy/${id}`).then(r => r.data.data),
   create:         (program, data)       => api.post(`/programs/${program}/hierarchy`, data).then(r => r.data.data),
+  update:         (program, id, data)   => api.put(`/programs/${program}/hierarchy/${id}`, data).then(r => r.data.data),
+  archive:        (program, id)         => api.post(`/programs/${program}/hierarchy/${id}/archive`).then(r => r.data.data),
+  search:         (program, q, cycleId) => api.get(`/programs/${program}/hierarchy/search`, { params: { q, cycle_id: cycleId } }).then(r => r.data.data),
   contentVersions: (program)            => api.get(`/programs/${program}/content-versions`).then(r => r.data.data),
 }
 

@@ -16,7 +16,7 @@ test.describe('مدير الإدارة — مراجعة الطلبات', () => {
 
   test('الموافقة على طلب', async ({ page }) => {
     await page.goto('/programs/QIYAS/reviews/department-manager')
-    const row = page.getByTestId('review-queue-row-QIYAS-TEST-005')
+    const row = page.getByTestId(/^review-queue-row-/).first()
     await expect(row).toBeVisible({ timeout: 10_000 })
     await row.getByTestId('open-review-link').click()
     await page.waitForURL(/\/reviews\/department-manager\/\d+$/, { timeout: 10_000 })
@@ -34,7 +34,7 @@ test.describe('مدير الإدارة — مراجعة الطلبات', () => {
 
   test('رفض طلب', async ({ page }) => {
     await page.goto('/programs/QIYAS/reviews/department-manager')
-    const row = page.getByTestId('review-queue-row-QIYAS-TEST-006')
+    const row = page.getByTestId(/^review-queue-row-/).first()
     await expect(row).toBeVisible({ timeout: 10_000 })
     await row.getByTestId('open-review-link').click()
     await page.waitForURL(/\/reviews\/department-manager\/\d+$/, { timeout: 10_000 })

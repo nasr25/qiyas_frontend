@@ -42,3 +42,10 @@ __screenshots__/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Environment files. .env.production is tracked because it holds only the
+# public API base URL (no secret); the local/e2e/docs variants are not.
+.env
+.env.e2e
+.env.docs
+.env.local

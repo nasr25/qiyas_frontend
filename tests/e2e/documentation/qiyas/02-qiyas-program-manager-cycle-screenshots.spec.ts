@@ -51,29 +51,37 @@ test.describe('مدير برنامج قياس — دورات التقييم', ()
     await captureScreenshot(page, '10-cycle-active-status.png')
   })
 
-  test('فتح تفاصيل الدورة وإضافة معيار جديد', async ({ page }) => {
+  /**
+   * Rewritten for the dynamic hierarchy engine. The guide still documents
+   * "open a cycle and add content", but content is now a ComplianceNode
+   * authored through the generic screen, and the form's fields and the
+   * button's label come from the program's own structure rather than from
+   * hard-coded Perspective/Axis inputs.
+   */
+  test('فتح تفاصيل الدورة وإضافة عنصر جديد إلى الهيكل', async ({ page }) => {
     await page.goto('/programs/QIYAS/cycles')
-    const activeRow = page.getByTestId('cycle-row-active').filter({ hasText: 'دورة قياس التجريبية 2026' })
+    const activeRow = page.getByTestId('cycle-row-active').first()
     await activeRow.getByTestId('open-cycle-link').click()
-    await page.waitForURL(/\/cycles\/\d+$/, { timeout: 10_000 })
-    await expect(page.getByTestId(/^standard-row-/).first()).toBeVisible({ timeout: 10_000 })
-    await captureScreenshot(page, '11-cycle-detail-standards-list.png')
+    await page.waitForURL(/\/cycles\/\d+$/, { timeout: 15_000 })
 
-    await page.getByTestId('create-standard-button').click()
-    await expect(page.getByTestId('standard-code-input')).toBeVisible()
-    await captureScreenshot(page, '12-add-standard-form-empty.png')
+    await expect(page.getByTestId('hierarchy-browser')).toBeVisible({ timeout: 15_000 })
+    await captureScreenshot(page, '11-cycle-detail-hierarchy.png')
 
-    await page.getByTestId('standard-code-input').fill('QIYAS-DOC-DEMO-001')
-    await page.getByTestId('standard-perspective-input').fill('المنظور التجريبي')
-    await page.getByTestId('standard-axis-input').fill('المحور التجريبي')
-    await page.getByTestId('standard-name-ar-input').fill('معيار توضيحي لأغراض الدليل')
-    await captureScreenshot(page, '13-add-standard-form-completed.png')
+    await page.getByTestId('add-node-button').click()
+    await expect(page.getByTestId('node-name-ar-input')).toBeVisible()
+    await captureScreenshot(page, '12-add-node-form-empty.png')
+
+    const code = `QIYAS-DOC-${Date.now()}`
+    await page.getByTestId('node-code-input').fill(code)
+    await page.getByTestId('node-name-ar-input').fill('عنصر توضيحي لأغراض الدليل')
+    await page.getByTestId('node-name-en-input').fill('Illustrative guide item')
+    await captureScreenshot(page, '13-add-node-form-completed.png')
 
     await Promise.all([
-      page.waitForResponse(resp => /\/cycles\/\d+\/standards$/.test(resp.url()) && resp.request().method() === 'POST'),
-      page.getByTestId('save-standard-button').click(),
+      page.waitForResponse(resp => /\/hierarchy$/.test(resp.url()) && resp.request().method() === 'POST'),
+      page.getByTestId('save-node-button').click(),
     ])
-    await expect(page.getByTestId('create-standard-button')).toBeVisible({ timeout: 10_000 }) // the modal closed and the page returned to the standards list
-    await captureScreenshot(page, '14-standard-created-success.png')
+    await expect(page.getByTestId(`node-row-${code}`)).toBeVisible({ timeout: 15_000 })
+    await captureScreenshot(page, '14-node-created-success.png')
   })
 })

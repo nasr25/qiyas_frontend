@@ -158,13 +158,27 @@ const ROLE_META = {
 function roleIcon(role)  { return ROLE_META[role]?.icon || '👤' }
 function roleLabel(role) { return ROLE_META[role]?.label || role }
 
+/**
+ * `?redirect=` is attacker-supplied: it survives in a link a user can be
+ * sent. Only same-site absolute paths are followed. A protocol-relative
+ * value ("//evil.example") is the case worth naming — it reads as a path
+ * but browsers resolve it as another origin.
+ */
+function safeRedirect(value) {
+  if (typeof value !== 'string') return null
+  if (!value.startsWith('/')) return null
+  if (value.startsWith('//') || value.startsWith('/\\')) return null
+  return value
+}
+
+
 async function handleQuickLogin(username) {
   error.value = ''
   quickLoading.value = true
   try {
     await authStore.quickLogin(username)
-    const redirect = route.query.redirect
-    router.push(redirect ? String(redirect) : { name: 'programs' })
+    const redirect = safeRedirect(route.query.redirect)
+    router.push(redirect ?? { name: 'programs' })
   } catch (err) {
     error.value = err?.response?.data?.message || t('auth.loginFailed')
   } finally {
@@ -184,8 +198,8 @@ async function handleLogin() {
     if (authStore.mustChangePassword) {
       router.push({ name: 'change-password' })
     } else {
-      const redirect = route.query.redirect
-      router.push(redirect ? String(redirect) : { name: 'programs' })
+      const redirect = safeRedirect(route.query.redirect)
+      router.push(redirect ?? { name: 'programs' })
     }
   } catch (err) {
     error.value = err?.response?.data?.message || t('auth.loginFailed')
