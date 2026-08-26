@@ -9,11 +9,20 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // A shell-exported VITE_API_URL (used to point an isolated E2E instance at
+  // its own backend — see tests/e2e/helpers/env.ts) must win over whatever
+  // .env declares, since dotenv's default precedence otherwise favors the
+  // .env file over process.env and silently sends the app back to the
+  // regular dev backend — confirmed the hard way while wiring up Phase 4's
+  // E2E environment (see docs/compliance-engine-known-issues.md).
+  define: process.env.VITE_API_URL
+    ? { 'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL) }
+    : {},
   server: {
-    port: 5173,
+    port: Number(process.env.VITE_DEV_PORT) || 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: process.env.VITE_PROXY_TARGET || 'http://localhost:8000',
         changeOrigin: true,
       },
     },

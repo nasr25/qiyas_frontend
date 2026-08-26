@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
       <h1 class="text-xl font-bold text-content">{{ t('cycles.title') }}</h1>
-      <button v-if="authStore.isSuperAdmin" class="btn-primary btn-sm" @click="openCreateModal">
+      <button v-if="authStore.isSuperAdmin || authStore.isQiyasAdmin" class="btn-primary btn-sm" @click="openCreateModal">
         + {{ t('cycles.new') }}
       </button>
     </div>
@@ -33,21 +33,21 @@
             <tr v-if="!sorted.length">
               <td colspan="7" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
             </tr>
-            <tr v-for="cycle in sorted" :key="cycle.id">
+            <tr v-for="cycle in sorted" :key="cycle.id" :data-testid="`cycle-row-${cycle.status}`">
               <td class="font-medium">
-                <RouterLink :to="`/cycles/${cycle.id}`" class="text-primary-700 hover:underline dark:text-primary-400">
+                <RouterLink :to="{ name: 'program-cycle-detail', params: { programCode: programCode(), id: cycle.id } }" class="text-primary-700 hover:underline dark:text-primary-400">
                   {{ cycle.name }}
                 </RouterLink>
               </td>
               <td>{{ cycle.year }}</td>
-              <td><StatusBadge :status="cycle.status" /></td>
+              <td><StatusBadge :status="cycle.status" namespace="cycles.status" /></td>
               <td>{{ formatDate(cycle.start_date) }}</td>
               <td>{{ formatDate(cycle.end_date) }}</td>
               <td>{{ cycle.standards_count ?? 0 }}</td>
               <td>
                 <div class="flex items-center gap-2">
-                  <RouterLink :to="`/cycles/${cycle.id}`" class="btn-secondary btn-sm">{{ t('common.view') }}</RouterLink>
-                  <template v-if="authStore.isSuperAdmin">
+                  <RouterLink :to="{ name: 'program-cycle-detail', params: { programCode: programCode(), id: cycle.id } }" class="btn-secondary btn-sm" data-testid="open-cycle-link">{{ t('common.view') }}</RouterLink>
+                  <template v-if="authStore.isSuperAdmin || authStore.isQiyasAdmin">
                     <button v-if="cycle.status === 'draft'" class="btn-primary btn-sm" @click="confirmAction('activate', cycle)">{{ t('cycles.activate') }}</button>
                     <button v-if="cycle.status === 'active'" class="btn btn-sm bg-warning-500 text-white hover:bg-warning-600" @click="openCloseModal(cycle)">{{ t('cycles.close') }}</button>
                     <button v-if="cycle.status === 'closed'" class="btn-secondary btn-sm" @click="confirmAction('archive', cycle)">{{ t('cycles.archive') }}</button>
@@ -70,12 +70,12 @@
             <form @submit.prevent="handleCreate" class="space-y-4">
               <div>
                 <label class="label">{{ t('cycles.name') }}</label>
-                <input v-model="form.name" class="input" required />
+                <input v-model="form.name" class="input" required data-testid="cycle-name-input" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('cycles.year') }}</label>
-                  <input v-model="form.year" type="number" class="input" required />
+                  <input v-model="form.year" type="number" class="input" required data-testid="cycle-year-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('cycles.copyFromPrevious') }}</label>
@@ -88,16 +88,16 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="label">{{ t('cycles.startDate') }}</label>
-                  <input v-model="form.start_date" type="date" class="input" required />
+                  <input v-model="form.start_date" type="date" class="input" required data-testid="cycle-start-date-input" />
                 </div>
                 <div>
                   <label class="label">{{ t('cycles.endDate') }}</label>
-                  <input v-model="form.end_date" type="date" class="input" required />
+                  <input v-model="form.end_date" type="date" class="input" required data-testid="cycle-end-date-input" />
                 </div>
               </div>
               <div class="flex justify-end gap-3 pt-2">
                 <button type="button" class="btn-secondary" @click="showModal = false">{{ t('common.cancel') }}</button>
-                <button type="submit" class="btn-primary" :disabled="saving">{{ saving ? t('common.loading') : t('common.save') }}</button>
+                <button type="submit" class="btn-primary" :disabled="saving" data-testid="cycle-save-button">{{ saving ? t('common.loading') : t('common.save') }}</button>
               </div>
             </form>
           </div>
@@ -146,6 +146,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
 import { cyclesService } from '@/services/index'
@@ -155,8 +156,10 @@ import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
+const route = useRoute()
 const authStore = useAuthStore()
 const appStore  = useAppStore()
+const programCode = () => route.params.programCode || 'QIYAS'
 
 const loading = ref(true)
 const saving  = ref(false)
@@ -206,7 +209,7 @@ function confirmAction(type, cycle) {
 async function fetchCycles() {
   loading.value = true
   try {
-    const res = await cyclesService.list()
+    const res = await cyclesService.list(programCode())
     cycles.value = res.data || res
   } catch {
     appStore.showToast(t('common.error'), 'error')
@@ -218,7 +221,7 @@ async function fetchCycles() {
 async function handleCreate() {
   saving.value = true
   try {
-    await cyclesService.create(form.value)
+    await cyclesService.create(programCode(), form.value)
     appStore.showToast(t('common.success'), 'success')
     showModal.value = false
     await fetchCycles()
@@ -231,7 +234,7 @@ async function handleCreate() {
 
 async function handleActivate(cycle) {
   try {
-    await cyclesService.activate(cycle.id)
+    await cyclesService.activate(programCode(), cycle.id)
     appStore.showToast(t('common.success'), 'success')
     await fetchCycles()
   } catch {
@@ -242,7 +245,7 @@ async function handleActivate(cycle) {
 async function handleClose() {
   saving.value = true
   try {
-    await cyclesService.close(selectedCycle.value.id, closeForm.value)
+    await cyclesService.close(programCode(), selectedCycle.value.id, closeForm.value)
     appStore.showToast(t('common.success'), 'success')
     showCloseModal.value = false
     await fetchCycles()
@@ -255,7 +258,7 @@ async function handleClose() {
 
 async function handleArchive(cycle) {
   try {
-    await cyclesService.archive(cycle.id)
+    await cyclesService.archive(programCode(), cycle.id)
     appStore.showToast(t('common.success'), 'success')
     await fetchCycles()
   } catch {

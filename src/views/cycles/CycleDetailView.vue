@@ -1,16 +1,7 @@
 <template>
-  <div class="space-y-6">
-    <!-- Back -->
-    <RouterLink to="/cycles" class="inline-flex items-center gap-2 text-sm text-primary-700 hover:underline dark:text-primary-400">
-      <svg class="h-4 w-4 rotate-180 rtl:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-      {{ t('cycles.title') }}
-    </RouterLink>
-
-    <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-16">
-      <svg class="h-8 w-8 animate-spin text-primary-600" fill="none" viewBox="0 0 24 24">
+  <div class="page">
+    <div v-if="loading" class="flex items-center justify-center py-20">
+      <svg class="h-10 w-10 animate-spin text-brand" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
       </svg>
@@ -19,362 +10,448 @@
     <template v-else-if="cycle">
       <!-- Cycle header -->
       <div class="card p-6">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div class="flex items-center gap-3 mb-1">
-              <h1 class="text-xl font-bold text-content">{{ cycle.name }}</h1>
-              <StatusBadge :status="cycle.status" />
-            </div>
-            <div class="flex flex-wrap gap-4 text-sm text-content-muted mt-2">
-              <span>{{ t('cycles.year') }}: <strong class="text-content">{{ cycle.year }}</strong></span>
-              <span>{{ t('cycles.startDate') }}: <strong class="text-content">{{ formatDate(cycle.start_date) }}</strong></span>
-              <span>{{ t('cycles.endDate') }}: <strong class="text-content">{{ formatDate(cycle.end_date) }}</strong></span>
-            </div>
+            <h1 class="text-xl font-bold text-content" data-testid="cycle-name">{{ cycle.name }}</h1>
+            <p class="text-sm text-content-subtle mt-1">
+              {{ cycle.year }} · {{ cycle.start_date }} → {{ cycle.end_date }}
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge" :class="cycle.status === 'active' ? 'badge-approved' : 'badge-draft'">
+              {{ t(`cycles.statusLabels.${cycle.status}`) }}
+            </span>
+            <span v-if="structureVersion" class="badge badge-draft" data-testid="cycle-structure-version">
+              {{ t('content.structureVersion') }} {{ structureVersion }}
+            </span>
           </div>
         </div>
       </div>
 
-      <!-- Standards tab -->
-      <div class="card">
-        <div class="card-header flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 class="text-sm font-semibold text-content">{{ t('standards.title') }}</h2>
-          <div v-if="(authStore.isSuperAdmin || authStore.isCoordinator) && !cycleReadOnly" class="flex flex-wrap gap-2">
-            <button class="btn-secondary btn-sm" :disabled="downloadingTemplate" @click="downloadTemplate">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" /></svg>
-              {{ t('standards.downloadTemplate') }}
-            </button>
-            <button class="btn-secondary btn-sm" @click="openImport">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 8l5-5 5 5M12 3v12" /></svg>
-              {{ t('standards.importExcel') }}
-            </button>
-            <button class="btn-primary btn-sm" @click="showAddStandard = true">
-              + {{ t('standards.new') }}
-            </button>
+      <!-- No structure yet: authoring is impossible until one exists. -->
+      <div v-if="!levels.length" class="card p-8 text-center space-y-3" data-testid="no-structure">
+        <p class="text-content-subtle">{{ t('content.noStructure') }}</p>
+        <RouterLink class="btn-primary inline-block" :to="`/programs/${programCode()}/settings/structure`">
+          {{ t('content.goToStructure') }}
+        </RouterLink>
+      </div>
+
+      <template v-else>
+        <!-- Hierarchy browser -->
+        <section class="card p-5 space-y-4" data-testid="hierarchy-browser">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <h2 class="font-bold text-content">{{ t('content.hierarchyTitle') }}</h2>
+            <div class="flex items-center gap-2">
+              <input
+                v-model="searchTerm"
+                class="input w-56"
+                :placeholder="t('content.search')"
+                data-testid="node-search-input"
+                @keyup.enter="runSearch"
+              />
+              <button v-if="canManage && nextLevel" class="btn-primary" data-testid="add-node-button" @click="openCreate()">
+                + {{ currentParent ? t('content.addChild') : t('content.addRoot') }}
+                <span class="opacity-80">({{ nextLevel.name }})</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="table-wrapper rounded-none border-0">
-          <table class="table">
-            <thead>
-              <tr>
-                <SortableTh field="standard_number" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.number') }}</SortableTh>
-                <SortableTh field="name_ar" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.nameAr') }}</SortableTh>
-                <th>{{ t('standards.departments') }}</th>
-                <SortableTh field="requirements_count" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.requirements') }}</SortableTh>
-                <SortableTh field="due_date" :sort-key="sortKey" :sort-dir="sortDir" @sort="sortBy">{{ t('standards.dueDate') }}</SortableTh>
-                <th>{{ t('common.actions') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="!sorted.length">
-                <td colspan="6" class="text-center py-10 text-content-subtle">{{ t('common.noData') }}</td>
-              </tr>
-              <tr v-for="std in sorted" :key="std.id">
-                <td class="font-mono font-medium text-primary-700 dark:text-primary-400">{{ std.standard_number }}</td>
-                <td>{{ std.name_ar }}</td>
-                <td>
-                  <div class="flex flex-wrap gap-1">
-                    <span v-for="d in (std.departments || []).slice(0, 3)" :key="d.id" class="badge-draft text-xs">{{ d.name_ar }}</span>
-                    <span v-if="(std.departments || []).length > 3" class="badge-draft text-xs">+{{ std.departments.length - 3 }}</span>
+
+          <HierarchyBreadcrumb :trail="trail" :root-label="cycle.name" @navigate="navigateTo" />
+
+          <p class="text-sm text-content-subtle">
+            <span class="font-medium text-content">{{ currentLevel?.plural_name ?? currentLevel?.name ?? rootLevel?.plural_name }}</span>
+          </p>
+
+          <!-- Search results replace the browser while a term is active. -->
+          <div v-if="searchResults" class="space-y-2" data-testid="search-results">
+            <button class="btn-secondary text-xs" data-testid="clear-search" @click="clearSearch">{{ t('common.clear') }}</button>
+            <p v-if="!searchResults.length" class="text-content-subtle text-sm">{{ t('common.noData') }}</p>
+            <ul v-else class="space-y-2">
+              <li v-for="node in searchResults" :key="node.id" class="rounded-lg border border-subtle p-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="badge badge-draft">{{ node.code }}</span>
+                  <span class="text-content font-medium">{{ node.name }}</span>
+                  <span class="text-xs text-content-subtle">{{ node.level_name }}</span>
+                </div>
+                <p class="text-xs text-content-subtle mt-1">
+                  {{ node.path.map(p => p.name).join(' / ') }}
+                </p>
+              </li>
+            </ul>
+          </div>
+
+          <template v-else>
+            <p v-if="!nodes.length" class="text-content-subtle text-sm" data-testid="no-nodes">{{ t('content.noNodes') }}</p>
+
+            <ul v-else class="space-y-2" data-testid="node-list">
+              <li
+                v-for="node in nodes"
+                :key="node.id"
+                class="rounded-lg border border-subtle p-3"
+                :class="{ 'opacity-60': node.status === 'archived' }"
+                :data-testid="`node-row-${node.code}`"
+              >
+                <div class="flex items-center gap-3 flex-wrap">
+                  <button
+                    class="min-w-0 flex-1 text-start"
+                    :data-testid="`open-node-${node.code}`"
+                    @click="drillInto(node)"
+                  >
+                    <span class="badge badge-draft me-2">{{ node.code }}</span>
+                    <span class="font-medium text-content">{{ node.name }}</span>
+                    <span v-if="node.children_count" class="text-xs text-content-subtle ms-2">
+                      {{ node.children_count }} {{ t('content.children') }}
+                    </span>
+                  </button>
+
+                  <div class="flex flex-wrap gap-1 justify-end">
+                    <span v-if="node.is_assignable" class="badge badge-approved">{{ t('content.assignable') }}</span>
+                    <span v-if="node.is_assessable" class="badge badge-approved">{{ t('content.assessable') }}</span>
+                    <span v-if="node.accepts_evidence" class="badge badge-approved">{{ t('content.evidence') }}</span>
+                    <span v-if="node.status === 'archived'" class="badge badge-rejected">{{ t('content.archived') }}</span>
                   </div>
-                </td>
-                <td>{{ std.requirements_count ?? 0 }}</td>
-                <td>{{ formatDate(std.due_date) }}</td>
-                <td>
-                  <RouterLink :to="`/standards/${std.id}`" class="btn-secondary btn-sm">{{ t('common.view') }}</RouterLink>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </template>
 
-    <!-- Add Standard Modal -->
-    <Teleport to="body">
-      <Transition name="modal">
-        <div v-if="showAddStandard" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.esc="showAddStandard = false">
-          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showAddStandard = false" />
-          <div class="relative card w-full max-w-2xl shadow-xl flex flex-col max-h-[90vh]">
-            <h3 class="text-lg font-semibold p-6 pb-3 border-b border-line shrink-0">{{ t('standards.new') }}</h3>
-            <form @submit.prevent="handleAddStandard" class="space-y-4 p-6 overflow-y-auto">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="label">{{ t('standards.number') }}</label>
-                  <input v-model="stdForm.standard_number" class="input" required />
+                  <div v-if="canManage" class="flex gap-1">
+                    <button class="btn-secondary text-xs" :data-testid="`edit-node-${node.code}`" @click="openEdit(node)">
+                      {{ t('content.editNode') }}
+                    </button>
+                    <button class="btn-secondary text-xs" :data-testid="`archive-node-${node.code}`" @click="archive(node)">
+                      {{ t('content.archiveNode') }}
+                    </button>
+                  </div>
+                  <RouterLink
+                    v-if="node.is_assignable"
+                    class="btn-secondary text-xs"
+                    :data-testid="`assign-node-${node.code}`"
+                    :to="`/programs/${programCode()}/assignments?requirement_id=${node.id}`"
+                  >{{ t('content.assign') }}</RouterLink>
                 </div>
-                <div>
-                  <label class="label">{{ t('standards.version') }}</label>
-                  <input v-model="stdForm.version" class="input" />
-                </div>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="label">{{ t('standards.perspective') }}</label>
-                  <input v-model="stdForm.perspective" class="input" dir="rtl" />
-                </div>
-                <div>
-                  <label class="label">{{ t('standards.axis') }}</label>
-                  <input v-model="stdForm.axis" class="input" dir="rtl" />
-                </div>
-              </div>
-              <div>
-                <label class="label">{{ t('standards.nameAr') }}</label>
-                <input v-model="stdForm.name_ar" class="input" required dir="rtl" />
-              </div>
-              <div>
-                <label class="label">{{ t('standards.nameEn') }}</label>
-                <input v-model="stdForm.name_en" class="input" dir="ltr" />
-              </div>
-              <div>
-                <label class="label">{{ t('standards.objective') }}</label>
-                <textarea v-model="stdForm.description" class="input" rows="2" dir="rtl" />
-              </div>
-              <div>
-                <label class="label">{{ t('standards.applicationRequirements') }}</label>
-                <textarea v-model="stdForm.application_requirements" class="input" rows="3" dir="rtl" />
-              </div>
-              <div>
-                <label class="label">{{ t('standards.evidenceDocuments') }}</label>
-                <textarea v-model="stdForm.evidence_documents" class="input" rows="3" dir="rtl" />
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="label">{{ t('standards.scope') }}</label>
-                  <input v-model="stdForm.scope" class="input" dir="rtl" />
-                </div>
-                <div>
-                  <label class="label">{{ t('standards.references') }}</label>
-                  <input v-model="stdForm.related_references" class="input" dir="rtl" />
-                </div>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="label">{{ t('standards.weight') }}</label>
-                  <input v-model="stdForm.weight" type="number" step="0.1" class="input" />
-                </div>
-                <div>
-                  <label class="label">{{ t('standards.dueDate') }}</label>
-                  <input v-model="stdForm.due_date" type="date" class="input" />
-                </div>
-              </div>
-              <!-- Departments -->
-              <div>
-                <label class="label">{{ t('standards.departments') }}</label>
-                <div class="max-h-40 overflow-y-auto rounded-lg border border-line p-2 space-y-1">
-                  <label v-for="d in departments" :key="d.id" class="flex items-center gap-2.5 rounded px-2 py-1.5 hover:bg-surface-inset cursor-pointer">
-                    <input type="checkbox" :value="d.id" v-model="stdForm.department_ids" class="h-4 w-4 rounded border-line text-primary-600" />
-                    <span class="text-sm text-content">{{ d.name_ar }}</span>
-                  </label>
-                  <p v-if="!departments.length" class="text-sm text-content-subtle py-3 text-center">{{ t('common.noData') }}</p>
-                </div>
-              </div>
-            </form>
-            <div class="flex justify-end gap-3 p-6 pt-3 border-t border-line shrink-0">
-              <button type="button" class="btn-secondary" @click="showAddStandard = false">{{ t('common.cancel') }}</button>
-              <button type="button" class="btn-primary" :disabled="saving" @click="handleAddStandard">{{ saving ? t('common.loading') : t('common.save') }}</button>
-            </div>
+              </li>
+            </ul>
+          </template>
+        </section>
+
+        <!-- Requirements import -->
+        <section v-if="canManage" class="card p-5 space-y-4" data-testid="import-panel">
+          <h2 class="font-bold text-content">{{ t('content.importTitle') }}</h2>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <a class="btn-secondary" :href="templateHref" data-testid="download-template">
+              {{ t('content.downloadTemplate') }}
+            </a>
+            <input type="file" accept=".xlsx" class="input" data-testid="import-file-input" @change="onFileChosen" />
+            <button class="btn-primary" :disabled="!importFile || validating" data-testid="validate-import" @click="validateImport">
+              {{ validating ? t('common.loading') : t('content.validate') }}
+            </button>
           </div>
-        </div>
-      </Transition>
-    </Teleport>
 
-    <!-- Import Standards (Excel) Modal -->
-    <Teleport to="body">
-      <Transition name="modal">
-        <div v-if="showImport" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.esc="closeImport">
-          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeImport" />
-          <div class="relative card w-full max-w-lg p-6 shadow-xl" role="dialog" aria-modal="true">
-            <h3 class="text-lg font-semibold mb-1">{{ t('standards.importExcel') }}</h3>
-            <p class="text-sm text-content-muted mb-4">{{ t('standards.importHint') }}</p>
-
-            <!-- Drop zone -->
-            <label
-              class="flex flex-col items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-line px-4 py-8 text-center cursor-pointer hover:border-brand hover:bg-surface-inset transition-colors"
-              @dragover.prevent="dragOver = true"
-              @dragleave.prevent="dragOver = false"
-              @drop.prevent="onDrop"
-              :class="dragOver ? 'border-brand bg-surface-inset' : ''"
-            >
-              <svg class="h-8 w-8 text-content-subtle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.9A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-              <span class="text-sm text-content">{{ importFile ? importFile.name : t('standards.dropFile') }}</span>
-              <span class="text-xs text-content-subtle">xlsx, xls, csv · {{ t('common.max') }} 5MB</span>
-              <input type="file" accept=".xlsx,.xls,.csv" class="hidden" @change="onFilePick" />
-            </label>
-
-            <!-- Result summary -->
-            <div v-if="importResult" class="mt-4 space-y-2 text-sm">
-              <div class="flex flex-wrap gap-4">
-                <span class="text-success-600 dark:text-success-400 font-medium">{{ t('standards.created') }}: {{ importResult.created }}</span>
-                <span class="text-info-600 dark:text-info-400 font-medium">{{ t('standards.updated') }}: {{ importResult.updated }}</span>
-                <span v-if="importResult.errors?.length" class="text-danger-600 dark:text-danger-400 font-medium">{{ t('common.errors') }}: {{ importResult.errors.length }}</span>
+          <div v-if="importPreview" class="rounded-lg border border-subtle p-4 space-y-3" data-testid="import-preview">
+            <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+              <div v-for="row in previewTiles" :key="row.label">
+                <dt class="text-xs text-content-subtle">{{ row.label }}</dt>
+                <dd class="font-semibold text-content">{{ row.value }}</dd>
               </div>
-              <ul v-if="importResult.errors?.length" class="max-h-40 overflow-y-auto rounded-lg bg-danger-50 dark:bg-danger-950/30 border border-danger-200 dark:border-danger-900 p-3 space-y-1">
-                <li v-for="(e, i) in importResult.errors" :key="i" class="text-xs text-danger-700 dark:text-danger-300">
-                  {{ t('common.row') }} {{ e.row }}: {{ e.message }}
+            </dl>
+
+            <div v-if="importPreview.by_level?.length">
+              <p class="text-sm font-semibold text-content mb-1">{{ t('content.newByLevel') }}</p>
+              <ul class="text-sm text-content-subtle space-y-0.5" data-testid="preview-by-level">
+                <li v-for="lvl in importPreview.by_level" :key="lvl.level_key">
+                  {{ lvl.level_name }}: <span class="text-content font-medium">{{ lvl.new }}</span>
+                  <span v-if="lvl.reused"> · {{ t('content.reused') }}: {{ lvl.reused }}</span>
                 </li>
               </ul>
             </div>
 
-            <div class="flex justify-end gap-3 pt-4">
-              <button type="button" class="btn-secondary" @click="closeImport">{{ t('common.close') }}</button>
-              <button type="button" class="btn-primary" :disabled="!importFile || importing" @click="handleImport">
-                {{ importing ? t('common.loading') : t('standards.runImport') }}
-              </button>
+            <div v-if="importPreview.error_count" class="rounded-lg bg-red-50 p-3 space-y-2" data-testid="import-errors">
+              <p class="text-sm font-semibold text-red-800">
+                {{ t('content.errors') }}: {{ importPreview.error_count }}
+              </p>
+              <ul class="list-disc list-inside text-sm text-red-700">
+                <li v-for="(err, i) in importPreview.errors.slice(0, 8)" :key="i">
+                  {{ err.row ? `#${err.row} ` : '' }}{{ err.column }} — {{ localeMessage(err) }}
+                </li>
+              </ul>
+              <a class="btn-secondary text-xs inline-block" :href="errorReportHref" data-testid="download-error-report">
+                {{ t('content.downloadErrors') }}
+              </a>
+              <p class="text-xs text-red-700">{{ t('content.cannotImport') }}</p>
+            </div>
+
+            <button
+              class="btn-primary"
+              :disabled="!importPreview.can_import || importing"
+              data-testid="confirm-import"
+              @click="confirmImport"
+            >{{ importing ? t('common.saving') : t('content.confirmImport') }}</button>
+          </div>
+        </section>
+      </template>
+    </template>
+
+    <!-- Dynamic node form: fields come from the target level's configuration -->
+    <Teleport to="body">
+      <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+        <div class="card w-full max-w-2xl p-5 space-y-3 my-8">
+          <h3 class="font-bold text-content">
+            {{ editing ? t('content.editNode') : t('content.addChild') }}
+            <span class="text-content-subtle font-normal">· {{ formLevel?.name }}</span>
+          </h3>
+
+          <div v-if="formLevel?.code_required">
+            <label class="label">{{ t('content.code') }}</label>
+            <input v-model="form.code" class="input" dir="ltr" data-testid="node-code-input" />
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="label">{{ t('content.nameAr') }}</label>
+              <input v-model="form.name_ar" class="input" dir="rtl" data-testid="node-name-ar-input" />
+            </div>
+            <div>
+              <label class="label">{{ t('content.nameEn') }}</label>
+              <input v-model="form.name_en" class="input" dir="ltr" data-testid="node-name-en-input" />
             </div>
           </div>
+
+          <div v-if="formLevel?.description_enabled">
+            <label class="label">{{ t('content.description') }}</label>
+            <textarea v-model="form.description_ar" class="input" rows="2" dir="rtl" data-testid="node-description-input"></textarea>
+          </div>
+          <div v-if="formLevel?.objective_enabled">
+            <label class="label">{{ t('content.objective') }}</label>
+            <textarea v-model="form.objective_ar" class="input" rows="2" dir="rtl" data-testid="node-objective-input"></textarea>
+          </div>
+          <div v-if="formLevel?.instructions_enabled">
+            <label class="label">{{ t('content.instructions') }}</label>
+            <textarea v-model="form.guidance_ar" class="input" rows="2" dir="rtl" data-testid="node-instructions-input"></textarea>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div v-if="formLevel?.weight_enabled">
+              <label class="label">{{ t('content.weight') }}</label>
+              <input v-model="form.weight" type="number" step="0.1" class="input" data-testid="node-weight-input" />
+            </div>
+            <div v-if="formLevel?.due_date_enabled">
+              <label class="label">{{ t('content.dueDate') }}</label>
+              <input v-model="form.due_date" type="date" class="input" data-testid="node-due-date-input" />
+            </div>
+          </div>
+
+          <p v-if="formError" class="text-sm text-red-700" data-testid="node-form-error">{{ formError }}</p>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button class="btn-secondary" @click="showForm = false">{{ t('common.cancel') }}</button>
+            <button class="btn-primary" :disabled="saving" data-testid="save-node-button" @click="saveNode">
+              {{ saving ? t('common.saving') : t('common.save') }}
+            </button>
+          </div>
         </div>
-      </Transition>
+      </div>
     </Teleport>
   </div>
 </template>
 
 <script setup>
+/**
+ * Cycle content authoring.
+ *
+ * This screen owns no model of its own. It reads the program's structure
+ * (levels, terminology, per-level field flags) and renders whatever that
+ * structure says — three levels for Sumoud, seven for a test program — with
+ * no program-specific branch anywhere. It replaced a version that authored
+ * legacy `Standard` rows with hard-coded Perspective/Axis inputs.
+ */
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useRoute, RouterLink } from 'vue-router'
+import HierarchyBreadcrumb from '@/components/hierarchy/HierarchyBreadcrumb.vue'
+import { cyclesService, structureService, hierarchyService, hierarchyImportService } from '@/services/index'
 import { useAppStore } from '@/stores/app'
-import { cyclesService, standardsService, departmentsService } from '@/services/index'
-import StatusBadge from '@/components/common/StatusBadge.vue'
-import SortableTh from '@/components/common/SortableTh.vue'
-import { useSort } from '@/composables/useSort'
 
-const { t } = useI18n()
-const route     = useRoute()
-const authStore = useAuthStore()
-const appStore  = useAppStore()
+const { t, locale } = useI18n()
+const route = useRoute()
+const appStore = useAppStore()
+const programCode = () => route.params.programCode
 
-const loading        = ref(true)
-const saving         = ref(false)
-const cycle          = ref(null)
-const standards      = ref([])
-const { sorted, sortKey, sortDir, sortBy } = useSort(standards)
-const departments    = ref([])
-const showAddStandard = ref(false)
+const loading = ref(true)
+const saving = ref(false)
+const cycle = ref(null)
+const levels = ref([])
+const canManage = ref(false)
+const structureVersion = ref(null)
+const trail = ref([])
+const nodes = ref([])
+const searchTerm = ref('')
+const searchResults = ref(null)
 
-const emptyStdForm = () => ({
-  standard_number: '', name_ar: '', name_en: '', version: '', weight: '', due_date: '',
-  perspective: '', axis: '', description: '', application_requirements: '',
-  evidence_documents: '', scope: '', related_references: '', department_ids: [],
+const showForm = ref(false)
+const editing = ref(null)
+const formLevel = ref(null)
+const formError = ref('')
+const blankForm = () => ({ code: '', name_ar: '', name_en: '', description_ar: '', objective_ar: '', guidance_ar: '', weight: '', due_date: '' })
+const form = ref(blankForm())
+
+const importFile = ref(null)
+const importPreview = ref(null)
+const validating = ref(false)
+const importing = ref(false)
+
+const rootLevel = computed(() => levels.value[0] ?? null)
+const currentParent = computed(() => trail.value.at(-1) ?? null)
+const currentLevel = computed(() =>
+  currentParent.value ? levels.value.find(l => l.key === currentParent.value.level_key) : null)
+
+/** The level a new child would occupy — one deeper than the current one. */
+const nextLevel = computed(() => {
+  if (!currentLevel.value) return rootLevel.value
+  const index = levels.value.findIndex(l => l.key === currentLevel.value.key)
+  return levels.value[index + 1] ?? null
 })
-const stdForm = ref(emptyStdForm())
 
-// Import state
-const showImport         = ref(false)
-const importFile         = ref(null)
-const importing          = ref(false)
-const importResult       = ref(null)
-const dragOver           = ref(false)
-const downloadingTemplate = ref(false)
+const templateHref = computed(() => hierarchyImportService.templateUrl(programCode()))
+const errorReportHref = computed(() =>
+  importPreview.value ? hierarchyImportService.errorReportUrl(programCode(), importPreview.value.import_log_id) : '#')
 
-const cycleReadOnly = computed(() => ['closed', 'archived'].includes(cycle.value?.status))
+const previewTiles = computed(() => {
+  const p = importPreview.value
+  if (!p) return []
+  return [
+    { label: t('content.totalRows'), value: p.summary.total_rows },
+    { label: t('content.validRows'), value: p.summary.valid_rows },
+    { label: t('content.errorRows'), value: p.summary.error_rows },
+    { label: t('content.structureVersion'), value: p.structure_version ?? '—' },
+  ]
+})
 
-function formatDate(d) {
-  if (!d) return '-'
-  return new Date(d).toLocaleDateString()
+const localeMessage = (err) => (locale.value === 'ar' ? err.message_ar : err.message_en) || err.code
+
+async function loadStructure() {
+  const data = await structureService.get(programCode())
+  levels.value = (data.definition?.levels ?? []).filter(l => l.is_active)
+  canManage.value = data.can_manage
+  structureVersion.value = data.structure_version
 }
 
-async function load() {
-  loading.value = true
-  try {
-    const id = route.params.id
-    cycle.value = await cyclesService.get(id)
-    const [, deptsRes] = await Promise.all([
-      refreshStandards(),
-      departmentsService.list().catch(() => ({ data: [] })),
-    ])
-    departments.value = deptsRes.data || deptsRes || []
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
-  } finally {
-    loading.value = false
+async function loadNodes() {
+  nodes.value = await hierarchyService.children(programCode(), currentParent.value?.id ?? null, cycle.value.id)
+}
+
+function drillInto(node) {
+  if (!node.children_count && !nextLevel.value) return
+  trail.value.push({ id: node.id, level_key: node.level_key, level_name: node.level_name, code: node.code, name: node.name })
+  loadNodes()
+}
+
+function navigateTo(crumb, index) {
+  trail.value = index < 0 ? [] : trail.value.slice(0, index + 1)
+  loadNodes()
+}
+
+async function runSearch() {
+  if (!searchTerm.value.trim()) return clearSearch()
+  searchResults.value = await hierarchyService.search(programCode(), searchTerm.value.trim(), cycle.value.id)
+}
+
+function clearSearch() {
+  searchTerm.value = ''
+  searchResults.value = null
+}
+
+function openCreate() {
+  formError.value = ''
+  editing.value = null
+  formLevel.value = nextLevel.value
+  form.value = blankForm()
+  showForm.value = true
+}
+
+function openEdit(node) {
+  formError.value = ''
+  editing.value = node
+  formLevel.value = levels.value.find(l => l.key === node.level_key) ?? null
+  form.value = {
+    code: node.code, name_ar: node.name_ar, name_en: node.name_en ?? '',
+    description_ar: node.description_ar ?? '', objective_ar: node.objective_ar ?? '',
+    guidance_ar: node.guidance_ar ?? '', weight: node.weight ?? '', due_date: node.default_due_date ?? '',
   }
+  showForm.value = true
 }
 
-async function refreshStandards() {
-  // High per_page so the cycle overview lists all its standards (catalog has 89).
-  const res = await standardsService.list(cycle.value.id, { per_page: 500 })
-  standards.value = res.data || res
-}
-
-async function handleAddStandard() {
+async function saveNode() {
   saving.value = true
+  formError.value = ''
   try {
-    await standardsService.create(cycle.value.id, stdForm.value)
+    if (editing.value) {
+      await hierarchyService.update(programCode(), editing.value.id, {
+        ...form.value, default_due_date: form.value.due_date || null,
+      })
+    } else {
+      await hierarchyService.create(programCode(), {
+        ...form.value,
+        node_type: formLevel.value.key,
+        parent_id: currentParent.value?.id ?? null,
+        cycle_id: cycle.value.id,
+      })
+    }
+    showForm.value = false
+    await loadNodes()
     appStore.showToast(t('common.success'), 'success')
-    showAddStandard.value = false
-    stdForm.value = emptyStdForm()
-    await refreshStandards()
-  } catch (err) {
-    appStore.showToast(err?.response?.data?.message || t('common.error'), 'error')
+  } catch (e) {
+    formError.value = e?.response?.data?.message ?? t('common.error')
   } finally {
     saving.value = false
   }
 }
 
-// ── Excel template / import ──────────────────────────────────────────────────
-async function downloadTemplate() {
-  downloadingTemplate.value = true
+async function archive(node) {
   try {
-    const blob = await standardsService.template(cycle.value.id)
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a')
-    a.href = url
-    a.download = 'standards-import-template.xlsx'
-    a.click()
-    URL.revokeObjectURL(url)
-  } catch {
-    appStore.showToast(t('common.error'), 'error')
-  } finally {
-    downloadingTemplate.value = false
+    await hierarchyService.archive(programCode(), node.id)
+    await loadNodes()
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message ?? t('common.error'), 'error')
   }
 }
 
-function openImport() {
-  importFile.value = null
-  importResult.value = null
-  showImport.value = true
+function onFileChosen(event) {
+  importFile.value = event.target.files?.[0] ?? null
+  importPreview.value = null
 }
 
-function closeImport() {
-  showImport.value = false
-}
-
-function onFilePick(e) {
-  importFile.value = e.target.files?.[0] || null
-  importResult.value = null
-}
-
-function onDrop(e) {
-  dragOver.value = false
-  importFile.value = e.dataTransfer.files?.[0] || null
-  importResult.value = null
-}
-
-async function handleImport() {
-  if (!importFile.value) return
-  importing.value = true
-  importResult.value = null
+async function validateImport() {
+  validating.value = true
   try {
-    const res = await standardsService.importExcel(cycle.value.id, importFile.value)
-    importResult.value = res.data
-    const { created, updated, errors } = res.data
-    appStore.showToast(
-      t('standards.importDone', { created, updated, errors: errors?.length || 0 }),
-      errors?.length ? 'warning' : 'success',
-    )
-    await refreshStandards()
-  } catch (err) {
-    appStore.showToast(err?.response?.data?.message || t('common.error'), 'error')
+    importPreview.value = await hierarchyImportService.preview(programCode(), importFile.value, cycle.value.id)
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message ?? t('common.error'), 'error')
+  } finally {
+    validating.value = false
+  }
+}
+
+async function confirmImport() {
+  importing.value = true
+  try {
+    await hierarchyImportService.confirm(programCode(), importPreview.value.import_log_id)
+    importPreview.value = null
+    importFile.value = null
+    appStore.showToast(t('content.importDone'), 'success')
+    await loadNodes()
+  } catch (e) {
+    appStore.showToast(e?.response?.data?.message ?? t('common.error'), 'error')
   } finally {
     importing.value = false
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  loading.value = true
+  try {
+    cycle.value = await cyclesService.get(programCode(), route.params.id)
+    await loadStructure()
+    if (levels.value.length) await loadNodes()
+  } finally {
+    loading.value = false
+  }
+})
 </script>
-
-<style scoped>
-.modal-enter-active, .modal-leave-active { transition: opacity 0.2s; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
-</style>

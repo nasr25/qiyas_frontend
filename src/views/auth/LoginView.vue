@@ -10,7 +10,7 @@
       <!-- Logo & Platform name -->
       <div class="text-center mb-8">
         <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 mb-4 overflow-hidden">
-          <img v-if="appStore.branding.logo_url" :src="appStore.branding.logo_url" class="h-full w-full object-contain" alt="logo" />
+          <img v-if="appStore.branding.logo_login_url || appStore.branding.logo_url" :src="appStore.branding.logo_login_url || appStore.branding.logo_url" class="h-full w-full object-contain" alt="logo" />
           <svg v-else class="h-9 w-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -46,6 +46,7 @@
               :placeholder="t('auth.username')"
               required
               :disabled="loading"
+              data-testid="login-username-input"
             />
           </div>
 
@@ -61,6 +62,7 @@
                 :placeholder="t('auth.password')"
                 required
                 :disabled="loading"
+                data-testid="login-password-input"
               />
               <button
                 type="button"
@@ -86,6 +88,7 @@
             type="submit"
             class="btn-primary w-full mt-2"
             :disabled="loading"
+            data-testid="login-submit-button"
           >
             <svg v-if="loading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -108,6 +111,7 @@
             type="button"
             class="btn-secondary btn-sm justify-start gap-2.5 !py-2"
             :disabled="quickLoading"
+            :data-testid="`quick-login-${u.username}`"
             @click="handleQuickLogin(u.username)"
           >
             <span class="text-base leading-none shrink-0">{{ roleIcon(u.role) }}</span>
@@ -154,13 +158,27 @@ const ROLE_META = {
 function roleIcon(role)  { return ROLE_META[role]?.icon || '👤' }
 function roleLabel(role) { return ROLE_META[role]?.label || role }
 
+/**
+ * `?redirect=` is attacker-supplied: it survives in a link a user can be
+ * sent. Only same-site absolute paths are followed. A protocol-relative
+ * value ("//evil.example") is the case worth naming — it reads as a path
+ * but browsers resolve it as another origin.
+ */
+function safeRedirect(value) {
+  if (typeof value !== 'string') return null
+  if (!value.startsWith('/')) return null
+  if (value.startsWith('//') || value.startsWith('/\\')) return null
+  return value
+}
+
+
 async function handleQuickLogin(username) {
   error.value = ''
   quickLoading.value = true
   try {
     await authStore.quickLogin(username)
-    const redirect = route.query.redirect
-    router.push(redirect ? String(redirect) : { name: 'dashboard' })
+    const redirect = safeRedirect(route.query.redirect)
+    router.push(redirect ?? { name: 'programs' })
   } catch (err) {
     error.value = err?.response?.data?.message || t('auth.loginFailed')
   } finally {
@@ -180,8 +198,8 @@ async function handleLogin() {
     if (authStore.mustChangePassword) {
       router.push({ name: 'change-password' })
     } else {
-      const redirect = route.query.redirect
-      router.push(redirect ? String(redirect) : { name: 'dashboard' })
+      const redirect = safeRedirect(route.query.redirect)
+      router.push(redirect ?? { name: 'programs' })
     }
   } catch (err) {
     error.value = err?.response?.data?.message || t('auth.loginFailed')

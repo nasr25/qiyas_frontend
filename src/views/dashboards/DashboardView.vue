@@ -200,6 +200,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
+import { useRoute } from 'vue-router'
 import { dashboardService } from '@/services/index'
 import { chartTheme, baseChartOptions } from '@/utils/chartTheme'
 import SortableTh from '@/components/common/SortableTh.vue'
@@ -279,9 +280,11 @@ async function renderChart() {
 // Re-render when the theme or language changes so colors/RTL stay in sync.
 watch(() => [appStore.theme, appStore.locale], () => nextTick(renderChart))
 
+const route = useRoute()
+
 onMounted(async () => {
   try {
-    data.value = await dashboardService.get()
+    data.value = await dashboardService.get(route.params.programCode)
   } catch (err) {
     appStore.showToast(t('common.error'), 'error')
   } finally {

@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+/* Self-hosted fonts (package: @fontsource/ibm-plex-sans-arabic,
+   @fontsource/ibm-plex-sans — SIL Open Font License 1.1) — replaces the
+   former fonts.googleapis.com runtime dependency so the application
+   never requires public internet access to render text. See
+   docs/offline-assets.md. */
+@import '@fontsource/ibm-plex-sans-arabic/300.css';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+@import '@fontsource/ibm-plex-sans/300.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
 
 @tailwind base;
 @tailwind components;

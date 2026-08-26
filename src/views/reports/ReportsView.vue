@@ -199,6 +199,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 import { reportsService, cyclesService } from '@/services/index'
 import StatusBadge from '@/components/common/StatusBadge.vue'
@@ -206,7 +207,9 @@ import SortableTh from '@/components/common/SortableTh.vue'
 import { useSort } from '@/composables/useSort'
 
 const { t } = useI18n()
+const route = useRoute()
 const appStore = useAppStore()
+const programCode = () => route.params.programCode || 'QIYAS'
 
 const loading      = ref(true)
 const cycles       = ref([])
@@ -280,7 +283,7 @@ function exportReport(format) {
 
 onMounted(async () => {
   try {
-    const res = await cyclesService.list()
+    const res = await cyclesService.list(programCode())
     cycles.value = res.data || res
     const active = cycles.value.find(c => c.status === 'active')
     if (active) selectedCycle.value = active.id

@@ -67,6 +67,20 @@ export const useAuthStore = defineStore('auth', () => {
     return user.value?.roles?.includes(role) ?? false
   }
 
+  /**
+   * Checks if the user has a program-scoped role (compliance_program_id +
+   * role_key) — distinct from the platform-wide spatie roles `hasRole()`
+   * checks. Required for any program besides Qiyas: a Sumoud Program
+   * Manager, for example, has no matching platform-wide spatie role at
+   * all, only a program_roles['SUMOUD'] entry. See
+   * docs/cross-program-role-resolution.md.
+   */
+  function hasProgramRole(programCode, roleKey) {
+    if (!programCode) return false
+    const roles = user.value?.program_roles?.[programCode]
+    return Array.isArray(roles) && roles.includes(roleKey)
+  }
+
   /** Checks if the user has a specific permission. */
   function hasPermission(permission) {
     return user.value?.permissions?.includes(permission) ?? false
@@ -77,6 +91,6 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated, isSuperAdmin, isQiyasAdmin, isAuditor,
     isCoordinator, isEmployee, isExecutive,
     mustChangePassword,
-    login, quickLogin, logout, fetchUser, hasRole, hasPermission,
+    login, quickLogin, logout, fetchUser, hasRole, hasPermission, hasProgramRole,
   }
 })
